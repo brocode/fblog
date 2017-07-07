@@ -9,6 +9,13 @@ extern crate clap;
 extern crate serde_json;
 extern crate ansi_term;
 
+#[cfg(test)]
+#[macro_use]
+extern crate maplit;
+
+#[cfg(test)]
+extern crate regex;
+
 mod log;
 
 fn main() {
