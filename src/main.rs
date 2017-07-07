@@ -53,7 +53,7 @@ fn get_string_value_or_default(value: &Value, keys: &[&str], default: &str) -> S
 fn print_log_line(value: &Value, additional_values: &[&str]) {
   let bold = Style::new().bold();
   let bold_grey = Colour::RGB(150, 150, 150).bold();
-  let level = get_string_value_or_default(value, &["level"], "unknown");
+  let level = get_string_value_or_default(value, &["level", "severity"], "unknown");
 
   let formatted_level = format!("{:>7.7}", level);
 
