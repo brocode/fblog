@@ -63,7 +63,7 @@ fn print_log_line(value: &Value, additional_values: &[&str]) {
     "error" => Colour::Red,
     "debug" => Colour::Blue,
     _ => Colour::Purple,
-  };
+  }.bold();
 
   let message = get_string_value_or_default(value, &["short_message", "msg"], "");
   let timestamp = get_string_value_or_default(value, &["timestamp", "time"], "");
@@ -77,7 +77,7 @@ fn print_log_line(value: &Value, additional_values: &[&str]) {
     if let Some(value) = get_string_value(value, &[additional_value]){
       let trimmed_additional_value = format!("@{:<10.10}", additional_value.to_string());
       let painted_value = bold_grey.paint(trimmed_additional_value);
-      println!("            {}: {}", painted_value, value);
+      println!("                {}   {}", painted_value, value);
     }
   }
 }
