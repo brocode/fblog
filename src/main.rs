@@ -22,7 +22,7 @@ fn main() {
   let reader = stdin.lock();
   for line in reader.lines() {
     let read_line = &line.expect("Should be able to read line");
-    match serde_json::from_str::<Value>(&read_line) {
+    match serde_json::from_str::<Value>(read_line) {
       Ok(Value::Object(log_entry)) => print_log_line(&log_entry, &additional_values, dump_all),
       _ => println!("??? > {}", read_line),
     };
@@ -50,7 +50,7 @@ fn app<'a>() -> App<'a, 'a> {
 fn get_string_value(value: &Map<String, Value>, keys: &[&str]) -> Option<String> {
   let maybe_match = keys.iter()
                         .fold(None::<&Value>, |maybe_match, key| {
-    maybe_match.or(value.get(*key))
+    maybe_match.or_else(|| value.get(*key))
   });
   match maybe_match {
     Some(&Value::String(ref level)) => Some(level.to_string()),
@@ -59,7 +59,7 @@ fn get_string_value(value: &Map<String, Value>, keys: &[&str]) -> Option<String>
 }
 
 fn get_string_value_or_default(value: &Map<String, Value>, keys: &[&str], default: &str) -> String {
-  get_string_value(value, keys).unwrap_or(default.to_string())
+  get_string_value(value, keys).unwrap_or_else(|| default.to_string())
 }
 
 fn level_to_style(level: &str) -> Style {
