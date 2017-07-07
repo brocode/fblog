@@ -25,7 +25,7 @@ fn main() {
   for line in reader.lines() {
     let read_line = &line.expect("Should be able to read line");
     match serde_json::from_str::<Value>(read_line) {
-      Ok(Value::Object(log_entry)) => log::print_log_line(&extract_string_values(&log_entry), &additional_values, dump_all),
+      Ok(Value::Object(log_entry)) => log::print_log_line(&mut io::stdout(), &extract_string_values(&log_entry), &additional_values, dump_all),
       _ => println!("??? > {}", read_line),
     };
   }

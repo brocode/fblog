@@ -1,7 +1,8 @@
 use ansi_term::{Colour, Style};
 use std::collections::BTreeMap;
+use std::io::Write;
 
-pub fn print_log_line(log_entry: &BTreeMap<String, String>, additional_values: &[String], dump_all: bool) {
+pub fn print_log_line(out: &mut Write, log_entry: &BTreeMap<String, String>, additional_values: &[String], dump_all: bool) {
   let bold = Style::new().bold();
 
   let level = get_string_value_or_default(log_entry, &["level", "severity"], "unknown");
@@ -14,15 +15,17 @@ pub fn print_log_line(log_entry: &BTreeMap<String, String>, additional_values: &
   let timestamp = get_string_value_or_default(log_entry, &["timestamp", "time"], "");
   let painted_timestamp = bold.paint(format!("{:>19.19}", timestamp));
 
-  println!("{} {} {}",
+  writeln!(out,
+           "{} {} {}",
            painted_timestamp,
            level_style.paint(formatted_level),
-           message);
+           message)
+    .expect("Expect to be able to write to out stream.");
   if dump_all {
     let all_values: Vec<String> = log_entry.keys().map(|k| k.to_owned()).collect();
-    write_additional_values(log_entry, all_values.as_slice());
+    write_additional_values(out, log_entry, all_values.as_slice());
   } else {
-    write_additional_values(log_entry, additional_values);
+    write_additional_values(out, log_entry, additional_values);
   }
 }
 
@@ -49,13 +52,13 @@ fn level_to_style(level: &str) -> Style {
 
 
 
-fn write_additional_values(log_entry: &BTreeMap<String, String>, additional_values: &[String]) {
+fn write_additional_values(out: &mut Write, log_entry: &BTreeMap<String, String>, additional_values: &[String]) {
   let bold_grey = Colour::RGB(150, 150, 150).bold();
   for additional_value in additional_values {
     if let Some(value) = get_string_value(log_entry, &[additional_value]) {
       let trimmed_additional_value = format!("{:>25.25}:", additional_value.to_string());
       let painted_value = bold_grey.paint(trimmed_additional_value);
-      println!("{} {}", painted_value, value);
+      writeln!(out, "{} {}", painted_value, value).expect("Expect to be able to write to out stream.");
     }
   }
 }
