@@ -59,7 +59,7 @@ fn app<'a>() -> App<'a, 'a> {
 fn extract_string_values(log_entry: &Map<String, Value>) -> BTreeMap<String, String> {
   let mut string_map: BTreeMap<String, String> = BTreeMap::new();
   for (key, value) in log_entry {
-    if let &Value::String(ref string_value) = value {
+    if let Value::String(ref string_value) = *value {
       string_map.insert(key.to_owned(), string_value.to_owned());
     }
   }
