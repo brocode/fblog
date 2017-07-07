@@ -7,3 +7,5 @@
   A small tool to view json log files. It currently matches my use-case
   and is not very configurable. It should be easy to add new
   command-line parameters and support different json formats.
+
+  [[file:demo.png]]
