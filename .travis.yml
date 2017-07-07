@@ -21,9 +21,6 @@ addons:
 script:
   - cargo build --verbose
   - cargo test --verbose
-  - mkdir -p smoke
-  - wget https://raw.githubusercontent.com/grml/grml-etc-core/master/etc/zsh/zshrc -O smoke/vanilla-grml-zshrc
-  - zsh -c "source smoke/vanilla-grml-zshrc && eval $(cargo run -- print-zsh-setup 2>/dev/null)"
 
 notifications:
   email:
