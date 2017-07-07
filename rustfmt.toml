@@ -1,0 +1,10 @@
+tab_spaces = 2
+max_width = 160
+use_try_shorthand = true
+report_todo = "Always"
+report_fixme = "Always"
+chain_indent = "Visual"
+reorder_imports = true
+reorder_imported_names = true
+format_strings = false
+indent_match_arms = true
