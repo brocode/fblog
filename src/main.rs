@@ -78,7 +78,7 @@ fn print_log_line(log_entry: &Map<String, Value>, additional_values: &[String], 
 
   let level = get_string_value_or_default(log_entry, &["level", "severity"], "unknown");
 
-  let formatted_level = format!("{:>7.7}:", level.to_uppercase());
+  let formatted_level = format!("{:>5.5}:", level.to_uppercase());
 
   let level_style = level_to_style(&level);
 
@@ -102,7 +102,7 @@ fn write_additional_values(log_entry: &Map<String, Value>, additional_values: &[
   let bold_grey = Colour::RGB(150, 150, 150).bold();
   for additional_value in additional_values {
     if let Some(value) = get_string_value(log_entry, &[additional_value]) {
-      let trimmed_additional_value = format!("{:>27.27}:", additional_value.to_string());
+      let trimmed_additional_value = format!("{:>25.25}:", additional_value.to_string());
       let painted_value = bold_grey.paint(trimmed_additional_value);
       println!("{} {}", painted_value, value);
     }
