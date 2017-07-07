@@ -6,6 +6,8 @@ license = "WTFPL"
 categories = ["command-line-utilities"]
 description = "json log viewer"
 keywords = ["json", "log", "viewer" ]
+repository = "https://github.com/brocode/fblog"
+readme = "README.org"
 
 [dependencies]
 serde_json = "1.0"
