@@ -76,7 +76,7 @@ fn print_log_line(value: &Value, additional_values: &[&str]) {
 
   let level_style = level_to_style(&level);
 
-  let message = get_string_value_or_default(value, &["short_message", "msg"], "");
+  let message = get_string_value_or_default(value, &["short_message", "msg", "message"], "");
   let timestamp = get_string_value_or_default(value, &["timestamp", "time"], "");
   let painted_timestamp = bold.paint(format!("{:>19.19}", timestamp));
 
