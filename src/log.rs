@@ -1,28 +1,6 @@
 use ansi_term::{Colour, Style};
 use std::collections::BTreeMap;
 
-fn get_string_value(value: &BTreeMap<String, String>, keys: &[&str]) -> Option<String> {
-  keys.iter()
-      .fold(None::<String>,
-            |maybe_match, key| maybe_match.or_else(|| value.get(*key).map(|k| k.to_owned())))
-}
-
-fn get_string_value_or_default(value: &BTreeMap<String, String>, keys: &[&str], default: &str) -> String {
-  get_string_value(value, keys).unwrap_or_else(|| default.to_string())
-}
-
-fn level_to_style(level: &str) -> Style {
-  match level.to_lowercase().as_ref() {
-    "info" => Colour::Green,
-    "warn" | "warning" => Colour::Yellow,
-    "error" | "err" => Colour::Red,
-    "debug" => Colour::Blue,
-    _ => Colour::Purple,
-  }
-  .bold()
-}
-
-
 pub fn print_log_line(log_entry: &BTreeMap<String, String>, additional_values: &[String], dump_all: bool) {
   let bold = Style::new().bold();
 
@@ -47,6 +25,29 @@ pub fn print_log_line(log_entry: &BTreeMap<String, String>, additional_values: &
     write_additional_values(log_entry, additional_values);
   }
 }
+
+fn get_string_value(value: &BTreeMap<String, String>, keys: &[&str]) -> Option<String> {
+  keys.iter()
+      .fold(None::<String>,
+            |maybe_match, key| maybe_match.or_else(|| value.get(*key).map(|k| k.to_owned())))
+}
+
+fn get_string_value_or_default(value: &BTreeMap<String, String>, keys: &[&str], default: &str) -> String {
+  get_string_value(value, keys).unwrap_or_else(|| default.to_string())
+}
+
+fn level_to_style(level: &str) -> Style {
+  match level.to_lowercase().as_ref() {
+    "info" => Colour::Green,
+    "warn" | "warning" => Colour::Yellow,
+    "error" | "err" => Colour::Red,
+    "debug" => Colour::Blue,
+    _ => Colour::Purple,
+  }
+  .bold()
+}
+
+
 
 fn write_additional_values(log_entry: &BTreeMap<String, String>, additional_values: &[String]) {
   let bold_grey = Colour::RGB(150, 150, 150).bold();
