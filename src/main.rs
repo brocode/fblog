@@ -1,7 +1,7 @@
 use ansi_term::{Colour, Style};
 use serde_json::Value;
 use std::io::{self, BufRead};
-use clap::{App, Arg};
+use clap::{App, Arg, AppSettings};
 
 #[macro_use]
 extern crate clap;
@@ -11,6 +11,7 @@ extern crate ansi_term;
 
 fn main() {
   let app = App::new("fblog")
+    .setting(AppSettings::ColoredHelp)
     .version(crate_version!())
     .author("Brocode inc <bros@brocode.sh>")
     .about("json log viewer")
