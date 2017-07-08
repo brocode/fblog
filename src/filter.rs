@@ -1,18 +1,36 @@
-use hlua::{Lua, LuaError};
+use hlua::{Lua, LuaError, AnyLuaValue};
 use std::collections::BTreeMap;
 
-pub fn show_log_entry(log_entry: &BTreeMap<String, String>, filter_expr: &str, implicit_return: bool) -> Result<bool, LuaError> {
-  let mut lua = Lua::new();
-  lua.openlibs();
 
-  for (key, value) in log_entry {
-    lua.set(key.to_owned(), value.to_owned());
+pub struct Filter<'filter> {
+  lua: Lua<'filter>
+}
+
+impl<'filter> Filter<'filter> {
+
+  pub fn new() -> Filter<'filter> {
+    let mut lua = Lua::new();
+    lua.openlibs();
+    Filter{ lua: lua }
   }
 
-  if implicit_return {
-    lua.execute(&format!("return {};", filter_expr))
-  } else {
-    lua.execute(filter_expr)
+  pub fn show_log_entry(&mut self, log_entry: &BTreeMap<String, String>, filter_expr: &str, implicit_return: bool) -> Result<bool, LuaError> {
+
+    for (key, value) in log_entry {
+      self.lua.set(key.to_owned(), value.to_owned());
+    }
+
+    let result: Result<bool, LuaError> = if implicit_return {
+      self.lua.execute(&format!("return {};", filter_expr))
+    } else {
+      self.lua.execute(filter_expr)
+    };
+
+    for key in log_entry.keys() {
+      self.lua.set(key.to_owned(), AnyLuaValue::LuaNil);
+    }
+
+    result
   }
 }
 
@@ -32,54 +50,62 @@ mod tests {
   #[test]
   fn allow_all() {
     let log_entry: BTreeMap<String, String> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, "true", true).unwrap());
+    let mut filter = Filter::new();
+    assert_eq!(true, filter.show_log_entry(&log_entry, "true", true).unwrap());
   }
 
   #[test]
   fn deny_all() {
     let log_entry: BTreeMap<String, String> = test_log_entry();
-    assert_eq!(false, show_log_entry(&log_entry, "false", true).unwrap());
+    let mut filter = Filter::new();
+    assert_eq!(false, filter.show_log_entry(&log_entry, "false", true).unwrap());
   }
 
   #[test]
   fn filter_process() {
     let log_entry: BTreeMap<String, String> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, r#"process == "rust""#, true).unwrap());
-    assert_eq!(false, show_log_entry(&log_entry, r#"process == "meep""#, true).unwrap());
+    let mut filter = Filter::new();
+    assert_eq!(true, filter.show_log_entry(&log_entry, r#"process == "rust""#, true).unwrap());
+    assert_eq!(false, filter.show_log_entry(&log_entry, r#"process == "meep""#, true).unwrap());
   }
 
   #[test]
   fn filter_logical_operators() {
     let log_entry: BTreeMap<String, String> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, r#"process == "rust" and fu == "bower""#, true).unwrap());
-    assert_eq!(true, show_log_entry(&log_entry, r#"process == "rust" or fu == "bauer""#, true).unwrap());
+    let mut filter = Filter::new();
+    assert_eq!(true, filter.show_log_entry(&log_entry, r#"process == "rust" and fu == "bower""#, true).unwrap());
+    assert_eq!(true, filter.show_log_entry(&log_entry, r#"process == "rust" or fu == "bauer""#, true).unwrap());
   }
 
   #[test]
   fn filter_contains() {
     let log_entry: BTreeMap<String, String> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, r#"string.find(message, "something") ~= nil"#, true).unwrap());
-    assert_eq!(false, show_log_entry(&log_entry, r#"string.find(message, "bla") ~= nil"#, true).unwrap());
+    let mut filter = Filter::new();
+    assert_eq!(true, filter.show_log_entry(&log_entry, r#"string.find(message, "something") ~= nil"#, true).unwrap());
+    assert_eq!(false, filter.show_log_entry(&log_entry, r#"string.find(message, "bla") ~= nil"#, true).unwrap());
   }
 
   #[test]
   fn filter_regex() {
     let log_entry: BTreeMap<String, String> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, r#"string.find(fu, "bow.*") ~= nil"#, true).unwrap());
-    assert_eq!(false, show_log_entry(&log_entry, r#"string.find(fu, "bow.*sd") ~= nil"#, true).unwrap());
+    let mut filter = Filter::new();
+    assert_eq!(true, filter.show_log_entry(&log_entry, r#"string.find(fu, "bow.*") ~= nil"#, true).unwrap());
+    assert_eq!(false, filter.show_log_entry(&log_entry, r#"string.find(fu, "bow.*sd") ~= nil"#, true).unwrap());
   }
 
   #[test]
   fn unknown_variable() {
     let log_entry: BTreeMap<String, String> = test_log_entry();
-    assert_eq!(false, show_log_entry(&log_entry, r#"sdkfjsdfjsf ~= nil and string.find(sdkfjsdfjsf, "bow.*") ~= nil"#, true).unwrap());
+    let mut filter = Filter::new();
+    assert_eq!(false, filter.show_log_entry(&log_entry, r#"sdkfjsdfjsf ~= nil and string.find(sdkfjsdfjsf, "bow.*") ~= nil"#, true).unwrap());
   }
 
   #[test]
   fn no_implicit_return() {
     let log_entry: BTreeMap<String, String> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, r#"if 3 > 2 then return true else return false end"#, false).unwrap());
-    assert_eq!(false, show_log_entry(&log_entry, r#"if 1 > 2 then return true else return false end"#, false).unwrap());
+    let mut filter = Filter::new();
+    assert_eq!(true, filter.show_log_entry(&log_entry, r#"if 3 > 2 then return true else return false end"#, false).unwrap());
+    assert_eq!(false, filter.show_log_entry(&log_entry, r#"if 1 > 2 then return true else return false end"#, false).unwrap());
   }
 
 }

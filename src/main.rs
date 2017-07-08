@@ -34,6 +34,8 @@ fn main() {
   let implicit_return = !matches.is_present("no-implicit-filter-return-statement");
   let maybe_filter = matches.value_of("filter");
 
+  let mut lua_filter = filter::Filter::new();
+
   let stdin = io::stdin();
   let reader = stdin.lock();
   for line in reader.lines() {
@@ -42,7 +44,7 @@ fn main() {
       Ok(Value::Object(log_entry)) => {
         let string_log_entry = &extract_string_values(&log_entry);
         if let Some(filter) = maybe_filter {
-          match filter::show_log_entry(string_log_entry, filter, implicit_return) {
+          match lua_filter.show_log_entry(string_log_entry, filter, implicit_return) {
             Ok(true) => log::print_log_line(&mut io::stdout(), string_log_entry, &additional_values, dump_all),
             Ok(false) => (),
             Err(e) => {
