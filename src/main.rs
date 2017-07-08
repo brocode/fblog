@@ -42,8 +42,8 @@ fn main() {
       Ok(Value::Object(log_entry)) => {
         let string_log_entry = &extract_string_values(&log_entry);
         if let Some(filter) = maybe_filter {
-          match filter::show_log_entry(&string_log_entry, filter, implicit_return) {
-            Ok(true) => log::print_log_line(&mut io::stdout(), &string_log_entry, &additional_values, dump_all),
+          match filter::show_log_entry(string_log_entry, filter, implicit_return) {
+            Ok(true) => log::print_log_line(&mut io::stdout(), string_log_entry, &additional_values, dump_all),
             Ok(false) => (),
             Err(e) => {
               writeln!(io::stderr(), "{}: '{:?}'", Colour::Red.paint("Failed to apply filter expression"), e).expect("Should be able to write to stderr");
@@ -51,7 +51,7 @@ fn main() {
             }
           }
         } else {
-          log::print_log_line(&mut io::stdout(), &string_log_entry, &additional_values, dump_all)
+          log::print_log_line(&mut io::stdout(), string_log_entry, &additional_values, dump_all)
         }
       },
       _ => println!("??? > {}", read_line),
