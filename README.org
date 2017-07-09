@@ -26,3 +26,8 @@
    ~fblog~ tries to detect the message, severity and timestamp of a log
    entry. This behavior can be customized. See ~--help~ for more
    information.
+
+** Installation
+   #+BEGIN_SRC bash
+   cargo install fw
+   #+END_SRC
