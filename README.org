@@ -4,8 +4,25 @@
   [[https://travis-ci.org/brocode/fblog][file:https://travis-ci.org/brocode/fblog.svg?branch=master]]
 
 
-  A small tool to view json log files. It currently matches my use-case
-  and is not very configurable. It should be easy to add new
-  command-line parameters and support different json formats.
+  A small tool to view json log files.
 
   [[file:demo.png]]
+
+
+** Filter
+   To filter log messages it is possible to use lua
+
+   #+BEGIN_SRC shell-script
+   fblog -f 'level ~= "info"' # will print all message where the level is not info
+   fblog -f 'process == "play"' # will print all message where the process is play
+   fblog -f 'string.find(fu, "bow.*") ~= nil' # will print all messages where fu starts with bow
+   fblog -f 'process == "play"' # will print all message where the process is play
+   fblog -f 'process == "rust" and fu == "bower"'
+   fblog --no-implicit-filter-return-statement -f 'if 3 > 2 then return true else return false end'
+   #+END_SRC
+
+
+** Customize
+   ~fblog~ tries to detect the message, severity and timestamp of a log
+   entry. This behavior can be customized. See ~--help~ for more
+   information.
