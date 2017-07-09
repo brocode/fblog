@@ -29,5 +29,5 @@
 
 ** Installation
    #+BEGIN_SRC bash
-   cargo install fw
+   cargo install fblog
    #+END_SRC
