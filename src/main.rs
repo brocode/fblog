@@ -26,11 +26,24 @@ mod filter;
 fn main() {
   let app = app();
   let matches = app.get_matches();
-  let additional_values: Vec<String> = matches.values_of("additional-value")
-                                              .map(|values| values.map(|v| v.to_owned()).collect())
-                                              .unwrap_or_default();
 
-  let dump_all = matches.is_present("dump-all");
+  let mut log_settings = log::LogSettings::new_default_settings();
+
+  if let Some(values) = matches.values_of("additional-value") {
+    log_settings.add_additional_values(values.map(|v| v.to_string()).collect());
+  }
+
+  if let Some(values) = matches.values_of("message-key") {
+    log_settings.add_message_keys(values.map(|v| v.to_string()).collect());
+  }
+  if let Some(values) = matches.values_of("time-key") {
+    log_settings.add_time_keys(values.map(|v| v.to_string()).collect());
+  }
+  if let Some(values) = matches.values_of("level-key") {
+    log_settings.add_level_keys(values.map(|v| v.to_string()).collect());
+  }
+
+  log_settings.dump_all = matches.is_present("dump-all");
   let implicit_return = !matches.is_present("no-implicit-filter-return-statement");
   let maybe_filter = matches.value_of("filter");
 
@@ -43,7 +56,7 @@ fn main() {
         let string_log_entry = &extract_string_values(&log_entry);
         if let Some(filter) = maybe_filter {
           match filter::show_log_entry(string_log_entry, filter, implicit_return) {
-            Ok(true) => log::print_log_line(&mut io::stdout(), string_log_entry, &additional_values, dump_all),
+            Ok(true) => log::print_log_line(&mut io::stdout(), string_log_entry, &log_settings),
             Ok(false) => (),
             Err(e) => {
               writeln!(io::stderr(), "{}: '{:?}'", Colour::Red.paint("Failed to apply filter expression"), e).expect("Should be able to write to stderr");
@@ -51,7 +64,7 @@ fn main() {
             }
           }
         } else {
-          log::print_log_line(&mut io::stdout(), string_log_entry, &additional_values, dump_all)
+          log::print_log_line(&mut io::stdout(), string_log_entry, &log_settings)
         }
       },
       _ => println!("??? > {}", read_line),
@@ -71,6 +84,24 @@ fn app<'a>() -> App<'a, 'a> {
            .multiple(true)
            .takes_value(true)
            .help("adds additional values"))
+    .arg(Arg::with_name("message-key")
+           .long("message-key")
+           .short("m")
+           .multiple(true)
+           .takes_value(true)
+           .help("Adds an additional key to detect the message in the log entry."))
+    .arg(Arg::with_name("time-key")
+           .long("time-key")
+           .short("t")
+           .multiple(true)
+           .takes_value(true)
+           .help("Adds an additional key to detect the time in the log entry."))
+    .arg(Arg::with_name("level-key")
+           .long("level-key")
+           .short("l")
+           .multiple(true)
+           .takes_value(true)
+           .help("Adds an additional key to detect the level in the log entry."))
     .arg(Arg::with_name("dump-all")
            .long("dump-all")
            .short("d")
