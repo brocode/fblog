@@ -26,6 +26,7 @@ mod filter;
 fn main() {
   let app = app();
   let matches = app.get_matches();
+  let bold_orange = Colour::RGB(255, 135, 22).bold();
 
   let mut log_settings = log::LogSettings::new_default_settings();
 
@@ -67,7 +68,7 @@ fn main() {
           log::print_log_line(&mut io::stdout(), string_log_entry, &log_settings)
         }
       },
-      _ => println!("??? > {}", read_line),
+      _ => println!("{} {}",bold_orange.paint("??? >"), read_line),
     };
   }
 }
