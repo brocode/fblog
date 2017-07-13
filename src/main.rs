@@ -75,7 +75,7 @@ fn main() {
 
 fn app<'a>() -> App<'a, 'a> {
   App::new("fblog")
-    .setting(AppSettings::ColoredHelp)
+    .global_setting(AppSettings::ColoredHelp)
     .version(crate_version!())
     .author("Brocode inc <bros@brocode.sh>")
     .about("json log viewer")
