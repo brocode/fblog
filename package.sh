@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x -e -o pipefail
 
-#cargo build --release
+cargo build --release
 name=fblog
 version=$(target/release/$name --version | cut -d ' ' -f 2)
 
