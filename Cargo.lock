@@ -1,6 +1,6 @@
 [root]
 name = "fblog"
-version = "0.3.3"
+version = "0.3.4-pre"
 dependencies = [
  "ansi_term 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.25.0 (registry+https://github.com/rust-lang/crates.io-index)",
