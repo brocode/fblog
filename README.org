@@ -31,3 +31,7 @@
    #+BEGIN_SRC bash
    cargo install fblog
    #+END_SRC
+
+   If you need a deb or rpm package have a look at [[https://github.com/brocode/fblog/releases][fw releases]]
+   
+   If you're lucky enought to be an arch linux user: [[https://aur.archlinux.org/packages/fblog/][AUR]]
