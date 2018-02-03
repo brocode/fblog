@@ -11,8 +11,8 @@ readme = "README.org"
 
 [dependencies]
 serde_json = "1.0"
-clap = "2.22"
-ansi_term = "0.9"
-maplit = "0.1"
+clap = "2"
+ansi_term = "0.10"
+maplit = "1"
 regex = "0.2"
-hlua = "0.3"
+hlua = "0.4"
