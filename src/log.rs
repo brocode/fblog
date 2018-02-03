@@ -200,8 +200,7 @@ mod tests {
 
     print_log_line(&mut out, &log_entry, &log_settings);
 
-    assert_eq!(out_to_string(out),
-               "               moep  HUGO: rust\n");
+    assert_eq!(out_to_string(out), "               moep  HUGO: rust\n");
 
   }
 }

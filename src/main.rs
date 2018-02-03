@@ -1,8 +1,9 @@
+
+use ansi_term::Colour;
 use clap::{App, AppSettings, Arg};
 use serde_json::{Map, Value};
 use std::collections::BTreeMap;
 use std::io::{self, BufRead};
-use ansi_term::Colour;
 use std::io::Write;
 
 #[macro_use]
@@ -60,15 +61,19 @@ fn main() {
             Ok(true) => log::print_log_line(&mut io::stdout(), string_log_entry, &log_settings),
             Ok(false) => (),
             Err(e) => {
-              writeln!(io::stderr(), "{}: '{:?}'", Colour::Red.paint("Failed to apply filter expression"), e).expect("Should be able to write to stderr");
+              writeln!(io::stderr(),
+                       "{}: '{:?}'",
+                       Colour::Red.paint("Failed to apply filter expression"),
+                       e)
+                .expect("Should be able to write to stderr");
               std::process::exit(1)
             }
           }
         } else {
           log::print_log_line(&mut io::stdout(), string_log_entry, &log_settings)
         }
-      },
-      _ => println!("{} {}",bold_orange.paint("??? >"), read_line),
+      }
+      _ => println!("{} {}", bold_orange.paint("??? >"), read_line),
     };
   }
 }
@@ -131,4 +136,3 @@ fn extract_string_values(log_entry: &Map<String, Value>) -> BTreeMap<String, Str
   }
   string_map
 }
-
