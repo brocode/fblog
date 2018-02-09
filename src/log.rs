@@ -2,7 +2,6 @@ use ansi_term::{Colour, Style};
 use std::collections::BTreeMap;
 use std::io::Write;
 
-
 pub struct LogSettings {
   pub message_keys: Vec<String>,
   pub time_keys: Vec<String>,
@@ -14,9 +13,11 @@ pub struct LogSettings {
 impl LogSettings {
   pub fn new_default_settings() -> LogSettings {
     LogSettings {
-      message_keys: vec!["short_message".to_string(),
-                         "msg".to_string(),
-                         "message".to_string()],
+      message_keys: vec![
+        "short_message".to_string(),
+        "msg".to_string(),
+        "message".to_string(),
+      ],
       time_keys: vec!["timestamp".to_string(), "time".to_string()],
       level_keys: vec!["level".to_string(), "severity".to_string()],
       additional_values: vec![],
@@ -57,12 +58,13 @@ pub fn print_log_line(out: &mut Write, log_entry: &BTreeMap<String, String>, log
   let timestamp = get_string_value_or_default(log_entry, &log_settings.time_keys, "");
   let painted_timestamp = bold.paint(format!("{:>19.19}", timestamp));
 
-  writeln!(out,
-           "{} {} {}",
-           painted_timestamp,
-           level_style.paint(formatted_level),
-           message)
-    .expect("Expect to be able to write to out stream.");
+  writeln!(
+    out,
+    "{} {} {}",
+    painted_timestamp,
+    level_style.paint(formatted_level),
+    message
+  ).expect("Expect to be able to write to out stream.");
   if log_settings.dump_all {
     let all_values: Vec<String> = log_entry.keys().map(|k| k.to_owned()).collect();
     write_additional_values(out, log_entry, &all_values);
@@ -72,9 +74,9 @@ pub fn print_log_line(out: &mut Write, log_entry: &BTreeMap<String, String>, log
 }
 
 fn get_string_value(value: &BTreeMap<String, String>, keys: &[String]) -> Option<String> {
-  keys.iter()
-      .fold(None::<String>,
-            |maybe_match, key| maybe_match.or_else(|| value.get(key).map(|k| k.to_owned())))
+  keys.iter().fold(None::<String>, |maybe_match, key| {
+    maybe_match.or_else(|| value.get(key).map(|k| k.to_owned()))
+  })
 }
 
 fn get_string_value_or_default(value: &BTreeMap<String, String>, keys: &[String], default: &str) -> String {
@@ -88,11 +90,8 @@ fn level_to_style(level: &str) -> Style {
     "error" | "err" => Colour::Red,
     "debug" => Colour::Blue,
     _ => Colour::Purple,
-  }
-  .bold()
+  }.bold()
 }
-
-
 
 fn write_additional_values(out: &mut Write, log_entry: &BTreeMap<String, String>, additional_values: &[String]) {
   let bold_grey = Colour::RGB(150, 150, 150).bold();
@@ -110,7 +109,6 @@ mod tests {
   use super::*;
   use regex::Regex;
 
-
   fn out_to_string(out: Vec<u8>) -> String {
     let regex = Regex::new("\u{001B}\\[[\\d;]*[^\\d;]").expect("Regex should be valid");
     let out_with_style = String::from_utf8_lossy(&out).into_owned();
@@ -125,62 +123,65 @@ mod tests {
     let log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap!{"message".to_string() => "something happend".to_string(),
-                                                        "time".to_string() => "2017-07-06T15:21:16".to_string(),
-                                                        "process".to_string() => "rust".to_string(),
-                                                        "level".to_string() => "info".to_string()};
+    "time".to_string() => "2017-07-06T15:21:16".to_string(),
+    "process".to_string() => "rust".to_string(),
+    "level".to_string() => "info".to_string()};
 
     print_log_line(&mut out, &log_entry, &log_settings);
 
-    assert_eq!(out_to_string(out),
-               "2017-07-06T15:21:16  INFO: something happend\n");
-
+    assert_eq!(
+      out_to_string(out),
+      "2017-07-06T15:21:16  INFO: something happend\n"
+    );
   }
 
   #[test]
   fn write_log_entry_with_additional_field() {
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap!{"message".to_string() => "something happend".to_string(),
-                                                        "time".to_string() => "2017-07-06T15:21:16".to_string(),
-                                                        "process".to_string() => "rust".to_string(),
-                                                        "fu".to_string() => "bower".to_string(),
-                                                        "level".to_string() => "info".to_string()};
+    "time".to_string() => "2017-07-06T15:21:16".to_string(),
+    "process".to_string() => "rust".to_string(),
+    "fu".to_string() => "bower".to_string(),
+    "level".to_string() => "info".to_string()};
     let mut log_settings = LogSettings::new_default_settings();
     log_settings.add_additional_values(vec!["process".to_string(), "fu".to_string()]);
 
     print_log_line(&mut out, &log_entry, &log_settings);
 
-    assert_eq!(out_to_string(out),
-               "\
+    assert_eq!(
+      out_to_string(out),
+      "\
 2017-07-06T15:21:16  INFO: something happend
                   process: rust
                        fu: bower
-");
+"
+    );
   }
 
   #[test]
   fn write_log_entry_dump_all() {
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap!{"message".to_string() => "something happend".to_string(),
-                                                        "time".to_string() => "2017-07-06T15:21:16".to_string(),
-                                                        "process".to_string() => "rust".to_string(),
-                                                        "fu".to_string() => "bower".to_string(),
-                                                        "level".to_string() => "info".to_string()};
+    "time".to_string() => "2017-07-06T15:21:16".to_string(),
+    "process".to_string() => "rust".to_string(),
+    "fu".to_string() => "bower".to_string(),
+    "level".to_string() => "info".to_string()};
 
     let mut log_settings = LogSettings::new_default_settings();
     log_settings.dump_all = true;
     print_log_line(&mut out, &log_entry, &log_settings);
 
-    assert_eq!(out_to_string(out),
-               "\
+    assert_eq!(
+      out_to_string(out),
+      "\
 2017-07-06T15:21:16  INFO: something happend
                        fu: bower
                     level: info
                   message: something happend
                   process: rust
                      time: 2017-07-06T15:21:16
-");
-
-
+"
+    );
   }
 
   #[test]
@@ -188,11 +189,11 @@ mod tests {
     let mut log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap!{"message".to_string() => "something happend".to_string(),
-                                                        "time".to_string() => "2017-07-06T15:21:16".to_string(),
-                                                        "process".to_string() => "rust".to_string(),
-                                                        "moep".to_string() => "moep".to_string(),
-                                                        "hugo".to_string() => "hugo".to_string(),
-                                                        "level".to_string() => "info".to_string()};
+    "time".to_string() => "2017-07-06T15:21:16".to_string(),
+    "process".to_string() => "rust".to_string(),
+    "moep".to_string() => "moep".to_string(),
+    "hugo".to_string() => "hugo".to_string(),
+    "level".to_string() => "info".to_string()};
 
     log_settings.add_message_keys(vec!["process".to_string()]);
     log_settings.add_time_keys(vec!["moep".to_string()]);
@@ -201,6 +202,5 @@ mod tests {
     print_log_line(&mut out, &log_entry, &log_settings);
 
     assert_eq!(out_to_string(out), "               moep  HUGO: rust\n");
-
   }
 }
