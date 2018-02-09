@@ -5,6 +5,7 @@ use serde_json::{Map, Value};
 use std::collections::BTreeMap;
 use std::io::{self, BufRead};
 use std::io::Write;
+use std::fs;
 
 #[macro_use]
 extern crate clap;
@@ -49,9 +50,17 @@ fn main() {
   let implicit_return = !matches.is_present("no-implicit-filter-return-statement");
   let maybe_filter = matches.value_of("filter");
 
-  let stdin = io::stdin();
-  let reader = stdin.lock();
-  for line in reader.lines() {
+  let input_filename = matches.value_of("INPUT").unwrap();
+  let input: Box<io::Read> = if input_filename == "-" {
+        Box::new(io::stdin())
+    } else {
+        Box::new(
+            fs::File::open(input_filename).expect(&format!("Can't open file: {}", input_filename)),
+        )
+    };
+let input = io::BufReader::new(input);
+  
+  for line in input.lines() {
     let read_line = &line.expect("Should be able to read line");
     match serde_json::from_str::<Value>(read_line) {
       Ok(Value::Object(log_entry)) => {
@@ -125,6 +134,11 @@ fn app<'a>() -> App<'a, 'a> {
            .multiple(false)
            .takes_value(false)
            .help("if you pass a filter expression 'return' is automatically prepended. Pass this switch to disable the implicit return."))
+        .arg(Arg::with_name("INPUT")
+          .help("Sets the input file to use, otherwise assumes stdin")
+          .required(false)
+          .default_value("-")
+          .index(1))
 }
 
 fn extract_string_values(log_entry: &Map<String, Value>) -> BTreeMap<String, String> {
