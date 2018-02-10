@@ -97,10 +97,10 @@ fn process_json_log_entry(log_settings: &LogSettings,
                           log_entry: &Map<String, Value>,
                           maybe_filter: Option<&str>,
                           implicit_return: bool) {
-  let string_log_entry = &extract_string_values(&log_entry);
+  let string_log_entry = &extract_string_values(log_entry);
   if let Some(filter) = maybe_filter {
     match filter::show_log_entry(string_log_entry, filter, implicit_return) {
-      Ok(true) => process_log_entry(&log_settings, inspect_logger, string_log_entry),
+      Ok(true) => process_log_entry(log_settings, inspect_logger, string_log_entry),
       Ok(false) => (),
       Err(e) => {
         writeln!(io::stderr(),
@@ -112,7 +112,7 @@ fn process_json_log_entry(log_settings: &LogSettings,
       }
     }
   } else {
-    process_log_entry(&log_settings, inspect_logger, string_log_entry)
+    process_log_entry(log_settings, inspect_logger, string_log_entry)
   }
 }
 
