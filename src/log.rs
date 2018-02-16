@@ -14,9 +14,11 @@ pub struct LogSettings {
 impl LogSettings {
   pub fn new_default_settings() -> LogSettings {
     LogSettings {
-      message_keys: vec!["short_message".to_string(),
-                         "msg".to_string(),
-                         "message".to_string()],
+      message_keys: vec![
+        "short_message".to_string(),
+        "msg".to_string(),
+        "message".to_string(),
+      ],
       time_keys: vec!["timestamp".to_string(), "time".to_string()],
       level_keys: vec!["level".to_string(), "severity".to_string()],
       additional_values: vec![],
@@ -58,12 +60,13 @@ pub fn print_log_line(out: &mut Write, log_entry: &BTreeMap<String, String>, log
   let timestamp = get_string_value_or_default(log_entry, &log_settings.time_keys, "");
   let painted_timestamp = bold.paint(format!("{:>19.19}", timestamp));
 
-  writeln!(out,
-           "{} {} {}",
-           painted_timestamp,
-           level_style.paint(formatted_level),
-           message)
-      .expect("Expect to be able to write to out stream.");
+  writeln!(
+    out,
+    "{} {} {}",
+    painted_timestamp,
+    level_style.paint(formatted_level),
+    message
+  ).expect("Expect to be able to write to out stream.");
   if log_settings.dump_all {
     let all_values: Vec<String> = log_entry.keys().map(|k| k.to_owned()).collect();
     write_additional_values(out, log_entry, &all_values);
@@ -73,10 +76,9 @@ pub fn print_log_line(out: &mut Write, log_entry: &BTreeMap<String, String>, log
 }
 
 fn get_string_value(value: &BTreeMap<String, String>, keys: &[String]) -> Option<String> {
-  keys
-    .iter()
-    .fold(None::<String>,
-          |maybe_match, key| maybe_match.or_else(|| value.get(key).map(|k| k.to_owned())))
+  keys.iter().fold(None::<String>, |maybe_match, key| {
+    maybe_match.or_else(|| value.get(key).map(|k| k.to_owned()))
+  })
 }
 
 fn get_string_value_or_default(value: &BTreeMap<String, String>, keys: &[String], default: &str) -> String {
@@ -85,13 +87,12 @@ fn get_string_value_or_default(value: &BTreeMap<String, String>, keys: &[String]
 
 fn level_to_style(level: &str) -> Style {
   match level.to_lowercase().as_ref() {
-      "info" => Colour::Green,
-      "warn" | "warning" => Colour::Yellow,
-      "error" | "err" => Colour::Red,
-      "debug" => Colour::Blue,
-      _ => Colour::Purple,
-    }
-    .bold()
+    "info" => Colour::Green,
+    "warn" | "warning" => Colour::Yellow,
+    "error" | "err" => Colour::Red,
+    "debug" => Colour::Blue,
+    _ => Colour::Purple,
+  }.bold()
 }
 
 fn write_additional_values(out: &mut Write, log_entry: &BTreeMap<String, String>, additional_values: &[String]) {
@@ -130,8 +131,10 @@ mod tests {
 
     print_log_line(&mut out, &log_entry, &log_settings);
 
-    assert_eq!(out_to_string(out),
-               "2017-07-06T15:21:16  INFO: something happend\n");
+    assert_eq!(
+      out_to_string(out),
+      "2017-07-06T15:21:16  INFO: something happend\n"
+    );
   }
 
   #[test]
@@ -147,12 +150,14 @@ mod tests {
 
     print_log_line(&mut out, &log_entry, &log_settings);
 
-    assert_eq!(out_to_string(out),
-               "\
+    assert_eq!(
+      out_to_string(out),
+      "\
 2017-07-06T15:21:16  INFO: something happend
                   process: rust
                        fu: bower
-");
+"
+    );
   }
 
   #[test]
@@ -168,15 +173,17 @@ mod tests {
     log_settings.dump_all = true;
     print_log_line(&mut out, &log_entry, &log_settings);
 
-    assert_eq!(out_to_string(out),
-               "\
+    assert_eq!(
+      out_to_string(out),
+      "\
 2017-07-06T15:21:16  INFO: something happend
                        fu: bower
                     level: info
                   message: something happend
                   process: rust
                      time: 2017-07-06T15:21:16
-");
+"
+    );
   }
 
   #[test]

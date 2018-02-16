@@ -76,13 +76,13 @@ fn process_input(log_settings: &LogSettings, input: &mut io::BufRead, maybe_filt
   for line in input.lines() {
     let read_line = &line.expect("Should be able to read line");
     match serde_json::from_str::<Value>(read_line) {
-      Ok(Value::Object(log_entry)) => {
-        process_json_log_entry(log_settings,
-                               &mut inspect_logger,
-                               &log_entry,
-                               maybe_filter,
-                               implicit_return)
-      }
+      Ok(Value::Object(log_entry)) => process_json_log_entry(
+        log_settings,
+        &mut inspect_logger,
+        &log_entry,
+        maybe_filter,
+        implicit_return,
+      ),
       _ => {
         if !log_settings.inspect {
           println!("{} {}", bold_orange.paint("??? >"), read_line)
@@ -92,22 +92,25 @@ fn process_input(log_settings: &LogSettings, input: &mut io::BufRead, maybe_filt
   }
 }
 
-fn process_json_log_entry(log_settings: &LogSettings,
-                          inspect_logger: &mut InspectLogger,
-                          log_entry: &Map<String, Value>,
-                          maybe_filter: Option<&str>,
-                          implicit_return: bool) {
+fn process_json_log_entry(
+  log_settings: &LogSettings,
+  inspect_logger: &mut InspectLogger,
+  log_entry: &Map<String, Value>,
+  maybe_filter: Option<&str>,
+  implicit_return: bool,
+) {
   let string_log_entry = &extract_string_values(log_entry);
   if let Some(filter) = maybe_filter {
     match filter::show_log_entry(string_log_entry, filter, implicit_return) {
       Ok(true) => process_log_entry(log_settings, inspect_logger, string_log_entry),
       Ok(false) => (),
       Err(e) => {
-        writeln!(io::stderr(),
-                 "{}: '{:?}'",
-                 Colour::Red.paint("Failed to apply filter expression"),
-                 e)
-            .expect("Should be able to write to stderr");
+        writeln!(
+          io::stderr(),
+          "{}: '{:?}'",
+          Colour::Red.paint("Failed to apply filter expression"),
+          e
+        ).expect("Should be able to write to stderr");
         std::process::exit(1)
       }
     }
@@ -130,61 +133,79 @@ fn app<'a>() -> App<'a, 'a> {
     .version(crate_version!())
     .author("Brocode inc <bros@brocode.sh>")
     .about("json log viewer")
-    .arg(Arg::with_name("additional-value")
-           .long("additional-value")
-           .short("a")
-           .multiple(true)
-           .number_of_values(1)
-           .takes_value(true)
-           .help("adds additional values"))
-    .arg(Arg::with_name("message-key")
-           .long("message-key")
-           .short("m")
-           .multiple(true)
-           .number_of_values(1)
-           .takes_value(true)
-           .help("Adds an additional key to detect the message in the log entry."))
-    .arg(Arg::with_name("time-key")
-           .long("time-key")
-           .short("t")
-           .multiple(true)
-           .number_of_values(1)
-           .takes_value(true)
-           .help("Adds an additional key to detect the time in the log entry."))
-    .arg(Arg::with_name("level-key")
-           .long("level-key")
-           .short("l")
-           .multiple(true)
-           .number_of_values(1)
-           .takes_value(true)
-           .help("Adds an additional key to detect the level in the log entry."))
-    .arg(Arg::with_name("dump-all")
-           .long("dump-all")
-           .short("d")
-           .multiple(false)
-           .takes_value(false)
-           .help("dumps all values"))
-    .arg(Arg::with_name("filter")
-           .long("filter")
-           .short("f")
-           .multiple(false)
-           .takes_value(true)
-           .help("lua expression to filter log entries. `message ~= nil and string.find(message, \"text.*\") ~= nil`"))
-    .arg(Arg::with_name("no-implicit-filter-return-statement")
-           .long("no-implicit-filter-return-statement")
-           .multiple(false)
-           .takes_value(false)
-           .help("if you pass a filter expression 'return' is automatically prepended. Pass this switch to disable the implicit return."))
-    .arg(Arg::with_name("INPUT")
-           .help("Sets the input file to use, otherwise assumes stdin")
-           .required(false)
-           .default_value("-"))
-    .arg(Arg::with_name("inspect")
-           .long("inspect")
-           .short("i")
-           .multiple(false)
-           .takes_value(false)
-           .help("only prints json keys not encountered before"))
+    .arg(
+      Arg::with_name("additional-value")
+        .long("additional-value")
+        .short("a")
+        .multiple(true)
+        .number_of_values(1)
+        .takes_value(true)
+        .help("adds additional values"),
+    )
+    .arg(
+      Arg::with_name("message-key")
+        .long("message-key")
+        .short("m")
+        .multiple(true)
+        .number_of_values(1)
+        .takes_value(true)
+        .help("Adds an additional key to detect the message in the log entry."),
+    )
+    .arg(
+      Arg::with_name("time-key")
+        .long("time-key")
+        .short("t")
+        .multiple(true)
+        .number_of_values(1)
+        .takes_value(true)
+        .help("Adds an additional key to detect the time in the log entry."),
+    )
+    .arg(
+      Arg::with_name("level-key")
+        .long("level-key")
+        .short("l")
+        .multiple(true)
+        .number_of_values(1)
+        .takes_value(true)
+        .help("Adds an additional key to detect the level in the log entry."),
+    )
+    .arg(
+      Arg::with_name("dump-all")
+        .long("dump-all")
+        .short("d")
+        .multiple(false)
+        .takes_value(false)
+        .help("dumps all values"),
+    )
+    .arg(
+      Arg::with_name("filter")
+        .long("filter")
+        .short("f")
+        .multiple(false)
+        .takes_value(true)
+        .help("lua expression to filter log entries. `message ~= nil and string.find(message, \"text.*\") ~= nil`"),
+    )
+    .arg(
+      Arg::with_name("no-implicit-filter-return-statement")
+        .long("no-implicit-filter-return-statement")
+        .multiple(false)
+        .takes_value(false)
+        .help("if you pass a filter expression 'return' is automatically prepended. Pass this switch to disable the implicit return."),
+    )
+    .arg(
+      Arg::with_name("INPUT")
+        .help("Sets the input file to use, otherwise assumes stdin")
+        .required(false)
+        .default_value("-"),
+    )
+    .arg(
+      Arg::with_name("inspect")
+        .long("inspect")
+        .short("i")
+        .multiple(false)
+        .takes_value(false)
+        .help("only prints json keys not encountered before"),
+    )
 }
 
 fn extract_string_values(log_entry: &Map<String, Value>) -> BTreeMap<String, String> {

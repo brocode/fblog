@@ -8,7 +8,9 @@ pub struct InspectLogger {
 
 impl InspectLogger {
   pub fn new() -> InspectLogger {
-    InspectLogger { keys: HashSet::new() }
+    InspectLogger {
+      keys: HashSet::new(),
+    }
   }
 
   pub fn print_unknown_keys(&mut self, log_entry: &BTreeMap<String, String>, write: &mut Write) {
