@@ -1,4 +1,4 @@
-[[./logo/fblog.png]]
+[[./logo/fblog_small.png]]
 
 * fblog
 
