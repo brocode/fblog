@@ -2,7 +2,7 @@
 set -x -e -o pipefail
 
 rm -rf target
-docker run --rm -it -v "$(pwd)":/home/rust/src ekidd/rust-musl-builder:1.23.0 cargo build --release
+docker run --rm -it -v "$(pwd)":/home/rust/src ekidd/rust-musl-builder:1.24.0 cargo build --release
 name=fblog
 target_dir="target/x86_64-unknown-linux-musl/release"
 
