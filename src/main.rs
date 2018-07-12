@@ -66,7 +66,7 @@ fn input_read(input_filename: &str) -> Box<io::Read> {
   if input_filename == "-" {
     Box::new(io::stdin())
   } else {
-    Box::new(fs::File::open(input_filename).expect(&format!("Can't open file: {}", input_filename)))
+    Box::new(fs::File::open(input_filename).unwrap_or_else(|_| panic!("Can't open file: {}", input_filename)))
   }
 }
 
