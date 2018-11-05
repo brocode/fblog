@@ -27,6 +27,7 @@ impl InspectLogger {
 mod tests {
   use super::*;
   use regex::Regex;
+  use maplit::btreemap;
 
   fn out_to_string(out: Vec<u8>) -> String {
     let regex = Regex::new("\u{001B}\\[[\\d;]*[^\\d;]").expect("Regex should be valid");

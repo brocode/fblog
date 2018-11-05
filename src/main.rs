@@ -6,7 +6,6 @@ use std::fs;
 use std::io::{self, BufRead};
 use std::io::Write;
 
-#[macro_use]
 extern crate clap;
 
 extern crate ansi_term;
@@ -15,11 +14,12 @@ extern crate serde_json;
 extern crate hlua;
 
 #[cfg(test)]
-#[macro_use]
 extern crate maplit;
 
 #[cfg(test)]
 extern crate regex;
+
+use clap::crate_version;
 
 mod log;
 mod filter;

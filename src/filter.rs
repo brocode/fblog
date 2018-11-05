@@ -20,6 +20,8 @@ pub fn show_log_entry(log_entry: &BTreeMap<String, String>, filter_expr: &str, i
 mod tests {
   use super::*;
 
+  use maplit::btreemap;
+
   fn test_log_entry() -> BTreeMap<String, String> {
     btreemap!{"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
