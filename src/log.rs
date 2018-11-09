@@ -16,8 +16,8 @@ impl LogSettings {
   pub fn new_default_settings() -> LogSettings {
     LogSettings {
       message_keys: vec![
-        "short_message".to_string(), 
-        "msg".to_string(), 
+        "short_message".to_string(),
+        "msg".to_string(),
         "message".to_string()
       ],
       time_keys: vec!["timestamp".to_string(), "time".to_string()],
@@ -193,8 +193,7 @@ mod tests {
     assert_eq!(
       out_to_string(out),
       "\
-2017-07-06T15:21:16  INFO: something happend
-                   prefix: abc
+2017-07-06T15:21:16  INFO: abc something happend
                   process: rust
                        fu: bower
 "
