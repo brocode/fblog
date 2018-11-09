@@ -9,21 +9,23 @@ pub struct LogSettings {
   pub additional_values: Vec<String>,
   pub dump_all: bool,
   pub inspect: bool,
+  pub with_prefix: bool,
 }
 
 impl LogSettings {
   pub fn new_default_settings() -> LogSettings {
     LogSettings {
       message_keys: vec![
-        "short_message".to_string(),
-        "msg".to_string(),
-        "message".to_string(),
+        "short_message".to_string(), 
+        "msg".to_string(), 
+        "message".to_string()
       ],
       time_keys: vec!["timestamp".to_string(), "time".to_string()],
       level_keys: vec!["level".to_string(), "severity".to_string()],
       additional_values: vec![],
       dump_all: false,
       inspect: false,
+      with_prefix: false,
     }
   }
 
@@ -47,7 +49,7 @@ impl LogSettings {
   }
 }
 
-pub fn print_log_line(out: &mut Write, log_entry: &BTreeMap<String, String>, log_settings: &LogSettings) {
+pub fn print_log_line(out: &mut Write, maybe_prefix: Option<&str>, log_entry: &BTreeMap<String, String>, log_settings: &LogSettings) {
   let bold = Style::new().bold();
 
   let level = get_string_value_or_default(log_entry, &log_settings.level_keys, "unknown");
@@ -55,16 +57,18 @@ pub fn print_log_line(out: &mut Write, log_entry: &BTreeMap<String, String>, log
   let formatted_level = format!("{:>5.5}:", level.to_uppercase());
 
   let level_style = level_to_style(&level);
-
+  let prefix_color = Colour::RGB(138, 43, 226).bold();
+  let formated_prefix = maybe_prefix.map(|p| format!(" {}", prefix_color.paint(p))).unwrap_or("".to_owned());
   let message = get_string_value_or_default(log_entry, &log_settings.message_keys, "");
   let timestamp = get_string_value_or_default(log_entry, &log_settings.time_keys, "");
   let painted_timestamp = bold.paint(format!("{:>19.19}", timestamp));
 
   writeln!(
     out,
-    "{} {} {}",
+    "{} {}{} {}",
     painted_timestamp,
     level_style.paint(formatted_level),
+    formated_prefix,
     message
   ).expect("Expect to be able to write to out stream.");
   if log_settings.dump_all {
@@ -76,9 +80,9 @@ pub fn print_log_line(out: &mut Write, log_entry: &BTreeMap<String, String>, log
 }
 
 fn get_string_value(value: &BTreeMap<String, String>, keys: &[String]) -> Option<String> {
-  keys.iter().fold(None::<String>, |maybe_match, key| {
-    maybe_match.or_else(|| value.get(key).map(|k| k.to_owned()))
-  })
+  keys
+    .iter()
+    .fold(None::<String>, |maybe_match, key| maybe_match.or_else(|| value.get(key).map(|k| k.to_owned())))
 }
 
 fn get_string_value_or_default(value: &BTreeMap<String, String>, keys: &[String], default: &str) -> String {
@@ -97,6 +101,7 @@ fn level_to_style(level: &str) -> Style {
 
 fn write_additional_values(out: &mut Write, log_entry: &BTreeMap<String, String>, additional_values: &[String]) {
   let bold_grey = Colour::RGB(150, 150, 150).bold();
+
   for additional_value in additional_values {
     if let Some(value) = get_string_value(log_entry, &[additional_value.to_string()]) {
       let trimmed_additional_value = format!("{:>25.25}:", additional_value.to_string());
@@ -130,12 +135,23 @@ mod tests {
     "process".to_string() => "rust".to_string(),
     "level".to_string() => "info".to_string()};
 
-    print_log_line(&mut out, &log_entry, &log_settings);
+    print_log_line(&mut out, None, &log_entry, &log_settings);
 
-    assert_eq!(
-      out_to_string(out),
-      "2017-07-06T15:21:16  INFO: something happend\n"
-    );
+    assert_eq!(out_to_string(out), "2017-07-06T15:21:16  INFO: something happend\n");
+  }
+  #[test]
+  fn write_log_entry_with_prefix() {
+    let log_settings = LogSettings::new_default_settings();
+    let mut out: Vec<u8> = Vec::new();
+    let prefix = "abc";
+    let log_entry: BTreeMap<String, String> = btreemap!{"message".to_string() => "something happend".to_string(),
+    "time".to_string() => "2017-07-06T15:21:16".to_string(),
+    "process".to_string() => "rust".to_string(),
+    "level".to_string() => "info".to_string()};
+
+    print_log_line(&mut out, Some(prefix), &log_entry, &log_settings);
+
+    assert_eq!(out_to_string(out), "2017-07-06T15:21:16  INFO: abc something happend\n");
   }
 
   #[test]
@@ -149,12 +165,36 @@ mod tests {
     let mut log_settings = LogSettings::new_default_settings();
     log_settings.add_additional_values(vec!["process".to_string(), "fu".to_string()]);
 
-    print_log_line(&mut out, &log_entry, &log_settings);
+    print_log_line(&mut out, None, &log_entry, &log_settings);
 
     assert_eq!(
       out_to_string(out),
       "\
 2017-07-06T15:21:16  INFO: something happend
+                  process: rust
+                       fu: bower
+"
+    );
+  }
+  #[test]
+  fn write_log_entry_with_additional_field_and_prefix() {
+    let mut out: Vec<u8> = Vec::new();
+    let log_entry: BTreeMap<String, String> = btreemap!{"message".to_string() => "something happend".to_string(),
+    "time".to_string() => "2017-07-06T15:21:16".to_string(),
+    "process".to_string() => "rust".to_string(),
+    "fu".to_string() => "bower".to_string(),
+    "level".to_string() => "info".to_string()};
+    let prefix = "abc";
+    let mut log_settings = LogSettings::new_default_settings();
+    log_settings.add_additional_values(vec!["process".to_string(), "fu".to_string()]);
+
+    print_log_line(&mut out, Some(prefix), &log_entry, &log_settings);
+
+    assert_eq!(
+      out_to_string(out),
+      "\
+2017-07-06T15:21:16  INFO: something happend
+                   prefix: abc
                   process: rust
                        fu: bower
 "
@@ -172,7 +212,7 @@ mod tests {
 
     let mut log_settings = LogSettings::new_default_settings();
     log_settings.dump_all = true;
-    print_log_line(&mut out, &log_entry, &log_settings);
+    print_log_line(&mut out, None, &log_entry, &log_settings);
 
     assert_eq!(
       out_to_string(out),
@@ -202,7 +242,7 @@ mod tests {
     log_settings.add_time_keys(vec!["moep".to_string()]);
     log_settings.add_level_keys(vec!["hugo".to_string()]);
 
-    print_log_line(&mut out, &log_entry, &log_settings);
+    print_log_line(&mut out, None, &log_entry, &log_settings);
 
     assert_eq!(out_to_string(out), "               moep  HUGO: rust\n");
   }
