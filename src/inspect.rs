@@ -8,9 +8,7 @@ pub struct InspectLogger {
 
 impl InspectLogger {
   pub fn new() -> InspectLogger {
-    InspectLogger {
-      keys: HashSet::new(),
-    }
+    InspectLogger { keys: HashSet::new() }
   }
 
   pub fn print_unknown_keys(&mut self, log_entry: &BTreeMap<String, String>, write: &mut Write) {
@@ -26,8 +24,8 @@ impl InspectLogger {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use regex::Regex;
   use maplit::btreemap;
+  use regex::Regex;
 
   fn out_to_string(out: Vec<u8>) -> String {
     let regex = Regex::new("\u{001B}\\[[\\d;]*[^\\d;]").expect("Regex should be valid");

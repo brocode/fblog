@@ -15,11 +15,7 @@ pub struct LogSettings {
 impl LogSettings {
   pub fn new_default_settings() -> LogSettings {
     LogSettings {
-      message_keys: vec![
-        "short_message".to_string(),
-        "msg".to_string(),
-        "message".to_string()
-      ],
+      message_keys: vec!["short_message".to_string(), "msg".to_string(), "message".to_string()],
       time_keys: vec!["timestamp".to_string(), "time".to_string()],
       level_keys: vec!["level".to_string(), "severity".to_string()],
       additional_values: vec![],
@@ -114,8 +110,8 @@ fn write_additional_values(out: &mut Write, log_entry: &BTreeMap<String, String>
 #[cfg(test)]
 mod tests {
   use super::*;
-  use regex::Regex;
   use maplit::btreemap;
+  use regex::Regex;
 
   fn out_to_string(out: Vec<u8>) -> String {
     let regex = Regex::new("\u{001B}\\[[\\d;]*[^\\d;]").expect("Regex should be valid");

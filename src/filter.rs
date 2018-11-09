@@ -45,57 +45,29 @@ mod tests {
   #[test]
   fn filter_process() {
     let log_entry: BTreeMap<String, String> = test_log_entry();
-    assert_eq!(
-      true,
-      show_log_entry(&log_entry, r#"process == "rust""#, true).unwrap()
-    );
-    assert_eq!(
-      false,
-      show_log_entry(&log_entry, r#"process == "meep""#, true).unwrap()
-    );
+    assert_eq!(true, show_log_entry(&log_entry, r#"process == "rust""#, true).unwrap());
+    assert_eq!(false, show_log_entry(&log_entry, r#"process == "meep""#, true).unwrap());
   }
 
   #[test]
   fn filter_logical_operators() {
     let log_entry: BTreeMap<String, String> = test_log_entry();
-    assert_eq!(
-      true,
-      show_log_entry(&log_entry, r#"process == "rust" and fu == "bower""#, true).unwrap()
-    );
-    assert_eq!(
-      true,
-      show_log_entry(&log_entry, r#"process == "rust" or fu == "bauer""#, true).unwrap()
-    );
+    assert_eq!(true, show_log_entry(&log_entry, r#"process == "rust" and fu == "bower""#, true).unwrap());
+    assert_eq!(true, show_log_entry(&log_entry, r#"process == "rust" or fu == "bauer""#, true).unwrap());
   }
 
   #[test]
   fn filter_contains() {
     let log_entry: BTreeMap<String, String> = test_log_entry();
-    assert_eq!(
-      true,
-      show_log_entry(
-        &log_entry,
-        r#"string.find(message, "something") ~= nil"#,
-        true
-      ).unwrap()
-    );
-    assert_eq!(
-      false,
-      show_log_entry(&log_entry, r#"string.find(message, "bla") ~= nil"#, true).unwrap()
-    );
+    assert_eq!(true, show_log_entry(&log_entry, r#"string.find(message, "something") ~= nil"#, true).unwrap());
+    assert_eq!(false, show_log_entry(&log_entry, r#"string.find(message, "bla") ~= nil"#, true).unwrap());
   }
 
   #[test]
   fn filter_regex() {
     let log_entry: BTreeMap<String, String> = test_log_entry();
-    assert_eq!(
-      true,
-      show_log_entry(&log_entry, r#"string.find(fu, "bow.*") ~= nil"#, true).unwrap()
-    );
-    assert_eq!(
-      false,
-      show_log_entry(&log_entry, r#"string.find(fu, "bow.*sd") ~= nil"#, true).unwrap()
-    );
+    assert_eq!(true, show_log_entry(&log_entry, r#"string.find(fu, "bow.*") ~= nil"#, true).unwrap());
+    assert_eq!(false, show_log_entry(&log_entry, r#"string.find(fu, "bow.*sd") ~= nil"#, true).unwrap());
   }
 
   #[test]
@@ -103,11 +75,7 @@ mod tests {
     let log_entry: BTreeMap<String, String> = test_log_entry();
     assert_eq!(
       false,
-      show_log_entry(
-        &log_entry,
-        r#"sdkfjsdfjsf ~= nil and string.find(sdkfjsdfjsf, "bow.*") ~= nil"#,
-        true
-      ).unwrap()
+      show_log_entry(&log_entry, r#"sdkfjsdfjsf ~= nil and string.find(sdkfjsdfjsf, "bow.*") ~= nil"#, true).unwrap()
     );
   }
 
@@ -116,19 +84,11 @@ mod tests {
     let log_entry: BTreeMap<String, String> = test_log_entry();
     assert_eq!(
       true,
-      show_log_entry(
-        &log_entry,
-        r#"if 3 > 2 then return true else return false end"#,
-        false
-      ).unwrap()
+      show_log_entry(&log_entry, r#"if 3 > 2 then return true else return false end"#, false).unwrap()
     );
     assert_eq!(
       false,
-      show_log_entry(
-        &log_entry,
-        r#"if 1 > 2 then return true else return false end"#,
-        false
-      ).unwrap()
+      show_log_entry(&log_entry, r#"if 1 > 2 then return true else return false end"#, false).unwrap()
     );
   }
 

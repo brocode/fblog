@@ -76,10 +76,23 @@ fn print_unknown_line(line: &str) {
   println!("{} {}", bold_orange.paint("??? >"), line);
 }
 
-fn process_input_line(log_settings: &LogSettings, read_line: &str, maybe_prefix: Option<&str>, maybe_filter: Option<&str>, implicit_return: bool)-> Result<(), ()> {
+fn process_input_line(
+  log_settings: &LogSettings,
+  read_line: &str,
+  maybe_prefix: Option<&str>,
+  maybe_filter: Option<&str>,
+  implicit_return: bool,
+) -> Result<(), ()> {
   let mut inspect_logger = InspectLogger::new();
   match serde_json::from_str::<Value>(read_line) {
-    Ok(Value::Object(log_entry)) => Ok(process_json_log_entry(log_settings, &mut inspect_logger, maybe_prefix, &log_entry, maybe_filter, implicit_return)),
+    Ok(Value::Object(log_entry)) => Ok(process_json_log_entry(
+      log_settings,
+      &mut inspect_logger,
+      maybe_prefix,
+      &log_entry,
+      maybe_filter,
+      implicit_return,
+    )),
     _ => {
       if !log_settings.inspect {
         if log_settings.with_prefix && maybe_prefix.is_none() {
@@ -94,7 +107,7 @@ fn process_input_line(log_settings: &LogSettings, read_line: &str, maybe_prefix:
         } else {
           Err(())
         }
-      }else {
+      } else {
         Err(())
       }
     }
@@ -105,7 +118,7 @@ fn process_input(log_settings: &LogSettings, input: &mut io::BufRead, maybe_filt
   for line in input.lines() {
     let read_line = &line.expect("Should be able to read line");
     match process_input_line(log_settings, read_line, None, maybe_filter, implicit_return) {
-      Ok(_)=> (),
+      Ok(_) => (),
       Err(_) => print_unknown_line(read_line),
     }
   }
