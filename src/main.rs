@@ -51,7 +51,7 @@ fn main() {
   }
 
   log_settings.dump_all = matches.is_present("dump-all");
-  log_settings.with_prefix = matches.is_present("prefix");
+  log_settings.with_prefix = matches.is_present("with-prefix");
   log_settings.inspect = matches.is_present("inspect");
 
   let implicit_return = !matches.is_present("no-implicit-filter-return-statement");
@@ -76,10 +76,10 @@ fn print_unknown_line(line: &str) {
   println!("{} {}", bold_orange.paint("??? >"), line);
 }
 
-fn process_input_line(log_settings: &LogSettings, read_line: &str, maybe_prefix: Option<&str>, maybe_filter: Option<&str>, implicit_return: bool) {
+fn process_input_line(log_settings: &LogSettings, read_line: &str, maybe_prefix: Option<&str>, maybe_filter: Option<&str>, implicit_return: bool)-> Result<(), ()> {
   let mut inspect_logger = InspectLogger::new();
   match serde_json::from_str::<Value>(read_line) {
-    Ok(Value::Object(log_entry)) => process_json_log_entry(log_settings, &mut inspect_logger, maybe_prefix, &log_entry, maybe_filter, implicit_return),
+    Ok(Value::Object(log_entry)) => Ok(process_json_log_entry(log_settings, &mut inspect_logger, maybe_prefix, &log_entry, maybe_filter, implicit_return)),
     _ => {
       if !log_settings.inspect {
         if log_settings.with_prefix && maybe_prefix.is_none() {
@@ -87,13 +87,15 @@ fn process_input_line(log_settings: &LogSettings, read_line: &str, maybe_prefix:
             Some(pos) => {
               let prefix = &read_line[..pos];
               let rest = &read_line[pos..];
-              process_input_line(log_settings, rest, Some(prefix), maybe_filter, implicit_return);
+              process_input_line(log_settings, rest, Some(prefix), maybe_filter, implicit_return)
             }
-            None => print_unknown_line(read_line),
+            None => Err(()),
           }
         } else {
-          print_unknown_line(read_line);
+          Err(())
         }
+      }else {
+        Err(())
       }
     }
   }
@@ -102,7 +104,10 @@ fn process_input_line(log_settings: &LogSettings, read_line: &str, maybe_prefix:
 fn process_input(log_settings: &LogSettings, input: &mut io::BufRead, maybe_filter: Option<&str>, implicit_return: bool) {
   for line in input.lines() {
     let read_line = &line.expect("Should be able to read line");
-    process_input_line(log_settings, read_line, None, maybe_filter, implicit_return);
+    match process_input_line(log_settings, read_line, None, maybe_filter, implicit_return) {
+      Ok(_)=> (),
+      Err(_) => print_unknown_line(read_line),
+    }
   }
 }
 
@@ -183,8 +188,8 @@ fn app<'a>() -> App<'a, 'a> {
         .takes_value(false)
         .help("dumps all values"),
     ).arg(
-      Arg::with_name("prefix")
-        .long("prefix")
+      Arg::with_name("with-prefix")
+        .long("with-prefix")
         .short("p")
         .multiple(false)
         .takes_value(false)
