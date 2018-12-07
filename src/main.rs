@@ -25,8 +25,8 @@ mod filter;
 mod inspect;
 mod log;
 
-use inspect::InspectLogger;
-use log::LogSettings;
+use crate::inspect::InspectLogger;
+use crate::log::LogSettings;
 
 fn main() {
   let app = app();
