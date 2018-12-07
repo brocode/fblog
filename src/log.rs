@@ -66,7 +66,8 @@ pub fn print_log_line(out: &mut Write, maybe_prefix: Option<&str>, log_entry: &B
     level_style.paint(formatted_level),
     formated_prefix,
     message
-  ).expect("Expect to be able to write to out stream.");
+  )
+  .expect("Expect to be able to write to out stream.");
   if log_settings.dump_all {
     let all_values: Vec<String> = log_entry.keys().map(|k| k.to_owned()).collect();
     write_additional_values(out, log_entry, &all_values);
@@ -92,7 +93,8 @@ fn level_to_style(level: &str) -> Style {
     "error" | "err" => Colour::Red,
     "debug" => Colour::Blue,
     _ => Colour::Purple,
-  }.bold()
+  }
+  .bold()
 }
 
 fn write_additional_values(out: &mut Write, log_entry: &BTreeMap<String, String>, additional_values: &[String]) {
@@ -126,7 +128,7 @@ mod tests {
   fn write_log_entry() {
     let log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
-    let log_entry: BTreeMap<String, String> = btreemap!{"message".to_string() => "something happend".to_string(),
+    let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
     "process".to_string() => "rust".to_string(),
     "level".to_string() => "info".to_string()};
@@ -140,7 +142,7 @@ mod tests {
     let log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
     let prefix = "abc";
-    let log_entry: BTreeMap<String, String> = btreemap!{"message".to_string() => "something happend".to_string(),
+    let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
     "process".to_string() => "rust".to_string(),
     "level".to_string() => "info".to_string()};
@@ -153,7 +155,7 @@ mod tests {
   #[test]
   fn write_log_entry_with_additional_field() {
     let mut out: Vec<u8> = Vec::new();
-    let log_entry: BTreeMap<String, String> = btreemap!{"message".to_string() => "something happend".to_string(),
+    let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
     "process".to_string() => "rust".to_string(),
     "fu".to_string() => "bower".to_string(),
@@ -175,7 +177,7 @@ mod tests {
   #[test]
   fn write_log_entry_with_additional_field_and_prefix() {
     let mut out: Vec<u8> = Vec::new();
-    let log_entry: BTreeMap<String, String> = btreemap!{"message".to_string() => "something happend".to_string(),
+    let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
     "process".to_string() => "rust".to_string(),
     "fu".to_string() => "bower".to_string(),
@@ -199,7 +201,7 @@ mod tests {
   #[test]
   fn write_log_entry_dump_all() {
     let mut out: Vec<u8> = Vec::new();
-    let log_entry: BTreeMap<String, String> = btreemap!{"message".to_string() => "something happend".to_string(),
+    let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
     "process".to_string() => "rust".to_string(),
     "fu".to_string() => "bower".to_string(),
@@ -226,7 +228,7 @@ mod tests {
   fn write_log_entry_with_exotic_fields() {
     let mut log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
-    let log_entry: BTreeMap<String, String> = btreemap!{"message".to_string() => "something happend".to_string(),
+    let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
     "process".to_string() => "rust".to_string(),
     "moep".to_string() => "moep".to_string(),

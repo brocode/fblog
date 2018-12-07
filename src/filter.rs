@@ -23,7 +23,7 @@ mod tests {
   use maplit::btreemap;
 
   fn test_log_entry() -> BTreeMap<String, String> {
-    btreemap!{"message".to_string() => "something happend".to_string(),
+    btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
     "process".to_string() => "rust".to_string(),
     "fu".to_string() => "bower".to_string(),

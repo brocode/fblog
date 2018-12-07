@@ -39,7 +39,7 @@ mod tests {
     let mut inpect_logger = InspectLogger::new();
     let mut out: Vec<u8> = Vec::new();
 
-    let mut log_entry: BTreeMap<String, String> = btreemap!{"message".to_string() => "something happend".to_string(),
+    let mut log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
     "process".to_string() => "rust".to_string(),
     "fu".to_string() => "bower".to_string(),

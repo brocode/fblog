@@ -169,7 +169,8 @@ fn app<'a>() -> App<'a, 'a> {
         .number_of_values(1)
         .takes_value(true)
         .help("adds additional values"),
-    ).arg(
+    )
+    .arg(
       Arg::with_name("message-key")
         .long("message-key")
         .short("m")
@@ -177,7 +178,8 @@ fn app<'a>() -> App<'a, 'a> {
         .number_of_values(1)
         .takes_value(true)
         .help("Adds an additional key to detect the message in the log entry."),
-    ).arg(
+    )
+    .arg(
       Arg::with_name("time-key")
         .long("time-key")
         .short("t")
@@ -185,7 +187,8 @@ fn app<'a>() -> App<'a, 'a> {
         .number_of_values(1)
         .takes_value(true)
         .help("Adds an additional key to detect the time in the log entry."),
-    ).arg(
+    )
+    .arg(
       Arg::with_name("level-key")
         .long("level-key")
         .short("l")
@@ -193,39 +196,45 @@ fn app<'a>() -> App<'a, 'a> {
         .number_of_values(1)
         .takes_value(true)
         .help("Adds an additional key to detect the level in the log entry."),
-    ).arg(
+    )
+    .arg(
       Arg::with_name("dump-all")
         .long("dump-all")
         .short("d")
         .multiple(false)
         .takes_value(false)
         .help("dumps all values"),
-    ).arg(
+    )
+    .arg(
       Arg::with_name("with-prefix")
         .long("with-prefix")
         .short("p")
         .multiple(false)
         .takes_value(false)
         .help("consider all text before opening curly brace as prefix"),
-    ).arg(
+    )
+    .arg(
       Arg::with_name("filter")
         .long("filter")
         .short("f")
         .multiple(false)
         .takes_value(true)
         .help("lua expression to filter log entries. `message ~= nil and string.find(message, \"text.*\") ~= nil`"),
-    ).arg(
+    )
+    .arg(
       Arg::with_name("no-implicit-filter-return-statement")
         .long("no-implicit-filter-return-statement")
         .multiple(false)
         .takes_value(false)
         .help("if you pass a filter expression 'return' is automatically prepended. Pass this switch to disable the implicit return."),
-    ).arg(
+    )
+    .arg(
       Arg::with_name("INPUT")
         .help("Sets the input file to use, otherwise assumes stdin")
         .required(false)
         .default_value("-"),
-    ).arg(
+    )
+    .arg(
       Arg::with_name("inspect")
         .long("inspect")
         .short("i")
