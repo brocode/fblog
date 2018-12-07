@@ -6,7 +6,6 @@ use std::fs;
 use std::io::Write;
 use std::io::{self, BufRead};
 
-
 #[cfg(test)]
 extern crate maplit;
 
@@ -79,18 +78,14 @@ fn process_input_line(
 ) -> Result<(), ()> {
   let mut inspect_logger = InspectLogger::new();
   match serde_json::from_str::<Value>(read_line) {
-    Ok(Value::Object(log_entry)) => Ok(process_json_log_entry(
-      log_settings,
-      &mut inspect_logger,
-      maybe_prefix,
-      &log_entry,
-      maybe_filter,
-      implicit_return,
-    )),
+    Ok(Value::Object(log_entry)) => {
+      process_json_log_entry(log_settings, &mut inspect_logger, maybe_prefix, &log_entry, maybe_filter, implicit_return);
+      Ok(())
+    }
     _ => {
       if !log_settings.inspect {
         if log_settings.with_prefix && maybe_prefix.is_none() {
-          match read_line.find("{") {
+          match read_line.find('{') {
             Some(pos) => {
               let prefix = &read_line[..pos];
               let rest = &read_line[pos..];

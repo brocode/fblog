@@ -54,7 +54,7 @@ pub fn print_log_line(out: &mut Write, maybe_prefix: Option<&str>, log_entry: &B
 
   let level_style = level_to_style(&level);
   let prefix_color = Colour::RGB(138, 43, 226).bold();
-  let formated_prefix = maybe_prefix.map(|p| format!(" {}", prefix_color.paint(p))).unwrap_or("".to_owned());
+  let formated_prefix = maybe_prefix.map(|p| format!(" {}", prefix_color.paint(p))).unwrap_or_else(|| "".to_owned());
   let message = get_string_value_or_default(log_entry, &log_settings.message_keys, "");
   let timestamp = get_string_value_or_default(log_entry, &log_settings.time_keys, "");
   let painted_timestamp = bold.paint(format!("{:>19.19}", timestamp));
