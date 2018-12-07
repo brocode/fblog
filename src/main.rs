@@ -6,12 +6,6 @@ use std::fs;
 use std::io::Write;
 use std::io::{self, BufRead};
 
-extern crate clap;
-
-extern crate ansi_term;
-extern crate serde_json;
-
-extern crate hlua;
 
 #[cfg(test)]
 extern crate maplit;
