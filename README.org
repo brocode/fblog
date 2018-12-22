@@ -36,4 +36,4 @@
 
    If you need a deb or rpm package have a look at [[https://github.com/brocode/fblog/releases][fblog releases]]
 
-   If you're lucky enought to be an arch linux user: [[https://aur.archlinux.org/packages/fblog/][AUR]]
+   If you're lucky enough to be an arch linux user: [[https://aur.archlinux.org/packages/fblog/][AUR]]
