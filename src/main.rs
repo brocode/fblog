@@ -28,19 +28,19 @@ fn main() {
   let mut log_settings = LogSettings::new_default_settings();
 
   if let Some(values) = matches.values_of("additional-value") {
-    log_settings.add_additional_values(values.map(|v| v.to_string()).collect());
+    log_settings.add_additional_values(values.map(ToString::to_string).collect());
   }
 
   if let Some(values) = matches.values_of("message-key") {
-    log_settings.add_message_keys(values.map(|v| v.to_string()).collect());
+    log_settings.add_message_keys(values.map(ToString::to_string).collect());
   }
 
   if let Some(values) = matches.values_of("time-key") {
-    log_settings.add_time_keys(values.map(|v| v.to_string()).collect());
+    log_settings.add_time_keys(values.map(ToString::to_string).collect());
   }
 
   if let Some(values) = matches.values_of("level-key") {
-    log_settings.add_level_keys(values.map(|v| v.to_string()).collect());
+    log_settings.add_level_keys(values.map(ToString::to_string).collect());
   }
 
   log_settings.dump_all = matches.is_present("dump-all");

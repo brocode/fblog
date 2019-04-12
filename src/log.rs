@@ -1,4 +1,5 @@
 use ansi_term::{Colour, Style};
+use std::borrow::ToOwned;
 use std::collections::BTreeMap;
 use std::io::Write;
 
@@ -69,7 +70,7 @@ pub fn print_log_line(out: &mut Write, maybe_prefix: Option<&str>, log_entry: &B
   )
   .expect("Expect to be able to write to out stream.");
   if log_settings.dump_all {
-    let all_values: Vec<String> = log_entry.keys().map(|k| k.to_owned()).collect();
+    let all_values: Vec<String> = log_entry.keys().map(ToOwned::to_owned).collect();
     write_additional_values(out, log_entry, &all_values);
   } else {
     write_additional_values(out, log_entry, &log_settings.additional_values);
@@ -79,7 +80,7 @@ pub fn print_log_line(out: &mut Write, maybe_prefix: Option<&str>, log_entry: &B
 fn get_string_value(value: &BTreeMap<String, String>, keys: &[String]) -> Option<String> {
   keys
     .iter()
-    .fold(None::<String>, |maybe_match, key| maybe_match.or_else(|| value.get(key).map(|k| k.to_owned())))
+    .fold(None::<String>, |maybe_match, key| maybe_match.or_else(|| value.get(key).map(ToOwned::to_owned)))
 }
 
 fn get_string_value_or_default(value: &BTreeMap<String, String>, keys: &[String], default: &str) -> String {
