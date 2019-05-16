@@ -5,7 +5,7 @@ rm -rf target
 if [ "$TRAVIS" = true ]; then
     chmod -R 777 .
 fi
-docker run --rm -it -v "$(pwd)":/home/rust/src ekidd/rust-musl-builder:1.31.1 cargo build --release
+docker run --rm -it -v "$(pwd)":/home/rust/src ekidd/rust-musl-builder:1.34.1 cargo build --release
 name=fblog
 target_dir="target/x86_64-unknown-linux-musl/release"
 
