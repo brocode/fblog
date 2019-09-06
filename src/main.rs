@@ -56,7 +56,7 @@ fn main() {
   process_input(&log_settings, &mut input, maybe_filter, implicit_return)
 }
 
-fn input_read(input_filename: &str) -> Box<io::Read> {
+fn input_read(input_filename: &str) -> Box<dyn io::Read> {
   if input_filename == "-" {
     Box::new(io::stdin())
   } else {
@@ -103,7 +103,7 @@ fn process_input_line(
   }
 }
 
-fn process_input(log_settings: &LogSettings, input: &mut io::BufRead, maybe_filter: Option<&str>, implicit_return: bool) {
+fn process_input(log_settings: &LogSettings, input: &mut dyn io::BufRead, maybe_filter: Option<&str>, implicit_return: bool) {
   for line in input.lines() {
     let read_line = &line.expect("Should be able to read line");
     match process_input_line(log_settings, read_line, None, maybe_filter, implicit_return) {

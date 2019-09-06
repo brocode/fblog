@@ -46,7 +46,7 @@ impl LogSettings {
   }
 }
 
-pub fn print_log_line(out: &mut Write, maybe_prefix: Option<&str>, log_entry: &BTreeMap<String, String>, log_settings: &LogSettings) {
+pub fn print_log_line(out: &mut dyn Write, maybe_prefix: Option<&str>, log_entry: &BTreeMap<String, String>, log_settings: &LogSettings) {
   let bold = Style::new().bold();
 
   let level = get_string_value_or_default(log_entry, &log_settings.level_keys, "unknown");
@@ -98,7 +98,7 @@ fn level_to_style(level: &str) -> Style {
   .bold()
 }
 
-fn write_additional_values(out: &mut Write, log_entry: &BTreeMap<String, String>, additional_values: &[String]) {
+fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, String>, additional_values: &[String]) {
   let bold_grey = Colour::RGB(150, 150, 150).bold();
 
   for additional_value in additional_values {

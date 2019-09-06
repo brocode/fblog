@@ -11,7 +11,7 @@ impl InspectLogger {
     InspectLogger { keys: HashSet::new() }
   }
 
-  pub fn print_unknown_keys(&mut self, log_entry: &BTreeMap<String, String>, write: &mut Write) {
+  pub fn print_unknown_keys(&mut self, log_entry: &BTreeMap<String, String>, write: &mut dyn Write) {
     for entry in log_entry.keys() {
       if !self.keys.contains(entry) {
         writeln!(write, "{}", entry).expect("default should be stdout");
