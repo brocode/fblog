@@ -120,8 +120,6 @@ mod tests {
     let regex = Regex::new("\u{001B}\\[[\\d;]*[^\\d;]").expect("Regex should be valid");
     let out_with_style = String::from_utf8_lossy(&out).into_owned();
     let result = regex.replace_all(&out_with_style, "").into_owned();
-    // println!("Unclean result: '{}'", out_with_style);
-    // println!("Clean result  : '{}'", result);
     result
   }
 
