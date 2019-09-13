@@ -1,11 +1,16 @@
 use crate::filter;
 use crate::inspect::InspectLogger;
 use crate::log::{self, LogSettings};
-use ansi_term::Colour;
+use ansi_term::{Colour, Style};
+use lazy_static::lazy_static;
 use serde_json::{Map, Value};
 use std::collections::BTreeMap;
 use std::io::Write;
 use std::io::{self, BufRead};
+
+lazy_static! {
+  static ref BOLD_ORANGE: Style = Colour::RGB(255, 135, 22).bold();
+}
 
 pub fn process_input(log_settings: &LogSettings, input: &mut dyn io::BufRead, maybe_filter: Option<&str>, implicit_return: bool) {
   for line in input.lines() {
@@ -18,8 +23,7 @@ pub fn process_input(log_settings: &LogSettings, input: &mut dyn io::BufRead, ma
 }
 
 fn print_unknown_line(line: &str) {
-  let bold_orange = Colour::RGB(255, 135, 22).bold();
-  println!("{} {}", bold_orange.paint("??? >"), line);
+  println!("{} {}", BOLD_ORANGE.paint("??? >"), line);
 }
 
 fn process_input_line(
