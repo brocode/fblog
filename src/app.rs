@@ -1,5 +1,5 @@
-use clap::{App, AppSettings, Arg};
 use clap::crate_version;
+use clap::{App, AppSettings, Arg};
 
 pub fn app<'a>() -> App<'a, 'a> {
   App::new("fblog")
