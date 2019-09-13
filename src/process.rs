@@ -92,11 +92,14 @@ fn process_log_entry(log_settings: &LogSettings, inspect_logger: &mut InspectLog
 }
 
 fn extract_string_values(log_entry: &Map<String, Value>) -> BTreeMap<String, String> {
-  let mut string_map: BTreeMap<String, String> = BTreeMap::new();
-  for (key, value) in log_entry {
-    if let Value::String(ref string_value) = *value {
-      string_map.insert(key.to_owned(), string_value.to_owned());
-    }
-  }
-  string_map
+  log_entry
+    .iter()
+    .filter_map(|(key, value)| {
+      if let Value::String(ref string_value) = *value {
+        Some((key.to_owned(), string_value.to_owned()))
+      } else {
+        None
+      }
+    })
+    .collect()
 }
