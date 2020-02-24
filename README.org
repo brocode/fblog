@@ -21,6 +21,9 @@
    fblog -f 'process == "play"' # will print all message where the process is play
    fblog -f 'process == "rust" and fu == "bower"'
    fblog --no-implicit-filter-return-statement -f 'if 3 > 2 then return true else return false end'
+
+   # not valid lua identifiers
+   fblog -d -f '_G["log.level"] == "WARN"' sample_elastic.log
    #+END_SRC
 
 
