@@ -91,5 +91,4 @@ mod tests {
       show_log_entry(&log_entry, r#"if 1 > 2 then return true else return false end"#, false).unwrap()
     );
   }
-
 }

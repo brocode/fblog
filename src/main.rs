@@ -1,9 +1,6 @@
 use std::io;
 
 #[cfg(test)]
-extern crate maplit;
-
-#[cfg(test)]
 extern crate regex;
 
 mod app;
@@ -11,6 +8,7 @@ mod filter;
 mod inspect;
 mod log;
 mod process;
+mod template;
 
 use crate::log::LogSettings;
 use std::fs;

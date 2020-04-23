@@ -1,4 +1,5 @@
-use ansi_term::{Colour, Style};
+use handlebars::Handlebars;
+use maplit::btreemap;
 use std::borrow::ToOwned;
 use std::collections::BTreeMap;
 use std::io::Write;
@@ -46,34 +47,38 @@ impl LogSettings {
   }
 }
 
-pub fn print_log_line(out: &mut dyn Write, maybe_prefix: Option<&str>, log_entry: &BTreeMap<String, String>, log_settings: &LogSettings) {
-  let bold = Style::new().bold();
-
+pub fn print_log_line(
+  out: &mut dyn Write,
+  maybe_prefix: Option<&str>,
+  log_entry: &BTreeMap<String, String>,
+  log_settings: &LogSettings,
+  handlebars: &Handlebars<'static>,
+) {
   let level = get_string_value_or_default(log_entry, &log_settings.level_keys, "unknown");
 
-  let formatted_level = format!("{:>5.5}:", level.to_uppercase());
-
-  let level_style = level_to_style(&level);
-  let prefix_color = Colour::RGB(138, 43, 226).bold();
-  let formated_prefix = maybe_prefix.map(|p| format!(" {}", prefix_color.paint(p))).unwrap_or_else(|| "".to_owned());
+  let formated_prefix = maybe_prefix.map(|p| format!(" {}", p)).unwrap_or_else(|| "".to_owned());
   let message = get_string_value_or_default(log_entry, &log_settings.message_keys, "");
   let timestamp = get_string_value_or_default(log_entry, &log_settings.time_keys, "");
-  let painted_timestamp = bold.paint(format!("{:>19.19}", timestamp));
+
+  let mut handle_bar_input: BTreeMap<String, String> = BTreeMap::new();
+  handle_bar_input.clone_from(log_entry);
+  handle_bar_input.insert("fblog_timestamp".to_string(), timestamp);
+  handle_bar_input.insert("fblog_level".to_string(), level);
+  handle_bar_input.insert("fblog_message".to_string(), message);
+  handle_bar_input.insert("fblog_prefix".to_string(), formated_prefix);
 
   writeln!(
     out,
-    "{} {}{} {}",
-    painted_timestamp,
-    level_style.paint(formatted_level),
-    formated_prefix,
-    message
+    "{}",
+    handlebars.render("main_line", &handle_bar_input).expect("template should be renderable")
   )
   .expect("Expect to be able to write to out stream.");
+
   if log_settings.dump_all {
     let all_values: Vec<String> = log_entry.keys().map(ToOwned::to_owned).collect();
-    write_additional_values(out, log_entry, &all_values);
+    write_additional_values(out, log_entry, &all_values, handlebars);
   } else {
-    write_additional_values(out, log_entry, &log_settings.additional_values);
+    write_additional_values(out, log_entry, &log_settings.additional_values, handlebars);
   }
 }
 
@@ -87,25 +92,11 @@ fn get_string_value_or_default(value: &BTreeMap<String, String>, keys: &[String]
   get_string_value(value, keys).unwrap_or_else(|| default.to_string())
 }
 
-fn level_to_style(level: &str) -> Style {
-  match level.to_lowercase().as_ref() {
-    "info" => Colour::Green,
-    "warn" | "warning" => Colour::Yellow,
-    "error" | "err" => Colour::Red,
-    "debug" => Colour::Blue,
-    _ => Colour::Purple,
-  }
-  .bold()
-}
-
-fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, String>, additional_values: &[String]) {
-  let bold_grey = Colour::RGB(150, 150, 150).bold();
-
+fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, String>, additional_values: &[String], handlebars: &Handlebars<'static>) {
   for additional_value in additional_values {
     if let Some(value) = get_string_value(log_entry, &[additional_value.to_string()]) {
-      let trimmed_additional_value = format!("{:>25.25}:", additional_value.to_string());
-      let painted_value = bold_grey.paint(trimmed_additional_value);
-      writeln!(out, "{} {}", painted_value, value).expect("Expect to be able to write to out stream.");
+      let variables = btreemap! {"key".to_string() =>additional_value.to_string(), "value".to_string() => value.to_string()};
+      writeln!(out, "{}", handlebars.render("additional_value", &variables).expect("template invalid")).expect("Expect to be able to write to out stream.");
     }
   }
 }
@@ -113,6 +104,7 @@ fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, Str
 #[cfg(test)]
 mod tests {
   use super::*;
+  use crate::template;
   use maplit::btreemap;
   use regex::Regex;
 
@@ -125,6 +117,7 @@ mod tests {
 
   #[test]
   fn write_log_entry() {
+    let handlebars = template::fblog_handlebar_registry();
     let log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
@@ -132,12 +125,13 @@ mod tests {
     "process".to_string() => "rust".to_string(),
     "level".to_string() => "info".to_string()};
 
-    print_log_line(&mut out, None, &log_entry, &log_settings);
+    print_log_line(&mut out, None, &log_entry, &log_settings, &handlebars);
 
     assert_eq!(out_to_string(out), "2017-07-06T15:21:16  INFO: something happend\n");
   }
   #[test]
   fn write_log_entry_with_prefix() {
+    let handlebars = template::fblog_handlebar_registry();
     let log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
     let prefix = "abc";
@@ -146,13 +140,14 @@ mod tests {
     "process".to_string() => "rust".to_string(),
     "level".to_string() => "info".to_string()};
 
-    print_log_line(&mut out, Some(prefix), &log_entry, &log_settings);
+    print_log_line(&mut out, Some(prefix), &log_entry, &log_settings, &handlebars);
 
     assert_eq!(out_to_string(out), "2017-07-06T15:21:16  INFO: abc something happend\n");
   }
 
   #[test]
   fn write_log_entry_with_additional_field() {
+    let handlebars = template::fblog_handlebar_registry();
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
@@ -162,7 +157,7 @@ mod tests {
     let mut log_settings = LogSettings::new_default_settings();
     log_settings.add_additional_values(vec!["process".to_string(), "fu".to_string()]);
 
-    print_log_line(&mut out, None, &log_entry, &log_settings);
+    print_log_line(&mut out, None, &log_entry, &log_settings, &handlebars);
 
     assert_eq!(
       out_to_string(out),
@@ -175,6 +170,7 @@ mod tests {
   }
   #[test]
   fn write_log_entry_with_additional_field_and_prefix() {
+    let handlebars = template::fblog_handlebar_registry();
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
@@ -185,7 +181,7 @@ mod tests {
     let mut log_settings = LogSettings::new_default_settings();
     log_settings.add_additional_values(vec!["process".to_string(), "fu".to_string()]);
 
-    print_log_line(&mut out, Some(prefix), &log_entry, &log_settings);
+    print_log_line(&mut out, Some(prefix), &log_entry, &log_settings, &handlebars);
 
     assert_eq!(
       out_to_string(out),
@@ -199,6 +195,7 @@ mod tests {
 
   #[test]
   fn write_log_entry_dump_all() {
+    let handlebars = template::fblog_handlebar_registry();
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
@@ -208,7 +205,7 @@ mod tests {
 
     let mut log_settings = LogSettings::new_default_settings();
     log_settings.dump_all = true;
-    print_log_line(&mut out, None, &log_entry, &log_settings);
+    print_log_line(&mut out, None, &log_entry, &log_settings, &handlebars);
 
     assert_eq!(
       out_to_string(out),
@@ -225,6 +222,7 @@ mod tests {
 
   #[test]
   fn write_log_entry_with_exotic_fields() {
+    let handlebars = template::fblog_handlebar_registry();
     let mut log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
@@ -238,7 +236,7 @@ mod tests {
     log_settings.add_time_keys(vec!["moep".to_string()]);
     log_settings.add_level_keys(vec!["hugo".to_string()]);
 
-    print_log_line(&mut out, None, &log_entry, &log_settings);
+    print_log_line(&mut out, None, &log_entry, &log_settings, &handlebars);
 
     assert_eq!(out_to_string(out), "               moep  HUGO: rust\n");
   }
