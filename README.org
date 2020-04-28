@@ -32,6 +32,21 @@
    entry. This behavior can be customized. See ~--help~ for more
    information.
 
+   You can customize fblog messages:
+   Format output:
+   #+BEGIN_SRC shell-script
+   fblog -p --main-line-format "{{#if short_message}}{{ red short_message }}{{/if}}" sample.json.log
+   #+END_SRC
+
+   The following sanitized variables are provided by fblog:
+
+   * fblog_timestamp
+   * fblog_level
+   * fblog_message
+   * fblog_prefix
+
+   For the default formatting see ~--help~
+
 ** Installation
    #+BEGIN_SRC bash
    cargo install fblog
