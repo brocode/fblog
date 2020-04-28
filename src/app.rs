@@ -1,6 +1,6 @@
+use crate::template;
 use clap::crate_version;
 use clap::{App, AppSettings, Arg};
-use crate::template;
 
 pub fn app<'a>() -> App<'a, 'a> {
   App::new("fblog")
@@ -95,7 +95,7 @@ pub fn app<'a>() -> App<'a, 'a> {
         .number_of_values(1)
         .takes_value(true)
         .default_value(template::DEFAULT_MAIN_LINE_FORMAT)
-        .help("Formats the main fblog output. All log values can be used. fblog provides sanitized variables starting with `fblog_`.")
+        .help("Formats the main fblog output. All log values can be used. fblog provides sanitized variables starting with `fblog_`."),
     )
     .arg(
       Arg::with_name("additional-value-format")
@@ -103,7 +103,6 @@ pub fn app<'a>() -> App<'a, 'a> {
         .number_of_values(1)
         .takes_value(true)
         .default_value(template::DEFAULT_ADDITIONAL_VALUE_FORMAT)
-        .help("Formats the addtional value fblog output.")
-
+        .help("Formats the addtional value fblog output."),
     )
 }
