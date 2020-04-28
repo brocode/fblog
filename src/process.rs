@@ -1,7 +1,6 @@
 use crate::filter;
 use crate::inspect::InspectLogger;
 use crate::log::{self, LogSettings};
-use crate::template;
 use ansi_term::{Colour, Style};
 use handlebars::Handlebars;
 use lazy_static::lazy_static;
@@ -14,8 +13,13 @@ lazy_static! {
   static ref BOLD_ORANGE: Style = Colour::RGB(255, 135, 22).bold();
 }
 
-pub fn process_input(log_settings: &LogSettings, input: &mut dyn io::BufRead, maybe_filter: Option<&str>, implicit_return: bool) {
-  let handlebars = template::fblog_handlebar_registry();
+pub fn process_input(
+  log_settings: &LogSettings,
+  input: &mut dyn io::BufRead,
+  maybe_filter: Option<&str>,
+  implicit_return: bool,
+  handlebars: &Handlebars<'static>,
+) {
   for line in input.lines() {
     let read_line = &line.expect("Should be able to read line");
     match process_input_line(log_settings, read_line, None, maybe_filter, implicit_return, &handlebars) {

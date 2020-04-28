@@ -45,7 +45,18 @@ fn main() {
   let input_filename = matches.value_of("INPUT").unwrap();
   let mut input = io::BufReader::new(input_read(input_filename));
 
-  process::process_input(&log_settings, &mut input, maybe_filter, implicit_return)
+  // TODO: include profile
+  let main_line_format = matches
+    .value_of("main-line-format")
+    .map(|s| s.to_string())
+    .unwrap_or_else(|| template::DEFAULT_MAIN_LINE_FORMAT.to_string());
+  let additional_value_format = matches
+    .value_of("additional-value-format")
+    .map(|s| s.to_string())
+    .unwrap_or_else(|| template::DEFAULT_ADDITIONAL_VALUE_FORMAT.to_string());
+
+  let handlebars = template::fblog_handlebar_registry(main_line_format, additional_value_format);
+  process::process_input(&log_settings, &mut input, maybe_filter, implicit_return, &handlebars)
 }
 
 fn input_read(input_filename: &str) -> Box<dyn io::Read> {

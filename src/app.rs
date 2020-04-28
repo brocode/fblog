@@ -88,4 +88,30 @@ pub fn app<'a>() -> App<'a, 'a> {
         .takes_value(false)
         .help("only prints json keys not encountered before"),
     )
+    .arg(
+      Arg::with_name("main-line-format")
+        .long("main-line-format")
+        .number_of_values(1)
+        .takes_value(true)
+        .long_help(
+"Formats the main fblog output. All log values can be used. fblog provides sanitized variables starting with `fblog_`.
+
+Default format: `{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{bold(color_rgb 138 43 226 fblog_prefix)}} {{fblog_message}}`
+
+")
+        .help("Main line format."),
+    )
+    .arg(
+      Arg::with_name("additional-value-format")
+        .long("additional-value-format")
+        .number_of_values(1)
+        .takes_value(true)
+        .long_help(
+"Formats the addtional value fblog output.
+
+Default format: `{{bold (color_rgb 150 150 150 (fixed_size 25 key))}}: {{value}}`
+")
+        .help("Additional value format.")
+
+    )
 }

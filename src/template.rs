@@ -2,6 +2,9 @@ use ansi_term::{Colour, Style};
 use handlebars::{handlebars_helper, Handlebars};
 use std::convert::TryInto;
 
+pub static DEFAULT_MAIN_LINE_FORMAT: &'static str = "{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{bold(color_rgb 138 43 226 fblog_prefix)}} {{fblog_message}}";
+pub static DEFAULT_ADDITIONAL_VALUE_FORMAT: &'static str = "{{bold (color_rgb 150 150 150 (fixed_size 25 key))}}: {{value}}";
+
 fn level_to_style(level: &str) -> Style {
   match level.trim().to_lowercase().as_ref() {
     "info" => Colour::Green,
@@ -13,7 +16,7 @@ fn level_to_style(level: &str) -> Style {
   .bold()
 }
 
-pub fn fblog_handlebar_registry() -> Handlebars<'static> {
+pub fn fblog_handlebar_registry(main_line_format: String, additional_value_format: String) -> Handlebars<'static> {
   handlebars_helper!(bold: |t: str| {
       format!("{}", Style::new().bold().paint(t))
   });
@@ -76,9 +79,9 @@ pub fn fblog_handlebar_registry() -> Handlebars<'static> {
   reg.register_helper("green", Box::new(green));
   reg.register_helper("color_rgb", Box::new(color_rgb));
 
-  reg.register_template_string("main_line", "{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{bold(color_rgb 138 43 226 fblog_prefix)}} {{fblog_message}}").expect("Template invalid");
+  reg.register_template_string("main_line", main_line_format).expect("Template invalid");
   reg
-    .register_template_string("additional_value", "{{bold (color_rgb 150 150 150 (fixed_size 25 key))}}: {{value}}")
+    .register_template_string("additional_value", additional_value_format)
     .expect("Template invalid");
   reg
 }

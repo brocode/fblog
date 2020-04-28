@@ -108,6 +108,13 @@ mod tests {
   use maplit::btreemap;
   use regex::Regex;
 
+  fn fblog_handlebar_registry_default_format() -> Handlebars<'static> {
+    let main_line_format = template::DEFAULT_MAIN_LINE_FORMAT.to_string();
+    let additional_value_format = template::DEFAULT_ADDITIONAL_VALUE_FORMAT.to_string();
+
+    template::fblog_handlebar_registry(main_line_format, additional_value_format)
+  }
+
   fn out_to_string(out: Vec<u8>) -> String {
     let regex = Regex::new("\u{001B}\\[[\\d;]*[^\\d;]").expect("Regex should be valid");
     let out_with_style = String::from_utf8_lossy(&out).into_owned();
@@ -117,7 +124,7 @@ mod tests {
 
   #[test]
   fn write_log_entry() {
-    let handlebars = template::fblog_handlebar_registry();
+    let handlebars = fblog_handlebar_registry_default_format();
     let log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
@@ -131,7 +138,7 @@ mod tests {
   }
   #[test]
   fn write_log_entry_with_prefix() {
-    let handlebars = template::fblog_handlebar_registry();
+    let handlebars = fblog_handlebar_registry_default_format();
     let log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
     let prefix = "abc";
@@ -147,7 +154,7 @@ mod tests {
 
   #[test]
   fn write_log_entry_with_additional_field() {
-    let handlebars = template::fblog_handlebar_registry();
+    let handlebars = fblog_handlebar_registry_default_format();
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
@@ -170,7 +177,7 @@ mod tests {
   }
   #[test]
   fn write_log_entry_with_additional_field_and_prefix() {
-    let handlebars = template::fblog_handlebar_registry();
+    let handlebars = fblog_handlebar_registry_default_format();
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
@@ -195,7 +202,7 @@ mod tests {
 
   #[test]
   fn write_log_entry_dump_all() {
-    let handlebars = template::fblog_handlebar_registry();
+    let handlebars = fblog_handlebar_registry_default_format();
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
     "time".to_string() => "2017-07-06T15:21:16".to_string(),
@@ -222,7 +229,7 @@ mod tests {
 
   #[test]
   fn write_log_entry_with_exotic_fields() {
-    let handlebars = template::fblog_handlebar_registry();
+    let handlebars = fblog_handlebar_registry_default_format();
     let mut log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
     let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
