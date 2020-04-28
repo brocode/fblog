@@ -56,7 +56,7 @@ pub fn print_log_line(
 ) {
   let level = get_string_value_or_default(log_entry, &log_settings.level_keys, "unknown");
 
-  let formated_prefix = maybe_prefix.map(|p| format!(" {}", p)).unwrap_or_else(|| "".to_owned());
+  let formatted_prefix = maybe_prefix.map(|p| format!(" {}", p)).unwrap_or_else(|| "".to_owned());
   let message = get_string_value_or_default(log_entry, &log_settings.message_keys, "");
   let timestamp = get_string_value_or_default(log_entry, &log_settings.time_keys, "");
 
@@ -65,7 +65,7 @@ pub fn print_log_line(
   handle_bar_input.insert("fblog_timestamp".to_string(), timestamp);
   handle_bar_input.insert("fblog_level".to_string(), level);
   handle_bar_input.insert("fblog_message".to_string(), message);
-  handle_bar_input.insert("fblog_prefix".to_string(), formated_prefix);
+  handle_bar_input.insert("fblog_prefix".to_string(), formatted_prefix);
 
   writeln!(
     out,
