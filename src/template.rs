@@ -2,8 +2,8 @@ use ansi_term::{Colour, Style};
 use handlebars::{handlebars_helper, Handlebars};
 use std::convert::TryInto;
 
-pub static DEFAULT_MAIN_LINE_FORMAT: &'static str = "{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{bold(color_rgb 138 43 226 fblog_prefix)}} {{fblog_message}}";
-pub static DEFAULT_ADDITIONAL_VALUE_FORMAT: &'static str = "{{bold (color_rgb 150 150 150 (fixed_size 25 key))}}: {{value}}";
+pub static DEFAULT_MAIN_LINE_FORMAT: &str = "{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{bold(color_rgb 138 43 226 fblog_prefix)}} {{fblog_message}}";
+pub static DEFAULT_ADDITIONAL_VALUE_FORMAT: &str = "{{bold (color_rgb 150 150 150 (fixed_size 25 key))}}: {{value}}";
 
 fn level_to_style(level: &str) -> Style {
   match level.trim().to_lowercase().as_ref() {
