@@ -1,3 +1,5 @@
+use crate::no_color_support::style;
+use ansi_term::Colour;
 use handlebars::Handlebars;
 use maplit::btreemap;
 use std::borrow::ToOwned;
@@ -67,11 +69,10 @@ pub fn print_log_line(
   handle_bar_input.insert("fblog_message".to_string(), message);
   handle_bar_input.insert("fblog_prefix".to_string(), formatted_prefix);
 
-  writeln!(
-    out,
-    "{}",
-    handlebars.render("main_line", &handle_bar_input).expect("template should be renderable")
-  )
+  match handlebars.render("main_line", &handle_bar_input) {
+    Ok(string) => writeln!(out, "{}", string),
+    Err(e) => writeln!(out, "{} Failed to process line: {}", style(&Colour::Red.bold(), "??? >"), e),
+  }
   .expect("Expect to be able to write to out stream.");
 
   if log_settings.dump_all {
@@ -96,7 +97,11 @@ fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, Str
   for additional_value in additional_values {
     if let Some(value) = get_string_value(log_entry, &[additional_value.to_string()]) {
       let variables = btreemap! {"key".to_string() =>additional_value.to_string(), "value".to_string() => value.to_string()};
-      writeln!(out, "{}", handlebars.render("additional_value", &variables).expect("template invalid")).expect("Expect to be able to write to out stream.");
+      match handlebars.render("additional_value", &variables) {
+        Ok(string) => writeln!(out, "{}", string),
+        Err(e) => writeln!(out, "{} Failed to process additional value: {}", style(&Colour::Red.bold(), "   ??? >"), e),
+      }
+      .expect("Expect to be able to write to out stream.");
     }
   }
 }
