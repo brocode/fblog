@@ -7,6 +7,7 @@ mod app;
 mod filter;
 mod inspect;
 mod log;
+mod no_color_support;
 mod process;
 mod template;
 

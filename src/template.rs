@@ -1,3 +1,4 @@
+use crate::no_color_support::{paint, style};
 use ansi_term::{Colour, Style};
 use handlebars::{handlebars_helper, Handlebars};
 use std::convert::TryInto;
@@ -18,31 +19,31 @@ fn level_to_style(level: &str) -> Style {
 
 pub fn fblog_handlebar_registry(main_line_format: String, additional_value_format: String) -> Handlebars<'static> {
   handlebars_helper!(bold: |t: str| {
-      format!("{}", Style::new().bold().paint(t))
+      style(&Style::new().bold(), t)
   });
 
   handlebars_helper!(yellow: |t: str| {
-      format!("{}", Colour::Yellow.paint(t))
+      paint(Colour::Yellow, t)
   });
 
   handlebars_helper!(red: |t: str| {
-      format!("{}", Colour::Red.paint(t))
+      paint(Colour::Red, t)
   });
 
   handlebars_helper!(blue: |t: str| {
-      format!("{}", Colour::Blue.paint(t))
+      paint(Colour::Blue, t)
   });
 
   handlebars_helper!(purple: |t: str| {
-      format!("{}", Colour::Purple.paint(t))
+      paint(Colour::Purple, t)
   });
 
   handlebars_helper!(green: |t: str| {
-      format!("{}", Colour::Green.paint(t))
+      paint(Colour::Green, t)
   });
 
   handlebars_helper!(color_rgb: |r: u64, g: u64, b: u64, t: str| {
-      format!("{}", Colour::RGB(r.try_into().unwrap(), g.try_into().unwrap(), b.try_into().unwrap()).paint(t))
+      paint(Colour::RGB(r.try_into().unwrap(), g.try_into().unwrap(), b.try_into().unwrap()), t)
   });
 
   handlebars_helper!(uppercase: |t: str| {
@@ -50,8 +51,8 @@ pub fn fblog_handlebar_registry(main_line_format: String, additional_value_forma
   });
 
   handlebars_helper!(level_style: |level: str| {
-      let style = level_to_style(level);
-      style.paint(level).to_string()
+      let s = level_to_style(level);
+      style(&s, level)
   });
 
   handlebars_helper!(fixed_size: |isize: u64, t: str| {

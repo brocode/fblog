@@ -1,6 +1,7 @@
 use crate::filter;
 use crate::inspect::InspectLogger;
 use crate::log::{self, LogSettings};
+use crate::no_color_support::style;
 use ansi_term::{Colour, Style};
 use handlebars::Handlebars;
 use lazy_static::lazy_static;
@@ -30,7 +31,7 @@ pub fn process_input(
 }
 
 fn print_unknown_line(line: &str) {
-  println!("{} {}", BOLD_ORANGE.paint("??? >"), line);
+  println!("{} {}", style(&BOLD_ORANGE, "??? >"), line);
 }
 
 fn process_input_line(
