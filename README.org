@@ -47,6 +47,25 @@
 
    For the default formatting see ~--help~
 
+   handlebar helpers:
+
+   * bold
+   * yellow
+   * red
+   * blue
+   * purple
+   * green
+   * color_rgb 0 0 0
+   * uppercase
+   * level_style
+   * fixed_size 10
+
+** NO_COLOR
+   ~fblog~ disables color output if the ~NO_COLOR~ environment variable is present.
+
+   [[https://no-color.org/][no-color]]
+
+
 ** Installation
    #+BEGIN_SRC bash
    cargo install fblog
