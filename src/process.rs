@@ -31,7 +31,11 @@ pub fn process_input(
 }
 
 fn print_unknown_line(line: &str) {
-  println!("{} {}", style(&BOLD_ORANGE, "??? >"), line);
+  let write_result = writeln!(&mut io::stdout(), "{} {}", style(&BOLD_ORANGE, "??? >"), line);
+  if let Err(_) = write_result {
+    // Output end reached
+    std::process::exit(14);
+  }
 }
 
 fn process_input_line(

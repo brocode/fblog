@@ -69,11 +69,15 @@ pub fn print_log_line(
   handle_bar_input.insert("fblog_message".to_string(), message);
   handle_bar_input.insert("fblog_prefix".to_string(), formatted_prefix);
 
-  match handlebars.render("main_line", &handle_bar_input) {
+  let write_result = match handlebars.render("main_line", &handle_bar_input) {
     Ok(string) => writeln!(out, "{}", string),
     Err(e) => writeln!(out, "{} Failed to process line: {}", style(&Colour::Red.bold(), "??? >"), e),
+  };
+
+  if let Err(_) = write_result {
+    // Output end reached
+    std::process::exit(14);
   }
-  .expect("Expect to be able to write to out stream.");
 
   if log_settings.dump_all {
     let all_values: Vec<String> = log_entry.keys().map(ToOwned::to_owned).collect();
@@ -97,11 +101,14 @@ fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, Str
   for additional_value in additional_values {
     if let Some(value) = get_string_value(log_entry, &[additional_value.to_string()]) {
       let variables = btreemap! {"key".to_string() =>additional_value.to_string(), "value".to_string() => value.to_string()};
-      match handlebars.render("additional_value", &variables) {
+      let write_result = match handlebars.render("additional_value", &variables) {
         Ok(string) => writeln!(out, "{}", string),
         Err(e) => writeln!(out, "{} Failed to process additional value: {}", style(&Colour::Red.bold(), "   ??? >"), e),
+      };
+      if let Err(_) = write_result {
+        // Output end reached
+        std::process::exit(14);
       }
-      .expect("Expect to be able to write to out stream.");
     }
   }
 }
