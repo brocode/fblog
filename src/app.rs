@@ -24,7 +24,7 @@ pub fn app<'a>() -> App<'a, 'a> {
         .multiple(true)
         .number_of_values(1)
         .takes_value(true)
-        .help("Adds an additional key to detect the message in the log entry."),
+        .help("Adds an additional key to detect the message in the log entry. The first matching key will be assigned to `fblog_message`."),
     )
     .arg(
       Arg::with_name("time-key")
@@ -33,7 +33,7 @@ pub fn app<'a>() -> App<'a, 'a> {
         .multiple(true)
         .number_of_values(1)
         .takes_value(true)
-        .help("Adds an additional key to detect the time in the log entry."),
+        .help("Adds an additional key to detect the time in the log entry. The first matching key will be assigned to `fblog_timestamp`."),
     )
     .arg(
       Arg::with_name("level-key")
@@ -42,7 +42,7 @@ pub fn app<'a>() -> App<'a, 'a> {
         .multiple(true)
         .number_of_values(1)
         .takes_value(true)
-        .help("Adds an additional key to detect the level in the log entry."),
+        .help("Adds an additional key to detect the level in the log entry. The first matching key will be assigned to `fblog_level`."),
     )
     .arg(
       Arg::with_name("dump-all")
