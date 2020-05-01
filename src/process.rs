@@ -32,7 +32,7 @@ pub fn process_input(
 
 fn print_unknown_line(line: &str) {
   let write_result = writeln!(&mut io::stdout(), "{} {}", style(&BOLD_ORANGE, "??? >"), line);
-  if let Err(_) = write_result {
+  if write_result.is_err() {
     // Output end reached
     std::process::exit(14);
   }

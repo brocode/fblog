@@ -74,7 +74,7 @@ pub fn print_log_line(
     Err(e) => writeln!(out, "{} Failed to process line: {}", style(&Colour::Red.bold(), "??? >"), e),
   };
 
-  if let Err(_) = write_result {
+  if write_result.is_err() {
     // Output end reached
     std::process::exit(14);
   }
@@ -105,7 +105,7 @@ fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, Str
         Ok(string) => writeln!(out, "{}", string),
         Err(e) => writeln!(out, "{} Failed to process additional value: {}", style(&Colour::Red.bold(), "   ??? >"), e),
       };
-      if let Err(_) = write_result {
+      if write_result.is_err() {
         // Output end reached
         std::process::exit(14);
       }
