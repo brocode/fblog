@@ -21,7 +21,7 @@ impl LogSettings {
     LogSettings {
       message_keys: vec!["short_message".to_string(), "msg".to_string(), "message".to_string()],
       time_keys: vec!["timestamp".to_string(), "time".to_string(), "@timestamp".to_string()],
-      level_keys: vec!["level".to_string(), "severity".to_string(), "log.level".to_string()],
+      level_keys: vec!["level".to_string(), "severity".to_string(), "log.level".to_string(), "loglevel".to_string()],
       additional_values: vec![],
       dump_all: false,
       inspect: false,
