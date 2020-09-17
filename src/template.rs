@@ -1,6 +1,6 @@
 use crate::no_color_support::{paint, style};
 use ansi_term::{Colour, Style};
-use handlebars::{handlebars_helper, Handlebars, no_escape};
+use handlebars::{handlebars_helper, no_escape, Handlebars};
 use std::convert::TryInto;
 
 pub static DEFAULT_MAIN_LINE_FORMAT: &str = "{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{bold(color_rgb 138 43 226 fblog_prefix)}} {{fblog_message}}";
