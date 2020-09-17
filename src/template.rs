@@ -1,6 +1,6 @@
 use crate::no_color_support::{paint, style};
 use ansi_term::{Colour, Style};
-use handlebars::{handlebars_helper, Handlebars};
+use handlebars::{handlebars_helper, Handlebars, no_escape};
 use std::convert::TryInto;
 
 pub static DEFAULT_MAIN_LINE_FORMAT: &str = "{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{bold(color_rgb 138 43 226 fblog_prefix)}} {{fblog_message}}";
@@ -15,12 +15,6 @@ fn level_to_style(level: &str) -> Style {
     _ => Colour::Purple,
   }
   .bold()
-}
-
-/// `EscapeFn` that does not change anything. Useful when using in a non-html
-/// environment.
-pub fn no_escape(data: &str) -> String {
-  data.to_owned()
 }
 
 pub fn fblog_handlebar_registry(main_line_format: String, additional_value_format: String) -> Handlebars<'static> {
