@@ -17,6 +17,12 @@ fn level_to_style(level: &str) -> Style {
   .bold()
 }
 
+/// `EscapeFn` that does not change anything. Useful when using in a non-html
+/// environment.
+pub fn no_escape(data: &str) -> String {
+  data.to_owned()
+}
+
 pub fn fblog_handlebar_registry(main_line_format: String, additional_value_format: String) -> Handlebars<'static> {
   handlebars_helper!(bold: |t: str| {
       style(&Style::new().bold(), t)
@@ -67,6 +73,7 @@ pub fn fblog_handlebar_registry(main_line_format: String, additional_value_forma
   });
 
   let mut reg = Handlebars::new();
+  reg.register_escape_fn(Box::new(no_escape));
 
   reg.register_helper("bold", Box::new(bold));
   reg.register_helper("uppercase", Box::new(uppercase));
