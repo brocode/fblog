@@ -123,10 +123,13 @@ fn extract_string_values(log_entry: &Map<String, Value>) -> BTreeMap<String, Str
   log_entry
     .iter()
     .filter_map(|(key, value)| {
-      if let Value::String(ref string_value) = *value {
-        Some((key.to_owned(), string_value.to_owned()))
-      } else {
-        None
+      match value {
+          Value::String(ref string_value) => Some((key.to_owned(), string_value.to_string())),
+          Value::Bool(ref bool_value) => Some((key.to_owned(), bool_value.to_string())),
+          Value::Number(ref number_value) => Some((key.to_owned(), number_value.to_string())),
+          Value::Array(_) => None, // currently not supported
+          Value::Object(_) => None, // currently not supported
+          Value::Null => None,
       }
     })
     .collect()
