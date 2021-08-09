@@ -23,7 +23,7 @@ pub fn process_input(
 ) {
   for line in input.lines() {
     let read_line = &line.expect("Should be able to read line");
-    match process_input_line(log_settings, read_line, None, maybe_filter, implicit_return, &handlebars) {
+    match process_input_line(log_settings, read_line, None, maybe_filter, implicit_return, handlebars) {
       Ok(_) => (),
       Err(_) => print_unknown_line(read_line),
     }
