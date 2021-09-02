@@ -1,13 +1,20 @@
 use hlua::{Lua, LuaError};
-use std::collections::BTreeMap;
+use serde_json::{Map, Value};
+use regex::Regex;
+use lazy_static::lazy_static;
 
-pub fn show_log_entry(log_entry: &BTreeMap<String, String>, filter_expr: &str, implicit_return: bool) -> Result<bool, LuaError> {
+lazy_static! {
+    static ref LUA_IDENTIFIER_CLEANUP: Regex = Regex::new(r"[^A-Za-z_]").unwrap();
+    static ref LUA_STRING_ESCAPE: Regex = Regex::new(r"([\n])").unwrap();
+}
+
+pub fn show_log_entry(log_entry: &Map<String, Value>, filter_expr: &str, implicit_return: bool) -> Result<bool, LuaError> {
   let mut lua = Lua::new();
   lua.openlibs();
 
-  for (key, value) in log_entry {
-    lua.set(key.to_owned(), value.to_owned());
-  }
+  let script = object_to_record(log_entry, false);
+  println!("{}", script);
+  lua.execute::<()>(&script)?;
 
   if implicit_return {
     lua.execute(&format!("return {};", filter_expr))
@@ -16,6 +23,55 @@ pub fn show_log_entry(log_entry: &BTreeMap<String, String>, filter_expr: &str, i
   }
 }
 
+fn object_to_record(object: &Map<String, Value>, nested: bool) -> String {
+
+    let lines: Vec<String> = object.iter()
+        .map(|(key, value)| {
+            let mut script = String::new();
+            let key_name = LUA_IDENTIFIER_CLEANUP.replace_all(key, "_");
+            script.push_str(&format!("{} = ", key_name));
+            match value {
+                Value::String(ref string_value) => {
+                    script.push_str(&format!("\"{}\"", escape_lua_string(string_value)))
+                },
+                Value::Bool(ref bool_value) => {
+                    script.push_str(&bool_value.to_string())
+                }
+                Value::Number(ref number_value) => {
+                    script.push_str(&number_value.to_string())
+                }
+                Value::Object(nested_object) => {
+                    let object_string = object_to_record(nested_object, true);
+                    script.push_str(&format!("{{{}}}", object_string))
+                }
+                _ => {
+                    script.push_str("\"unsupported\"")
+                }
+            }
+            script
+        }).collect();
+    lines.join(if nested {","} else {"\n"})
+}
+
+fn escape_lua_string(src: &str) -> String {
+    let mut escaped = String::with_capacity(src.len());
+    for c in src.chars() {
+        match c {
+            '\n' => escaped += "\\n",
+            '\r' => escaped += "\\r",
+            '\t' => escaped += "\\t",
+            '"' => escaped += "\\\"",
+            '\'' => escaped += "\\'",
+            '[' => escaped += "\\[",
+            ']' => escaped += "\\]",
+            '\\' => escaped += "\\\\",
+            c => escaped += &format!("{}", c),
+        }
+    }
+    escaped
+}
+
+/*
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -92,3 +148,4 @@ mod tests {
     );
   }
 }
+*/

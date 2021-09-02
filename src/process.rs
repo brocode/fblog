@@ -92,7 +92,7 @@ fn process_json_log_entry(
 ) {
   let string_log_entry = &extract_string_values(log_entry);
   if let Some(filter) = maybe_filter {
-    match filter::show_log_entry(string_log_entry, filter, implicit_return) {
+    match filter::show_log_entry(log_entry, filter, implicit_return) {
       Ok(true) => process_log_entry(log_settings, inspect_logger, maybe_prefix, string_log_entry, handlebars),
       Ok(false) => (),
       Err(e) => {
