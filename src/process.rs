@@ -89,7 +89,6 @@ fn process_json_log_entry(
       Ok(false) => (),
       Err(e) => {
         writeln!(io::stderr(), "{}: '{:?}'", Colour::Red.paint("Failed to apply filter expression"), e).expect("Should be able to write to stderr");
-        std::process::exit(1)
       }
     }
   } else {
