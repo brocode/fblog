@@ -82,14 +82,6 @@ pub fn app<'a>() -> App<'a, 'a> {
         .default_value("-"),
     )
     .arg(
-      Arg::with_name("inspect")
-        .long("inspect")
-        .short("i")
-        .multiple(false)
-        .takes_value(false)
-        .help("only prints json keys not encountered before"),
-    )
-    .arg(
       Arg::with_name("main-line-format")
         .long("main-line-format")
         .number_of_values(1)

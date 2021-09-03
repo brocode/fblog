@@ -1,5 +1,4 @@
 use crate::filter;
-use crate::inspect::InspectLogger;
 use crate::log::{self, LogSettings};
 use crate::no_color_support::style;
 use ansi_term::{Colour, Style};
@@ -46,12 +45,10 @@ fn process_input_line(
   implicit_return: bool,
   handlebars: &Handlebars<'static>,
 ) -> Result<(), ()> {
-  let mut inspect_logger = InspectLogger::new();
   match serde_json::from_str::<Value>(read_line) {
     Ok(Value::Object(log_entry)) => {
       process_json_log_entry(
         log_settings,
-        &mut inspect_logger,
         maybe_prefix,
         &log_entry,
         maybe_filter,
@@ -61,18 +58,14 @@ fn process_input_line(
       Ok(())
     }
     _ => {
-      if !log_settings.inspect {
-        if log_settings.with_prefix && maybe_prefix.is_none() {
-          match read_line.find('{') {
-            Some(pos) => {
-              let prefix = &read_line[..pos];
-              let rest = &read_line[pos..];
-              process_input_line(log_settings, rest, Some(prefix), maybe_filter, implicit_return, handlebars)
-            }
-            None => Err(()),
+      if log_settings.with_prefix && maybe_prefix.is_none() {
+        match read_line.find('{') {
+          Some(pos) => {
+            let prefix = &read_line[..pos];
+            let rest = &read_line[pos..];
+            process_input_line(log_settings, rest, Some(prefix), maybe_filter, implicit_return, handlebars)
           }
-        } else {
-          Err(())
+          None => Err(()),
         }
       } else {
         Err(())
@@ -83,7 +76,6 @@ fn process_input_line(
 
 fn process_json_log_entry(
   log_settings: &LogSettings,
-  inspect_logger: &mut InspectLogger,
   maybe_prefix: Option<&str>,
   log_entry: &Map<String, Value>,
   maybe_filter: Option<&str>,
@@ -93,7 +85,7 @@ fn process_json_log_entry(
   let string_log_entry = &extract_string_values(log_entry);
   if let Some(filter) = maybe_filter {
     match filter::show_log_entry(log_entry, filter, implicit_return) {
-      Ok(true) => process_log_entry(log_settings, inspect_logger, maybe_prefix, string_log_entry, handlebars),
+      Ok(true) => process_log_entry(log_settings, maybe_prefix, string_log_entry, handlebars),
       Ok(false) => (),
       Err(e) => {
         writeln!(io::stderr(), "{}: '{:?}'", Colour::Red.paint("Failed to apply filter expression"), e).expect("Should be able to write to stderr");
@@ -101,22 +93,17 @@ fn process_json_log_entry(
       }
     }
   } else {
-    process_log_entry(log_settings, inspect_logger, maybe_prefix, string_log_entry, handlebars)
+    process_log_entry(log_settings, maybe_prefix, string_log_entry, handlebars)
   }
 }
 
 fn process_log_entry(
   log_settings: &LogSettings,
-  inspect_logger: &mut InspectLogger,
   maybe_prefix: Option<&str>,
   log_entry: &BTreeMap<String, String>,
   handlebars: &Handlebars<'static>,
 ) {
-  if log_settings.inspect {
-    inspect_logger.print_unknown_keys(log_entry, &mut io::stdout())
-  } else {
-    log::print_log_line(&mut io::stdout(), maybe_prefix, log_entry, log_settings, handlebars)
-  }
+  log::print_log_line(&mut io::stdout(), maybe_prefix, log_entry, log_settings, handlebars)
 }
 
 fn extract_string_values(log_entry: &Map<String, Value>) -> BTreeMap<String, String> {

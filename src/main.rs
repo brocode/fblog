@@ -5,7 +5,6 @@ extern crate regex;
 
 mod app;
 mod filter;
-mod inspect;
 mod log;
 mod no_color_support;
 mod process;
@@ -38,7 +37,6 @@ fn main() {
 
   log_settings.dump_all = matches.is_present("dump-all");
   log_settings.with_prefix = matches.is_present("with-prefix");
-  log_settings.inspect = matches.is_present("inspect");
 
   let implicit_return = !matches.is_present("no-implicit-filter-return-statement");
   let maybe_filter = matches.value_of("filter");
