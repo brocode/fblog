@@ -82,16 +82,19 @@ fn process_json_log_entry(
   implicit_return: bool,
   handlebars: &Handlebars<'static>,
 ) {
-  let string_log_entry = &flatten_json(log_entry, "");
   if let Some(filter) = maybe_filter {
     match filter::show_log_entry(log_entry, filter, implicit_return) {
-      Ok(true) => process_log_entry(log_settings, maybe_prefix, string_log_entry, handlebars),
+      Ok(true) => {
+          let string_log_entry = &flatten_json(log_entry, "");
+          process_log_entry(log_settings, maybe_prefix, string_log_entry, handlebars)
+      },
       Ok(false) => (),
       Err(e) => {
         writeln!(io::stderr(), "{}: '{:?}'", Colour::Red.paint("Failed to apply filter expression"), e).expect("Should be able to write to stderr");
       }
     }
   } else {
+    let string_log_entry = &flatten_json(log_entry, "");
     process_log_entry(log_settings, maybe_prefix, string_log_entry, handlebars)
   }
 }
