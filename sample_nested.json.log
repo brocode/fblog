@@ -1,1 +1,2 @@
-{"log": {"level": "\n\tinfo"}, "status": {"a": 100, "b": "test", "c": true}}
+{"timestamp":"<>2017-07-06T15:21:16.378+00:00", "log": {"level": "info"}, "status": {"a": 100, "b": "test", "c": true}, "message": "test"}
+{"timestamp":"<>2017-07-06T15:21:16.378+00:00", "log": {"level": "info"}, "status": {"a": 200, "b": "sdfdsf", "c": true}, "message": "test"}

@@ -82,7 +82,7 @@ fn process_json_log_entry(
   implicit_return: bool,
   handlebars: &Handlebars<'static>,
 ) {
-  let string_log_entry = &extract_string_values(log_entry);
+  let string_log_entry = &flatten_json(log_entry, "");
   if let Some(filter) = maybe_filter {
     match filter::show_log_entry(log_entry, filter, implicit_return) {
       Ok(true) => process_log_entry(log_settings, maybe_prefix, string_log_entry, handlebars),
@@ -106,18 +106,28 @@ fn process_log_entry(
   log::print_log_line(&mut io::stdout(), maybe_prefix, log_entry, log_settings, handlebars)
 }
 
-fn extract_string_values(log_entry: &Map<String, Value>) -> BTreeMap<String, String> {
-  log_entry
-    .iter()
-    .filter_map(|(key, value)| {
+fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String, String> {
+  let mut flattened_json: BTreeMap<String, String> = BTreeMap::new();
+  for (key, value) in log_entry {
       match value {
-          Value::String(ref string_value) => Some((key.to_owned(), string_value.to_string())),
-          Value::Bool(ref bool_value) => Some((key.to_owned(), bool_value.to_string())),
-          Value::Number(ref number_value) => Some((key.to_owned(), number_value.to_string())),
-          Value::Array(_) => None, // currently not supported
-          Value::Object(_) => None, // currently not supported
-          Value::Null => None,
-      }
-    })
-    .collect()
+          Value::String(ref string_value) => {
+              flattened_json.insert(format!("{}{}",prefix, key), string_value.to_string());
+          },
+          Value::Bool(ref bool_value) => {
+              flattened_json.insert(format!("{}{}",prefix, key), bool_value.to_string());
+          },
+          Value::Number(ref number_value) => {
+              flattened_json.insert(format!("{}{}",prefix, key), number_value.to_string());
+          },
+          Value::Array(_) => {
+            // currently not supported
+          },
+          Value::Object(nested_entry) => {
+              flattened_json.extend(flatten_json(nested_entry, &format!("{} > ", key)));
+          },
+          Value::Null => {
+          },
+      };
+  }
+  flattened_json
 }
