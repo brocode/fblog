@@ -11,6 +11,13 @@
   [[file:demo.png]]
 
 
+
+** Print specific fields
+
+   #+BEGIN_SRC shell-script
+   fblog -a message -a "status > a" sample_nested.json.log
+   #+END_SRC
+
 ** Filter
    To filter log messages it is possible to use lua
 
@@ -22,8 +29,12 @@
    fblog -f 'process == "rust" and fu == "bower"'
    fblog --no-implicit-filter-return-statement -f 'if 3 > 2 then return true else return false end'
 
-   # not valid lua identifiers
-   fblog -d -f '_G["log.level"] == "WARN"' sample_elastic.log
+   # not valid lua identifiers like log.level gets converted to log_level.
+   # Every character that is not _ or a letter will be converted to _
+   fblog -d -f 'log_level == "WARN"' sample_elastic.log
+
+   # nested fields are converted to lua records
+   fblog  -d -f 'status.a == 100' sample_nested.json.log
    #+END_SRC
 
 
