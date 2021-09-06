@@ -130,7 +130,6 @@ dependencies = [
  "handlebars",
  "hlua",
  "lazy_static",
- "maplit",
  "regex",
  "serde_json",
 ]

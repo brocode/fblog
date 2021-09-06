@@ -1,7 +1,7 @@
 use crate::no_color_support::style;
+use serde_json::{Map, Value};
 use ansi_term::Colour;
 use handlebars::Handlebars;
-use maplit::btreemap;
 use std::borrow::ToOwned;
 use std::collections::BTreeMap;
 use std::io::Write;
@@ -50,18 +50,19 @@ impl LogSettings {
 pub fn print_log_line(
   out: &mut dyn Write,
   maybe_prefix: Option<&str>,
-  log_entry: &BTreeMap<String, String>,
+  log_entry: &Map<String, Value>,
   log_settings: &LogSettings,
   handlebars: &Handlebars<'static>,
 ) {
-  let level = get_string_value_or_default(log_entry, &log_settings.level_keys, "unknown");
+  let string_log_entry = flatten_json(log_entry, "");
+  let level = get_string_value_or_default(&string_log_entry, &log_settings.level_keys, "unknown");
 
   let formatted_prefix = maybe_prefix.map(|p| format!(" {}", p)).unwrap_or_else(|| "".to_owned());
-  let message = get_string_value_or_default(log_entry, &log_settings.message_keys, "");
-  let timestamp = get_string_value_or_default(log_entry, &log_settings.time_keys, "");
+  let message = get_string_value_or_default(&string_log_entry, &log_settings.message_keys, "");
+  let timestamp = get_string_value_or_default(&string_log_entry, &log_settings.time_keys, "");
 
   let mut handle_bar_input: BTreeMap<String, String> = BTreeMap::new();
-  handle_bar_input.clone_from(log_entry);
+  handle_bar_input.clone_from(&string_log_entry);
   handle_bar_input.insert("fblog_timestamp".to_string(), timestamp);
   handle_bar_input.insert("fblog_level".to_string(), level);
   handle_bar_input.insert("fblog_message".to_string(), message);
@@ -78,11 +79,37 @@ pub fn print_log_line(
   }
 
   if log_settings.dump_all {
-    let all_values: Vec<String> = log_entry.keys().map(ToOwned::to_owned).collect();
-    write_additional_values(out, log_entry, &all_values, handlebars);
+    let all_values: Vec<String> = string_log_entry.keys().map(ToOwned::to_owned).collect();
+    write_additional_values(out, &string_log_entry, &all_values, handlebars);
   } else {
-    write_additional_values(out, log_entry, &log_settings.additional_values, handlebars);
+    write_additional_values(out, &string_log_entry, &log_settings.additional_values, handlebars);
   }
+}
+
+fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String, String> {
+  let mut flattened_json: BTreeMap<String, String> = BTreeMap::new();
+  for (key, value) in log_entry {
+      match value {
+          Value::String(ref string_value) => {
+              flattened_json.insert(format!("{}{}",prefix, key), string_value.to_string());
+          },
+          Value::Bool(ref bool_value) => {
+              flattened_json.insert(format!("{}{}",prefix, key), bool_value.to_string());
+          },
+          Value::Number(ref number_value) => {
+              flattened_json.insert(format!("{}{}",prefix, key), number_value.to_string());
+          },
+          Value::Array(_) => {
+            // currently not supported
+          },
+          Value::Object(nested_entry) => {
+              flattened_json.extend(flatten_json(nested_entry, &format!("{} > ", key)));
+          },
+          Value::Null => {
+          },
+      };
+  }
+  flattened_json
 }
 
 fn get_string_value(value: &BTreeMap<String, String>, keys: &[String]) -> Option<String> {
@@ -98,15 +125,19 @@ fn get_string_value_or_default(value: &BTreeMap<String, String>, keys: &[String]
 fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, String>, additional_values: &[String], handlebars: &Handlebars<'static>) {
   for additional_value in additional_values {
     if let Some(value) = get_string_value(log_entry, &[additional_value.to_string()]) {
-      let variables = btreemap! {"key".to_string() =>additional_value.to_string(), "value".to_string() => value.to_string()};
-      let write_result = match handlebars.render("additional_value", &variables) {
-        Ok(string) => writeln!(out, "{}", string),
-        Err(e) => writeln!(out, "{} Failed to process additional value: {}", style(&Colour::Red.bold(), "   ??? >"), e),
-      };
-      if write_result.is_err() {
-        // Output end reached
-        std::process::exit(14);
-      }
+
+        let mut variables: BTreeMap<String, String> = BTreeMap::new();
+        variables.insert("key".to_string() , additional_value.to_string());
+        variables.insert("value".to_string(), value.to_string());
+
+        let write_result = match handlebars.render("additional_value", &variables) {
+            Ok(string) => writeln!(out, "{}", string),
+            Err(e) => writeln!(out, "{} Failed to process additional value: {}", style(&Colour::Red.bold(), "   ??? >"), e),
+        };
+        if write_result.is_err() {
+            // Output end reached
+            std::process::exit(14);
+        }
     }
   }
 }
@@ -115,7 +146,6 @@ fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, Str
 mod tests {
   use super::*;
   use crate::template;
-  use maplit::btreemap;
   use regex::Regex;
 
   fn fblog_handlebar_registry_default_format() -> Handlebars<'static> {
@@ -137,10 +167,11 @@ mod tests {
     let handlebars = fblog_handlebar_registry_default_format();
     let log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
-    let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
-    "time".to_string() => "2017-07-06T15:21:16".to_string(),
-    "process".to_string() => "rust".to_string(),
-    "level".to_string() => "info".to_string()};
+    let mut log_entry: Map<String, Value> = Map::new();
+    log_entry.insert( "message".to_string(), Value::String("something happend".to_string()));
+    log_entry.insert( "time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
+    log_entry.insert( "process".to_string(), Value::String("rust".to_string()));
+    log_entry.insert( "level".to_string(), Value::String("info".to_string()));
 
     print_log_line(&mut out, None, &log_entry, &log_settings, &handlebars);
 
@@ -152,10 +183,11 @@ mod tests {
     let log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
     let prefix = "abc";
-    let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
-    "time".to_string() => "2017-07-06T15:21:16".to_string(),
-    "process".to_string() => "rust".to_string(),
-    "level".to_string() => "info".to_string()};
+    let mut log_entry: Map<String, Value> = Map::new();
+    log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+    log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
+    log_entry.insert("process".to_string(), Value::String("rust".to_string()));
+    log_entry.insert("level".to_string(), Value::String("info".to_string()));
 
     print_log_line(&mut out, Some(prefix), &log_entry, &log_settings, &handlebars);
 
@@ -166,11 +198,12 @@ mod tests {
   fn write_log_entry_with_additional_field() {
     let handlebars = fblog_handlebar_registry_default_format();
     let mut out: Vec<u8> = Vec::new();
-    let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
-    "time".to_string() => "2017-07-06T15:21:16".to_string(),
-    "process".to_string() => "rust".to_string(),
-    "fu".to_string() => "bower".to_string(),
-    "level".to_string() => "info".to_string()};
+      let mut log_entry: Map<String, Value> = Map::new();
+    log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+    log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
+    log_entry.insert("process".to_string(), Value::String("rust".to_string()));
+    log_entry.insert("fu".to_string(), Value::String("bower".to_string()));
+    log_entry.insert("level".to_string(), Value::String("info".to_string()));
     let mut log_settings = LogSettings::new_default_settings();
     log_settings.add_additional_values(vec!["process".to_string(), "fu".to_string()]);
 
@@ -185,15 +218,18 @@ mod tests {
 "
     );
   }
+
   #[test]
   fn write_log_entry_with_additional_field_and_prefix() {
     let handlebars = fblog_handlebar_registry_default_format();
     let mut out: Vec<u8> = Vec::new();
-    let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
-    "time".to_string() => "2017-07-06T15:21:16".to_string(),
-    "process".to_string() => "rust".to_string(),
-    "fu".to_string() => "bower".to_string(),
-    "level".to_string() => "info".to_string()};
+    let mut log_entry: Map<String, Value> = Map::new();
+    log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+    log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
+    log_entry.insert("process".to_string(), Value::String("rust".to_string()));
+    log_entry.insert("fu".to_string(), Value::String("bower".to_string()));
+    log_entry.insert("level".to_string(), Value::String("info".to_string()));
+
     let prefix = "abc";
     let mut log_settings = LogSettings::new_default_settings();
     log_settings.add_additional_values(vec!["process".to_string(), "fu".to_string()]);
@@ -214,11 +250,12 @@ mod tests {
   fn write_log_entry_dump_all() {
     let handlebars = fblog_handlebar_registry_default_format();
     let mut out: Vec<u8> = Vec::new();
-    let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
-    "time".to_string() => "2017-07-06T15:21:16".to_string(),
-    "process".to_string() => "rust".to_string(),
-    "fu".to_string() => "bower".to_string(),
-    "level".to_string() => "info".to_string()};
+    let mut log_entry: Map<String, Value> = Map::new();
+    log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+    log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
+    log_entry.insert("process".to_string(), Value::String("rust".to_string()));
+    log_entry.insert("fu".to_string(), Value::String("bower".to_string()));
+    log_entry.insert("level".to_string(), Value::String("info".to_string()));
 
     let mut log_settings = LogSettings::new_default_settings();
     log_settings.dump_all = true;
@@ -242,12 +279,13 @@ mod tests {
     let handlebars = fblog_handlebar_registry_default_format();
     let mut log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
-    let log_entry: BTreeMap<String, String> = btreemap! {"message".to_string() => "something happend".to_string(),
-    "time".to_string() => "2017-07-06T15:21:16".to_string(),
-    "process".to_string() => "rust".to_string(),
-    "moep".to_string() => "moep".to_string(),
-    "hugo".to_string() => "hugo".to_string(),
-    "level".to_string() => "info".to_string()};
+    let mut log_entry: Map<String, Value> = Map::new();
+    log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+    log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
+    log_entry.insert("process".to_string(), Value::String("rust".to_string()));
+    log_entry.insert("moep".to_string(), Value::String("moep".to_string()));
+    log_entry.insert("hugo".to_string(), Value::String("hugo".to_string()));
+    log_entry.insert("level".to_string(), Value::String("info".to_string()));
 
     log_settings.add_message_keys(vec!["process".to_string()]);
     log_settings.add_time_keys(vec!["moep".to_string()]);
@@ -258,3 +296,4 @@ mod tests {
     assert_eq!(out_to_string(out), "               moep  HUGO: rust\n");
   }
 }
+
