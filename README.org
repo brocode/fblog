@@ -3,6 +3,7 @@
 * fblog
 
   [[https://crates.io/crates/fblog][file:https://img.shields.io/crates/v/fblog.svg]]
+  [[https://github.com/brocode/fblog/blob/nested-values/.github/workflows/rust.yml][file:https://github.com/brocode/fblog/actions/workflows/rust.yml/badge.svg?branch=master]]
 
 
   A small tool to view json log files.
