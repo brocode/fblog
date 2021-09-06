@@ -58,6 +58,8 @@
 
    For the default formatting see ~--help~
 
+   Nested values are registered as objects. So you can use ~nested.value~ to access nested values.
+
    handlebar helpers:
 
    * bold
