@@ -3,7 +3,6 @@
 * fblog
 
   [[https://crates.io/crates/fblog][file:https://img.shields.io/crates/v/fblog.svg]]
-  [[https://travis-ci.org/brocode/fblog][file:https://travis-ci.org/brocode/fblog.svg?branch=master]]
 
 
   A small tool to view json log files.
