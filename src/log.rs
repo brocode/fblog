@@ -98,8 +98,18 @@ fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String
       Value::Number(ref number_value) => {
         flattened_json.insert(format!("{}{}", prefix, key), number_value.to_string());
       }
-      Value::Array(_) => {
-        // currently not supported
+      Value::Array(ref array_values) => {
+        for (index, array_value) in array_values.iter().enumerate() {
+          let key = format!("{}[{}]", key, index + 1); // lua tables indexes start with 1
+
+          let flattened_json_value = match array_value {
+            Value::Array(_) => "array value not supported".to_string(),
+            Value::Object(_) => "object value not supported".to_string(),
+            _ => array_value.to_string(),
+          };
+
+          flattened_json.insert(format!("{}{}", prefix, key), flattened_json_value);
+        }
       }
       Value::Object(nested_entry) => {
         flattened_json.extend(flatten_json(nested_entry, &format!("{}{} > ", prefix, key)));

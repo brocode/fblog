@@ -37,6 +37,9 @@
    fblog  -d -f 'status.a == 100' sample_nested.json.log
    #+END_SRC
 
+   # array fields are converted to lua tables (index starts with 1)
+   fblog  -d -f 'status.d[2] == "a"' sample_nested.json.log
+   #+END_SRC
 
 ** Customize
    ~fblog~ tries to detect the message, severity and timestamp of a log

@@ -37,6 +37,22 @@ fn object_to_record(object: &Map<String, Value>, nested: bool) -> String {
           let object_string = object_to_record(nested_object, true);
           script.push_str(&format!("{{{}}}", object_string))
         }
+        Value::Array(array_values) => {
+          let mut values = vec![];
+
+          for array_value in array_values.iter() {
+            let lua_array_value = match array_value {
+              Value::String(ref string_value) => format!("\"{}\"", escape_lua_string(string_value)),
+              Value::Bool(ref bool_value) => bool_value.to_string(),
+              Value::Number(ref number_value) => number_value.to_string(),
+              _ => "\"unsupported\"".to_string(),
+            };
+
+            values.push(lua_array_value);
+          }
+
+          script.push_str(&format!("{{{}}}", values.join(",")));
+        }
         _ => script.push_str("\"unsupported\""),
       }
       script
@@ -79,6 +95,19 @@ mod tests {
     nested.insert("log.level".to_string(), Value::String("debug".to_string()));
 
     map.insert("nested".to_string(), Value::Object(nested));
+
+    let mut nested_with_array = Map::new();
+    nested_with_array.insert(
+      "array".to_string(),
+      Value::Array(vec![
+        Value::String("a".to_string()),
+        Value::String("b".to_string()),
+        Value::String("c".to_string()),
+      ]),
+    );
+
+    map.insert("nested_with_array".to_string(), Value::Object(nested_with_array));
+
     map
   }
 
@@ -148,5 +177,11 @@ mod tests {
   fn neted() {
     let log_entry: Map<String, Value> = test_log_entry();
     assert_eq!(true, show_log_entry(&log_entry, r#"nested.log_level == "debug""#, true).unwrap());
+  }
+
+  #[test]
+  fn nested_with_array() {
+    let log_entry: Map<String, Value> = test_log_entry();
+    assert_eq!(true, show_log_entry(&log_entry, r#"nested_with_array.array[2] == "b""#, true).unwrap());
   }
 }
