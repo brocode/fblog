@@ -1,7 +1,7 @@
 use crate::no_color_support::style;
-use serde_json::{Map, Value};
 use ansi_term::Colour;
 use handlebars::Handlebars;
+use serde_json::{Map, Value};
 use std::borrow::ToOwned;
 use std::collections::BTreeMap;
 use std::io::Write;
@@ -85,29 +85,27 @@ pub fn print_log_line(
   }
 }
 
-
 fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String, String> {
   let mut flattened_json: BTreeMap<String, String> = BTreeMap::new();
   for (key, value) in log_entry {
-      match value {
-          Value::String(ref string_value) => {
-              flattened_json.insert(format!("{}{}",prefix, key), string_value.to_string());
-          },
-          Value::Bool(ref bool_value) => {
-              flattened_json.insert(format!("{}{}",prefix, key), bool_value.to_string());
-          },
-          Value::Number(ref number_value) => {
-              flattened_json.insert(format!("{}{}",prefix, key), number_value.to_string());
-          },
-          Value::Array(_) => {
-            // currently not supported
-          },
-          Value::Object(nested_entry) => {
-              flattened_json.extend(flatten_json(nested_entry, &format!("{} > ", key)));
-          },
-          Value::Null => {
-          },
-      };
+    match value {
+      Value::String(ref string_value) => {
+        flattened_json.insert(format!("{}{}", prefix, key), string_value.to_string());
+      }
+      Value::Bool(ref bool_value) => {
+        flattened_json.insert(format!("{}{}", prefix, key), bool_value.to_string());
+      }
+      Value::Number(ref number_value) => {
+        flattened_json.insert(format!("{}{}", prefix, key), number_value.to_string());
+      }
+      Value::Array(_) => {
+        // currently not supported
+      }
+      Value::Object(nested_entry) => {
+        flattened_json.extend(flatten_json(nested_entry, &format!("{} > ", key)));
+      }
+      Value::Null => {}
+    };
   }
   flattened_json
 }
@@ -125,19 +123,18 @@ fn get_string_value_or_default(value: &BTreeMap<String, String>, keys: &[String]
 fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, String>, additional_values: &[String], handlebars: &Handlebars<'static>) {
   for additional_value in additional_values {
     if let Some(value) = get_string_value(log_entry, &[additional_value.to_string()]) {
+      let mut variables: BTreeMap<String, String> = BTreeMap::new();
+      variables.insert("key".to_string(), additional_value.to_string());
+      variables.insert("value".to_string(), value.to_string());
 
-        let mut variables: BTreeMap<String, String> = BTreeMap::new();
-        variables.insert("key".to_string() , additional_value.to_string());
-        variables.insert("value".to_string(), value.to_string());
-
-        let write_result = match handlebars.render("additional_value", &variables) {
-            Ok(string) => writeln!(out, "{}", string),
-            Err(e) => writeln!(out, "{} Failed to process additional value: {}", style(&Colour::Red.bold(), "   ??? >"), e),
-        };
-        if write_result.is_err() {
-            // Output end reached
-            std::process::exit(14);
-        }
+      let write_result = match handlebars.render("additional_value", &variables) {
+        Ok(string) => writeln!(out, "{}", string),
+        Err(e) => writeln!(out, "{} Failed to process additional value: {}", style(&Colour::Red.bold(), "   ??? >"), e),
+      };
+      if write_result.is_err() {
+        // Output end reached
+        std::process::exit(14);
+      }
     }
   }
 }
@@ -168,10 +165,10 @@ mod tests {
     let log_settings = LogSettings::new_default_settings();
     let mut out: Vec<u8> = Vec::new();
     let mut log_entry: Map<String, Value> = Map::new();
-    log_entry.insert( "message".to_string(), Value::String("something happend".to_string()));
-    log_entry.insert( "time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
-    log_entry.insert( "process".to_string(), Value::String("rust".to_string()));
-    log_entry.insert( "level".to_string(), Value::String("info".to_string()));
+    log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+    log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
+    log_entry.insert("process".to_string(), Value::String("rust".to_string()));
+    log_entry.insert("level".to_string(), Value::String("info".to_string()));
 
     print_log_line(&mut out, None, &log_entry, &log_settings, &handlebars);
 
@@ -198,7 +195,7 @@ mod tests {
   fn write_log_entry_with_additional_field() {
     let handlebars = fblog_handlebar_registry_default_format();
     let mut out: Vec<u8> = Vec::new();
-      let mut log_entry: Map<String, Value> = Map::new();
+    let mut log_entry: Map<String, Value> = Map::new();
     log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
     log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
     log_entry.insert("process".to_string(), Value::String("rust".to_string()));
@@ -296,4 +293,3 @@ mod tests {
     assert_eq!(out_to_string(out), "               moep  HUGO: rust\n");
   }
 }
-

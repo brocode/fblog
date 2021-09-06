@@ -46,14 +46,7 @@ fn process_input_line(
 ) -> Result<(), ()> {
   match serde_json::from_str::<Value>(read_line) {
     Ok(Value::Object(log_entry)) => {
-      process_json_log_entry(
-        log_settings,
-        maybe_prefix,
-        &log_entry,
-        maybe_filter,
-        implicit_return,
-        handlebars,
-      );
+      process_json_log_entry(log_settings, maybe_prefix, &log_entry, maybe_filter, implicit_return, handlebars);
       Ok(())
     }
     _ => {
@@ -83,9 +76,7 @@ fn process_json_log_entry(
 ) {
   if let Some(filter) = maybe_filter {
     match filter::show_log_entry(log_entry, filter, implicit_return) {
-      Ok(true) => {
-          process_log_entry(log_settings, maybe_prefix, log_entry, handlebars)
-      },
+      Ok(true) => process_log_entry(log_settings, maybe_prefix, log_entry, handlebars),
       Ok(false) => (),
       Err(e) => {
         writeln!(io::stderr(), "{}: '{:?}'", Colour::Red.paint("Failed to apply filter expression"), e).expect("Should be able to write to stderr");
@@ -96,12 +87,6 @@ fn process_json_log_entry(
   }
 }
 
-fn process_log_entry(
-  log_settings: &LogSettings,
-  maybe_prefix: Option<&str>,
-  log_entry: &Map<String, Value>,
-  handlebars: &Handlebars<'static>,
-) {
+fn process_log_entry(log_settings: &LogSettings, maybe_prefix: Option<&str>, log_entry: &Map<String, Value>, handlebars: &Handlebars<'static>) {
   log::print_log_line(&mut io::stdout(), maybe_prefix, log_entry, log_settings, handlebars)
 }
-
