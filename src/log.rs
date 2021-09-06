@@ -102,7 +102,7 @@ fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String
         // currently not supported
       }
       Value::Object(nested_entry) => {
-        flattened_json.extend(flatten_json(nested_entry, &format!("{} > ", key)));
+        flattened_json.extend(flatten_json(nested_entry, &format!("{}{} > ", prefix, key)));
       }
       Value::Null => {}
     };
