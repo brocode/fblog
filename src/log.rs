@@ -61,12 +61,11 @@ pub fn print_log_line(
   let message = get_string_value_or_default(&string_log_entry, &log_settings.message_keys, "");
   let timestamp = get_string_value_or_default(&string_log_entry, &log_settings.time_keys, "");
 
-  let mut handle_bar_input: BTreeMap<String, String> = BTreeMap::new();
-  handle_bar_input.clone_from(&string_log_entry);
-  handle_bar_input.insert("fblog_timestamp".to_string(), timestamp);
-  handle_bar_input.insert("fblog_level".to_string(), level);
-  handle_bar_input.insert("fblog_message".to_string(), message);
-  handle_bar_input.insert("fblog_prefix".to_string(), formatted_prefix);
+  let mut handle_bar_input: Map<String, Value> = log_entry.clone();
+  handle_bar_input.insert("fblog_timestamp".to_string(), Value::String(timestamp));
+  handle_bar_input.insert("fblog_level".to_string(), Value::String(level));
+  handle_bar_input.insert("fblog_message".to_string(), Value::String(message));
+  handle_bar_input.insert("fblog_prefix".to_string(), Value::String(formatted_prefix));
 
   let write_result = match handlebars.render("main_line", &handle_bar_input) {
     Ok(string) => writeln!(out, "{}", string),
@@ -85,6 +84,7 @@ pub fn print_log_line(
     write_additional_values(out, &string_log_entry, &log_settings.additional_values, handlebars);
   }
 }
+
 
 fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String, String> {
   let mut flattened_json: BTreeMap<String, String> = BTreeMap::new();
