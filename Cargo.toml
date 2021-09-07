@@ -1,6 +1,6 @@
 [package]
 name = "fblog"
-version = "3.0.1"
+version = "3.0.2-alpha.0"
 authors = ["Patrick Haun <bomgar85@googlemail.com>"]
 license = "WTFPL"
 categories = ["command-line-utilities"]
