@@ -116,41 +116,71 @@ mod tests {
   #[test]
   fn allow_all() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, "true", true).unwrap());
+    assert_eq!(true, show_log_entry(&log_entry, "true", true, &LogSettings::new_default_settings()).unwrap());
   }
 
   #[test]
   fn deny_all() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(false, show_log_entry(&log_entry, "false", true).unwrap());
+    assert_eq!(false, show_log_entry(&log_entry, "false", true, &LogSettings::new_default_settings()).unwrap());
   }
 
   #[test]
   fn filter_process() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, r#"process == "rust""#, true).unwrap());
-    assert_eq!(false, show_log_entry(&log_entry, r#"process == "meep""#, true).unwrap());
+    assert_eq!(
+      true,
+      show_log_entry(&log_entry, r#"process == "rust""#, true, &LogSettings::new_default_settings()).unwrap()
+    );
+    assert_eq!(
+      false,
+      show_log_entry(&log_entry, r#"process == "meep""#, true, &LogSettings::new_default_settings()).unwrap()
+    );
   }
 
   #[test]
   fn filter_logical_operators() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, r#"process == "rust" and fu == "bower""#, true).unwrap());
-    assert_eq!(true, show_log_entry(&log_entry, r#"process == "rust" or fu == "bauer""#, true).unwrap());
+    assert_eq!(
+      true,
+      show_log_entry(&log_entry, r#"process == "rust" and fu == "bower""#, true, &LogSettings::new_default_settings()).unwrap()
+    );
+    assert_eq!(
+      true,
+      show_log_entry(&log_entry, r#"process == "rust" or fu == "bauer""#, true, &LogSettings::new_default_settings()).unwrap()
+    );
   }
 
   #[test]
   fn filter_contains() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, r#"string.find(message, "something") ~= nil"#, true).unwrap());
-    assert_eq!(false, show_log_entry(&log_entry, r#"string.find(message, "bla") ~= nil"#, true).unwrap());
+    assert_eq!(
+      true,
+      show_log_entry(
+        &log_entry,
+        r#"string.find(message, "something") ~= nil"#,
+        true,
+        &LogSettings::new_default_settings()
+      )
+      .unwrap()
+    );
+    assert_eq!(
+      false,
+      show_log_entry(&log_entry, r#"string.find(message, "bla") ~= nil"#, true, &LogSettings::new_default_settings()).unwrap()
+    );
   }
 
   #[test]
   fn filter_regex() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, r#"string.find(fu, "bow.*") ~= nil"#, true).unwrap());
-    assert_eq!(false, show_log_entry(&log_entry, r#"string.find(fu, "bow.*sd") ~= nil"#, true).unwrap());
+    assert_eq!(
+      true,
+      show_log_entry(&log_entry, r#"string.find(fu, "bow.*") ~= nil"#, true, &LogSettings::new_default_settings()).unwrap()
+    );
+    assert_eq!(
+      false,
+      show_log_entry(&log_entry, r#"string.find(fu, "bow.*sd") ~= nil"#, true, &LogSettings::new_default_settings()).unwrap()
+    );
   }
 
   #[test]
@@ -158,7 +188,13 @@ mod tests {
     let log_entry: Map<String, Value> = test_log_entry();
     assert_eq!(
       false,
-      show_log_entry(&log_entry, r#"sdkfjsdfjsf ~= nil and string.find(sdkfjsdfjsf, "bow.*") ~= nil"#, true).unwrap()
+      show_log_entry(
+        &log_entry,
+        r#"sdkfjsdfjsf ~= nil and string.find(sdkfjsdfjsf, "bow.*") ~= nil"#,
+        true,
+        &LogSettings::new_default_settings()
+      )
+      .unwrap()
     );
   }
 
@@ -167,23 +203,41 @@ mod tests {
     let log_entry: Map<String, Value> = test_log_entry();
     assert_eq!(
       true,
-      show_log_entry(&log_entry, r#"if 3 > 2 then return true else return false end"#, false).unwrap()
+      show_log_entry(
+        &log_entry,
+        r#"if 3 > 2 then return true else return false end"#,
+        false,
+        &LogSettings::new_default_settings()
+      )
+      .unwrap()
     );
     assert_eq!(
       false,
-      show_log_entry(&log_entry, r#"if 1 > 2 then return true else return false end"#, false).unwrap()
+      show_log_entry(
+        &log_entry,
+        r#"if 1 > 2 then return true else return false end"#,
+        false,
+        &LogSettings::new_default_settings()
+      )
+      .unwrap()
     );
   }
 
   #[test]
   fn neted() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, r#"nested.log_level == "debug""#, true).unwrap());
+    assert_eq!(
+      true,
+      show_log_entry(&log_entry, r#"nested.log_level == "debug""#, true, &LogSettings::new_default_settings()).unwrap()
+    );
   }
 
   #[test]
   fn nested_with_array() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, r#"nested_with_array.array[2] == "b""#, true).unwrap());
+    assert_eq!(
+      true,
+      show_log_entry(&log_entry, r#"nested_with_array.array[2] == "b""#, true, &LogSettings::new_default_settings()).unwrap()
+    );
   }
 }
