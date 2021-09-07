@@ -13,6 +13,7 @@ pub fn show_log_entry(log_entry: &Map<String, Value>, filter_expr: &str, implici
   lua.openlibs();
 
   let script = object_to_record(log_entry, false);
+  println!("{}", script);
   lua.execute::<()>(&script)?;
 
   if implicit_return {
@@ -70,8 +71,6 @@ fn escape_lua_string(src: &str) -> String {
       '\t' => escaped += "\\t",
       '"' => escaped += "\\\"",
       '\'' => escaped += "\\'",
-      '[' => escaped += "\\[",
-      ']' => escaped += "\\]",
       '\\' => escaped += "\\\\",
       c => escaped += &format!("{}", c),
     }
