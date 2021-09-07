@@ -75,7 +75,7 @@ fn process_json_log_entry(
   handlebars: &Handlebars<'static>,
 ) {
   if let Some(filter) = maybe_filter {
-    match filter::show_log_entry(log_entry, filter, implicit_return) {
+    match filter::show_log_entry(log_entry, filter, implicit_return, log_settings) {
       Ok(true) => process_log_entry(log_settings, maybe_prefix, log_entry, handlebars),
       Ok(false) => (),
       Err(e) => {

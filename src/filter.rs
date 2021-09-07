@@ -1,3 +1,4 @@
+use crate::log::LogSettings;
 use hlua::{Lua, LuaError};
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -8,12 +9,14 @@ lazy_static! {
   static ref LUA_STRING_ESCAPE: Regex = Regex::new(r"([\n])").unwrap();
 }
 
-pub fn show_log_entry(log_entry: &Map<String, Value>, filter_expr: &str, implicit_return: bool) -> Result<bool, LuaError> {
+pub fn show_log_entry(log_entry: &Map<String, Value>, filter_expr: &str, implicit_return: bool, log_settings: &LogSettings) -> Result<bool, LuaError> {
   let mut lua = Lua::new();
   lua.openlibs();
 
   let script = object_to_record(log_entry, false);
-  //println!("{}", script);
+  if log_settings.print_lua {
+    println!("{}", script);
+  }
   lua.execute::<()>(&script)?;
 
   if implicit_return {

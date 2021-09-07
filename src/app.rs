@@ -27,6 +27,13 @@ pub fn app<'a>() -> App<'a, 'a> {
         .help("Adds an additional key to detect the message in the log entry. The first matching key will be assigned to `fblog_message`."),
     )
     .arg(
+      Arg::with_name("print-lua")
+        .long("print-lua")
+        .multiple(false)
+        .takes_value(false)
+        .help("Prints lua init expressions. Used for fblog debugging."),
+    )
+    .arg(
       Arg::with_name("time-key")
         .long("time-key")
         .short("t")

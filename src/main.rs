@@ -37,6 +37,7 @@ fn main() {
 
   log_settings.dump_all = matches.is_present("dump-all");
   log_settings.with_prefix = matches.is_present("with-prefix");
+  log_settings.print_lua = matches.is_present("print-lua");
 
   let implicit_return = !matches.is_present("no-implicit-filter-return-statement");
   let maybe_filter = matches.value_of("filter");

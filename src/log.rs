@@ -13,6 +13,7 @@ pub struct LogSettings {
   pub additional_values: Vec<String>,
   pub dump_all: bool,
   pub with_prefix: bool,
+  pub print_lua: bool,
 }
 
 impl LogSettings {
@@ -24,6 +25,7 @@ impl LogSettings {
       additional_values: vec![],
       dump_all: false,
       with_prefix: false,
+      print_lua: false,
     }
   }
 
