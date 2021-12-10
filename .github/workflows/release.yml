@@ -18,8 +18,8 @@ jobs:
       - uses: docker://messense/rust-musl-cross:x86_64-musl
         with:
           args: musl-strip target/x86_64-unknown-linux-musl/release/fblog
-      - run: cp ./target/x86_64-unknown-linux-musl/release/fblog fbtoggl
-      - run: sha512sum fblog > fbtoggl.sha512sum
+      - run: cp ./target/x86_64-unknown-linux-musl/release/fblog fblog
+      - run: sha512sum fblog > fblog.sha512sum
       - id: github_release
         uses: actions/create-release@v1
         env:
