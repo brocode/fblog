@@ -1,0 +1,48 @@
+on:
+  push:
+    tags:
+      - "v*"
+name: Release
+jobs:
+  build:
+    name: Release (github.com)
+    runs-on: ubuntu-latest
+    env:
+      BINARY_NAME: fblog
+      CARGO_TERM_COLOR: always
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker://messense/rust-musl-cross:x86_64-musl
+        with:
+          args: cargo build --release
+      - uses: docker://messense/rust-musl-cross:x86_64-musl
+        with:
+          args: musl-strip target/x86_64-unknown-linux-musl/release/fblog
+      - run: cp ./target/x86_64-unknown-linux-musl/release/fblog fbtoggl
+      - run: sha512sum fblog > fbtoggl.sha512sum
+      - id: github_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release fblog ${{ github.ref }}
+          body: "No changelog!"
+          draft: false
+          prerelease: false
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.github_release.outputs.upload_url }}
+          asset_path: ./fblog
+          asset_name: fblog
+          asset_content_type: application/octet-stream
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.github_release.outputs.upload_url }}
+          asset_path: ./fblog.sha512sum
+          asset_name: fblog.sha512sum
+          asset_content_type: text/plain
