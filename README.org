@@ -98,7 +98,7 @@
 
 
 ** Log tailing
-   Fblog does not support native log tailing but this is easily achiveable.
+   ~fblog~ does not support native log tailing but this is easily achiveable.
 
    #+BEGIN_SRC bash
    tail -f file | fblog
