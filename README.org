@@ -95,3 +95,19 @@
    brew tap brocode/fblog https://github.com/brocode/fblog.git
    brew install fblog
    #+END_SRC
+
+
+** Log tailing
+   Fblog does not support native log tailing but this is easily achiveable.
+
+   #+BEGIN_SRC bash
+   tail -f file | fblog
+   #+END_SRC
+
+   Or with kubernetes tooling for example
+
+   #+BEGIN_SRC bash
+   kubectl logs -f ... | fblog
+   #+END_SRC
+
+   In general you can pipe any endless stream to fblog.
