@@ -1,95 +1,94 @@
 use crate::template;
 use clap::crate_version;
-use clap::{App, AppSettings, Arg};
+use clap::{App, Arg};
 
-pub fn app<'a>() -> App<'a, 'a> {
+pub fn app<'a>() -> App<'a> {
   App::new("fblog")
-    .global_setting(AppSettings::ColoredHelp)
     .version(crate_version!())
     .author("Brocode inc <bros@brocode.sh>")
     .about("json log viewer")
     .arg(
-      Arg::with_name("additional-value")
+      Arg::new("additional-value")
         .long("additional-value")
-        .short("a")
-        .multiple(true)
+        .short('a')
+        .multiple_occurrences(true)
         .number_of_values(1)
         .takes_value(true)
         .help("adds additional values"),
     )
     .arg(
-      Arg::with_name("message-key")
+      Arg::new("message-key")
         .long("message-key")
-        .short("m")
-        .multiple(true)
+        .short('m')
+        .multiple_occurrences(true)
         .number_of_values(1)
         .takes_value(true)
         .help("Adds an additional key to detect the message in the log entry. The first matching key will be assigned to `fblog_message`."),
     )
     .arg(
-      Arg::with_name("print-lua")
+      Arg::new("print-lua")
         .long("print-lua")
-        .multiple(false)
+        .multiple_occurrences(false)
         .takes_value(false)
         .help("Prints lua init expressions. Used for fblog debugging."),
     )
     .arg(
-      Arg::with_name("time-key")
+      Arg::new("time-key")
         .long("time-key")
-        .short("t")
-        .multiple(true)
+        .short('t')
+        .multiple_occurrences(true)
         .number_of_values(1)
         .takes_value(true)
         .help("Adds an additional key to detect the time in the log entry. The first matching key will be assigned to `fblog_timestamp`."),
     )
     .arg(
-      Arg::with_name("level-key")
+      Arg::new("level-key")
         .long("level-key")
-        .short("l")
-        .multiple(true)
+        .short('l')
+        .multiple_occurrences(true)
         .number_of_values(1)
         .takes_value(true)
         .help("Adds an additional key to detect the level in the log entry. The first matching key will be assigned to `fblog_level`."),
     )
     .arg(
-      Arg::with_name("dump-all")
+      Arg::new("dump-all")
         .long("dump-all")
-        .short("d")
-        .multiple(false)
+        .short('d')
+        .multiple_occurrences(false)
         .takes_value(false)
         .help("dumps all values"),
     )
     .arg(
-      Arg::with_name("with-prefix")
+      Arg::new("with-prefix")
         .long("with-prefix")
-        .short("p")
-        .multiple(false)
+        .short('p')
+        .multiple_occurrences(false)
         .takes_value(false)
         .help("consider all text before opening curly brace as prefix"),
     )
     .arg(
-      Arg::with_name("filter")
+      Arg::new("filter")
         .long("filter")
-        .short("f")
-        .multiple(false)
+        .short('f')
+        .multiple_occurrences(false)
         .takes_value(true)
         .help("lua expression to filter log entries. `message ~= nil and string.find(message, \"text.*\") ~= nil`"),
     )
     .arg(
-      Arg::with_name("no-implicit-filter-return-statement")
+      Arg::new("no-implicit-filter-return-statement")
         .long("no-implicit-filter-return-statement")
-        .multiple(false)
+        .multiple_occurrences(false)
         .takes_value(false)
         .help("if you pass a filter expression 'return' is automatically prepended. Pass this switch to disable the implicit return."),
     )
     .arg(
-      Arg::with_name("INPUT")
+      Arg::new("INPUT")
         .help("Sets the input file to use, otherwise assumes stdin")
         .required(false)
         .default_value("-"),
     )
     .arg(
-      Arg::with_name("main-line-format")
+      Arg::new("main-line-format")
         .long("main-line-format")
         .number_of_values(1)
         .takes_value(true)
@@ -97,7 +96,7 @@ pub fn app<'a>() -> App<'a, 'a> {
         .help("Formats the main fblog output. All log values can be used. fblog provides sanitized variables starting with `fblog_`."),
     )
     .arg(
-      Arg::with_name("additional-value-format")
+      Arg::new("additional-value-format")
         .long("additional-value-format")
         .number_of_values(1)
         .takes_value(true)
