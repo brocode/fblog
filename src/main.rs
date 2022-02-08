@@ -39,6 +39,11 @@ fn main() {
   log_settings.with_prefix = matches.is_present("with-prefix");
   log_settings.print_lua = matches.is_present("print-lua");
 
+  if let Some(values) = matches.values_of("excluded-value") {
+    log_settings.dump_all = true; // Dump all is implicitly set by exclusion
+    log_settings.add_excluded_values(values.map(ToString::to_string).collect());
+  }
+
   let implicit_return = !matches.is_present("no-implicit-filter-return-statement");
   let maybe_filter = matches.value_of("filter");
 

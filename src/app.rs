@@ -14,6 +14,7 @@ pub fn app<'a>() -> App<'a> {
         .multiple_occurrences(true)
         .number_of_values(1)
         .takes_value(true)
+        .conflicts_with("excluded-value")
         .help("adds additional values"),
     )
     .arg(
@@ -59,6 +60,16 @@ pub fn app<'a>() -> App<'a> {
         .help("dumps all values"),
     )
     .arg(
+      Arg::new("excluded-value")
+        .long("excluded-value")
+        .short('x')
+        .multiple_occurrences(true)
+        .number_of_values(1)
+        .takes_value(true)
+        .conflicts_with("additional-value")
+        .help("Excludes values (--dump-all is enabled implicitly)"),
+    )
+    .arg(
       Arg::new("with-prefix")
         .long("with-prefix")
         .short('p')
@@ -101,6 +112,6 @@ pub fn app<'a>() -> App<'a> {
         .number_of_values(1)
         .takes_value(true)
         .default_value(template::DEFAULT_ADDITIONAL_VALUE_FORMAT)
-        .help("Formats the addtional value fblog output."),
+        .help("Formats the additional value fblog output."),
     )
 }

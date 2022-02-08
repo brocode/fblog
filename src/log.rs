@@ -11,6 +11,7 @@ pub struct LogSettings {
   pub time_keys: Vec<String>,
   pub level_keys: Vec<String>,
   pub additional_values: Vec<String>,
+  pub excluded_values: Vec<String>,
   pub dump_all: bool,
   pub with_prefix: bool,
   pub print_lua: bool,
@@ -23,6 +24,7 @@ impl LogSettings {
       time_keys: vec!["timestamp".to_string(), "time".to_string(), "@timestamp".to_string()],
       level_keys: vec!["level".to_string(), "severity".to_string(), "log.level".to_string(), "loglevel".to_string()],
       additional_values: vec![],
+      excluded_values: vec![],
       dump_all: false,
       with_prefix: false,
       print_lua: false,
@@ -46,6 +48,10 @@ impl LogSettings {
   pub fn add_level_keys(&mut self, mut level_keys: Vec<String>) {
     level_keys.append(&mut self.level_keys);
     self.level_keys = level_keys;
+  }
+
+  pub fn add_excluded_values(&mut self, mut excluded_values: Vec<String>) {
+    self.excluded_values.append(&mut excluded_values);
   }
 }
 
@@ -80,7 +86,11 @@ pub fn print_log_line(
   }
 
   if log_settings.dump_all {
-    let all_values: Vec<String> = string_log_entry.keys().map(ToOwned::to_owned).collect();
+    let all_values: Vec<String> = string_log_entry
+      .keys()
+      .map(ToOwned::to_owned)
+      .filter(|v| !log_settings.excluded_values.contains(v))
+      .collect();
     write_additional_values(out, &string_log_entry, &all_values, handlebars);
   } else {
     write_additional_values(out, &string_log_entry, &log_settings.additional_values, handlebars);
