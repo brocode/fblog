@@ -121,7 +121,7 @@ checksum = "e88a8acf291dafb59c2d96e8f59828f3838bb1a70398823ade51a84de6a6deed"
 
 [[package]]
 name = "fblog"
-version = "3.2.0"
+version = "3.2.1-alpha.0"
 dependencies = [
  "ansi_term",
  "clap",
