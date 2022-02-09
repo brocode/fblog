@@ -86,14 +86,7 @@
    cargo install fblog
    #+END_SRC
 
-   If you're lucky enough to be an arch linux user: [[https://aur.archlinux.org/packages/fblog/][AUR]]
-
-   If you want to install fblog via Homebrew execute the following commands:
-
-   #+BEGIN_SRC bash
-   brew tap brocode/fblog https://github.com/brocode/fblog.git
-   brew install fblog
-   #+END_SRC
+   Available in package managers: [[https://aur.archlinux.org/packages/fblog/][AUR]], [[https://formulae.brew.sh/formula/fblog][brew]]
 
 
 ** Log tailing
