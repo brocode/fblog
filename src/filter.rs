@@ -1,6 +1,6 @@
 use crate::log::LogSettings;
-use hlua::{Lua, LuaError};
 use lazy_static::lazy_static;
+use mlua::{Error as LuaError, Lua};
 use regex::Regex;
 use serde_json::{Map, Value};
 
@@ -10,19 +10,18 @@ lazy_static! {
 }
 
 pub fn show_log_entry(log_entry: &Map<String, Value>, filter_expr: &str, implicit_return: bool, log_settings: &LogSettings) -> Result<bool, LuaError> {
-  let mut lua = Lua::new();
-  lua.openlibs();
+  let lua = Lua::new();
 
   let script = object_to_record(log_entry, false);
   if log_settings.print_lua {
     println!("{}", script);
   }
-  lua.execute::<()>(&script)?;
+  lua.load(&script).exec()?;
 
   if implicit_return {
-    lua.execute(&format!("return {};", filter_expr))
+    lua.load(&format!("return {};", filter_expr)).eval::<bool>()
   } else {
-    lua.execute(filter_expr)
+    lua.load(filter_expr).eval::<bool>()
   }
 }
 
