@@ -5,7 +5,7 @@ authors = ["Patrick Haun <bomgar85@googlemail.com>"]
 license = "WTFPL"
 categories = ["command-line-utilities"]
 description = "json log viewer"
-keywords = ["json", "log", "viewer" ]
+keywords = ["json", "log", "viewer"]
 repository = "https://github.com/brocode/fblog"
 readme = "README.org"
 edition = "2018"
@@ -14,7 +14,7 @@ edition = "2018"
 serde_json = "1.0"
 ansi_term = "0.12"
 regex = "1"
-hlua = "0.4"
+mlua = { version = "0.7", features = ["lua54", "vendored"] }
 lazy_static = "1.4.0"
 handlebars = "4"
 
