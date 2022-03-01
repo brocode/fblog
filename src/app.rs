@@ -1,6 +1,6 @@
 use crate::template;
 use clap::crate_version;
-use clap::{Command, Arg};
+use clap::{Arg, Command};
 
 pub fn app<'a>() -> Command<'a> {
   Command::new("fblog")
