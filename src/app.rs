@@ -1,9 +1,9 @@
 use crate::template;
 use clap::crate_version;
-use clap::{App, Arg};
+use clap::{Command, Arg};
 
-pub fn app<'a>() -> App<'a> {
-  App::new("fblog")
+pub fn app<'a>() -> Command<'a> {
+  Command::new("fblog")
     .version(crate_version!())
     .author("Brocode inc <bros@brocode.sh>")
     .about("json log viewer")
