@@ -4,7 +4,7 @@
 
   [[https://crates.io/crates/fblog][file:https://img.shields.io/crates/v/fblog.svg]]
   [[https://github.com/brocode/fblog/blob/nested-values/.github/workflows/rust.yml][file:https://github.com/brocode/fblog/actions/workflows/rust.yml/badge.svg?branch=master]]
-
+  [[https://rawkode.chat/][file:https://img.shields.io/discord/730728064031653999.svg]]
 
   A small tool to view json log files.
 
@@ -105,3 +105,7 @@
    #+END_SRC
 
    In general you can pipe any endless stream to fblog.
+
+** Discord
+   In the case you want to talk about new features or give us direct feedback,
+   you can join the [[https://rawkode.chat/][Discord]] (Thanks [[https://github.com/rawkode][@rawkode]]) in the channel ~fblog~.
