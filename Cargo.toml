@@ -20,4 +20,4 @@ handlebars = "4"
 
 [dependencies.clap]
 version = "3"
-features = ["cargo"]
+features = ["cargo", "deprecated"]

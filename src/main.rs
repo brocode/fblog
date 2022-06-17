@@ -19,44 +19,44 @@ fn main() {
 
   let mut log_settings = LogSettings::new_default_settings();
 
-  if let Some(values) = matches.values_of("additional-value") {
-    log_settings.add_additional_values(values.map(ToString::to_string).collect());
+  if let Some(values) = matches.get_many::<String>("additional-value") {
+    log_settings.add_additional_values(values.map(ToOwned::to_owned).collect());
   }
 
-  if let Some(values) = matches.values_of("message-key") {
+  if let Some(values) = matches.get_many::<String>("message-key") {
     log_settings.add_message_keys(values.map(ToString::to_string).collect());
   }
 
-  if let Some(values) = matches.values_of("time-key") {
+  if let Some(values) = matches.get_many::<String>("time-key") {
     log_settings.add_time_keys(values.map(ToString::to_string).collect());
   }
 
-  if let Some(values) = matches.values_of("level-key") {
+  if let Some(values) = matches.get_many::<String>("level-key") {
     log_settings.add_level_keys(values.map(ToString::to_string).collect());
   }
 
-  log_settings.dump_all = matches.is_present("dump-all");
-  log_settings.with_prefix = matches.is_present("with-prefix");
-  log_settings.print_lua = matches.is_present("print-lua");
+  log_settings.dump_all = matches.contains_id("dump-all");
+  log_settings.with_prefix = matches.contains_id("with-prefix");
+  log_settings.print_lua = matches.contains_id("print-lua");
 
-  if let Some(values) = matches.values_of("excluded-value") {
+  if let Some(values) = matches.get_many::<String>("excluded-value") {
     log_settings.dump_all = true; // Dump all is implicitly set by exclusion
     log_settings.add_excluded_values(values.map(ToString::to_string).collect());
   }
 
-  let implicit_return = !matches.is_present("no-implicit-filter-return-statement");
-  let maybe_filter = matches.value_of("filter");
+  let implicit_return = !matches.contains_id("no-implicit-filter-return-statement");
+  let maybe_filter = matches.get_one::<String>("filter");
 
-  let input_filename = matches.value_of("INPUT").unwrap();
+  let input_filename = matches.get_one::<String>("INPUT").unwrap();
   let mut input = io::BufReader::new(input_read(input_filename));
 
   // TODO: include profile
   let main_line_format = matches
-    .value_of("main-line-format")
+    .get_one::<String>("main-line-format")
     .map(|s| s.to_string())
     .unwrap_or_else(|| template::DEFAULT_MAIN_LINE_FORMAT.to_string());
   let additional_value_format = matches
-    .value_of("additional-value-format")
+    .get_one::<String>("additional-value-format")
     .map(|s| s.to_string())
     .unwrap_or_else(|| template::DEFAULT_ADDITIONAL_VALUE_FORMAT.to_string());
 

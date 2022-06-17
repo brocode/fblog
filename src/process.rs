@@ -15,7 +15,7 @@ lazy_static! {
 pub fn process_input(
   log_settings: &LogSettings,
   input: &mut dyn io::BufRead,
-  maybe_filter: Option<&str>,
+  maybe_filter: Option<&String>,
   implicit_return: bool,
   handlebars: &Handlebars<'static>,
 ) {
@@ -40,7 +40,7 @@ fn process_input_line(
   log_settings: &LogSettings,
   read_line: &str,
   maybe_prefix: Option<&str>,
-  maybe_filter: Option<&str>,
+  maybe_filter: Option<&String>,
   implicit_return: bool,
   handlebars: &Handlebars<'static>,
 ) -> Result<(), ()> {
@@ -70,7 +70,7 @@ fn process_json_log_entry(
   log_settings: &LogSettings,
   maybe_prefix: Option<&str>,
   log_entry: &Map<String, Value>,
-  maybe_filter: Option<&str>,
+  maybe_filter: Option<&String>,
   implicit_return: bool,
   handlebars: &Handlebars<'static>,
 ) {

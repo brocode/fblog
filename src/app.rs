@@ -1,5 +1,5 @@
 use crate::template;
-use clap::crate_version;
+use clap::{crate_version, ArgAction};
 use clap::{Arg, Command};
 
 pub fn app<'a>() -> Command<'a> {
@@ -11,7 +11,7 @@ pub fn app<'a>() -> Command<'a> {
       Arg::new("additional-value")
         .long("additional-value")
         .short('a')
-        .multiple_occurrences(true)
+        .action(ArgAction::Append)
         .number_of_values(1)
         .takes_value(true)
         .conflicts_with("excluded-value")
@@ -21,7 +21,7 @@ pub fn app<'a>() -> Command<'a> {
       Arg::new("message-key")
         .long("message-key")
         .short('m')
-        .multiple_occurrences(true)
+        .action(ArgAction::Append)
         .number_of_values(1)
         .takes_value(true)
         .help("Adds an additional key to detect the message in the log entry. The first matching key will be assigned to `fblog_message`."),
@@ -29,7 +29,6 @@ pub fn app<'a>() -> Command<'a> {
     .arg(
       Arg::new("print-lua")
         .long("print-lua")
-        .multiple_occurrences(false)
         .takes_value(false)
         .help("Prints lua init expressions. Used for fblog debugging."),
     )
@@ -37,7 +36,7 @@ pub fn app<'a>() -> Command<'a> {
       Arg::new("time-key")
         .long("time-key")
         .short('t')
-        .multiple_occurrences(true)
+        .action(ArgAction::Append)
         .number_of_values(1)
         .takes_value(true)
         .help("Adds an additional key to detect the time in the log entry. The first matching key will be assigned to `fblog_timestamp`."),
@@ -46,24 +45,17 @@ pub fn app<'a>() -> Command<'a> {
       Arg::new("level-key")
         .long("level-key")
         .short('l')
-        .multiple_occurrences(true)
+        .action(ArgAction::Append)
         .number_of_values(1)
         .takes_value(true)
         .help("Adds an additional key to detect the level in the log entry. The first matching key will be assigned to `fblog_level`."),
     )
-    .arg(
-      Arg::new("dump-all")
-        .long("dump-all")
-        .short('d')
-        .multiple_occurrences(false)
-        .takes_value(false)
-        .help("dumps all values"),
-    )
+    .arg(Arg::new("dump-all").long("dump-all").short('d').takes_value(false).help("dumps all values"))
     .arg(
       Arg::new("excluded-value")
         .long("excluded-value")
         .short('x')
-        .multiple_occurrences(true)
+        .action(ArgAction::Append)
         .number_of_values(1)
         .takes_value(true)
         .conflicts_with("additional-value")
@@ -73,7 +65,6 @@ pub fn app<'a>() -> Command<'a> {
       Arg::new("with-prefix")
         .long("with-prefix")
         .short('p')
-        .multiple_occurrences(false)
         .takes_value(false)
         .help("consider all text before opening curly brace as prefix"),
     )
@@ -81,14 +72,13 @@ pub fn app<'a>() -> Command<'a> {
       Arg::new("filter")
         .long("filter")
         .short('f')
-        .multiple_occurrences(false)
+        .action(ArgAction::Set)
         .takes_value(true)
         .help("lua expression to filter log entries. `message ~= nil and string.find(message, \"text.*\") ~= nil`"),
     )
     .arg(
       Arg::new("no-implicit-filter-return-statement")
         .long("no-implicit-filter-return-statement")
-        .multiple_occurrences(false)
         .takes_value(false)
         .help("if you pass a filter expression 'return' is automatically prepended. Pass this switch to disable the implicit return."),
     )
