@@ -201,39 +201,31 @@ mod tests {
   #[test]
   fn no_implicit_return() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert!(
-      show_log_entry(
-        &log_entry,
-        r#"if 3 > 2 then return true else return false end"#,
-        false,
-        &LogSettings::new_default_settings()
-      )
-      .unwrap()
-    );
-    assert!(
-      !show_log_entry(
-        &log_entry,
-        r#"if 1 > 2 then return true else return false end"#,
-        false,
-        &LogSettings::new_default_settings()
-      )
-      .unwrap()
-    );
+    assert!(show_log_entry(
+      &log_entry,
+      r#"if 3 > 2 then return true else return false end"#,
+      false,
+      &LogSettings::new_default_settings()
+    )
+    .unwrap());
+    assert!(!show_log_entry(
+      &log_entry,
+      r#"if 1 > 2 then return true else return false end"#,
+      false,
+      &LogSettings::new_default_settings()
+    )
+    .unwrap());
   }
 
   #[test]
   fn neted() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert!(
-      show_log_entry(&log_entry, r#"nested.log_level == "debug""#, true, &LogSettings::new_default_settings()).unwrap()
-    );
+    assert!(show_log_entry(&log_entry, r#"nested.log_level == "debug""#, true, &LogSettings::new_default_settings()).unwrap());
   }
 
   #[test]
   fn nested_with_array() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert!(
-      show_log_entry(&log_entry, r#"nested_with_array.array[2] == "b""#, true, &LogSettings::new_default_settings()).unwrap()
-    );
+    assert!(show_log_entry(&log_entry, r#"nested_with_array.array[2] == "b""#, true, &LogSettings::new_default_settings()).unwrap());
   }
 }
