@@ -3,6 +3,7 @@ use lazy_static::lazy_static;
 use mlua::{Error as LuaError, Lua};
 use regex::Regex;
 use serde_json::{Map, Value};
+use std::fmt::Write as _;
 
 lazy_static! {
   static ref LUA_IDENTIFIER_CLEANUP: Regex = Regex::new(r"[^A-Za-z_]").unwrap();
@@ -31,14 +32,14 @@ fn object_to_record(object: &Map<String, Value>, nested: bool) -> String {
     .map(|(key, value)| {
       let mut script = String::new();
       let key_name = LUA_IDENTIFIER_CLEANUP.replace_all(key, "_");
-      script.push_str(&format!("{} = ", key_name));
+      write!(script, "{} = ", key_name).expect("Should be able to write to string");
       match value {
-        Value::String(ref string_value) => script.push_str(&format!("\"{}\"", escape_lua_string(string_value))),
+        Value::String(ref string_value) => write!(script, "\"{}\"", escape_lua_string(string_value)).expect("Should be able to write to string"),
         Value::Bool(ref bool_value) => script.push_str(&bool_value.to_string()),
         Value::Number(ref number_value) => script.push_str(&number_value.to_string()),
         Value::Object(nested_object) => {
           let object_string = object_to_record(nested_object, true);
-          script.push_str(&format!("{{{}}}", object_string))
+          write!(script, "{{{}}}", object_string).expect("Should be able to write to string");
         }
         Value::Array(array_values) => {
           let mut values = vec![];
@@ -54,9 +55,9 @@ fn object_to_record(object: &Map<String, Value>, nested: bool) -> String {
             values.push(lua_array_value);
           }
 
-          script.push_str(&format!("{{{}}}", values.join(",")));
+          write!(script, "{{{}}}", values.join(",")).expect("Should be able to write to string");
         }
-        _ => script.push_str("\"unsupported\""),
+        _ => write!(script, "\"unsupported\"").expect("Should be able to write to string"),
       }
       script
     })
@@ -74,7 +75,7 @@ fn escape_lua_string(src: &str) -> String {
       '"' => escaped += "\\\"",
       '\'' => escaped += "\\'",
       '\\' => escaped += "\\\\",
-      c => escaped += &format!("{}", c),
+      c => write!(escaped, "{}", c).expect("Should be able to write to string"),
     }
   }
   escaped
@@ -200,8 +201,7 @@ mod tests {
   #[test]
   fn no_implicit_return() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(
-      true,
+    assert!(
       show_log_entry(
         &log_entry,
         r#"if 3 > 2 then return true else return false end"#,
@@ -210,9 +210,8 @@ mod tests {
       )
       .unwrap()
     );
-    assert_eq!(
-      false,
-      show_log_entry(
+    assert!(
+      !show_log_entry(
         &log_entry,
         r#"if 1 > 2 then return true else return false end"#,
         false,
@@ -225,8 +224,7 @@ mod tests {
   #[test]
   fn neted() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(
-      true,
+    assert!(
       show_log_entry(&log_entry, r#"nested.log_level == "debug""#, true, &LogSettings::new_default_settings()).unwrap()
     );
   }
@@ -234,8 +232,7 @@ mod tests {
   #[test]
   fn nested_with_array() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(
-      true,
+    assert!(
       show_log_entry(&log_entry, r#"nested_with_array.array[2] == "b""#, true, &LogSettings::new_default_settings()).unwrap()
     );
   }
