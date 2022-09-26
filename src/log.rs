@@ -1,10 +1,10 @@
 use crate::no_color_support::style;
-use ansi_term::Colour;
 use handlebars::Handlebars;
 use serde_json::{Map, Value};
 use std::borrow::ToOwned;
 use std::collections::BTreeMap;
 use std::io::Write;
+use yansi::Color;
 
 pub struct LogSettings {
   pub message_keys: Vec<String>,
@@ -77,7 +77,7 @@ pub fn print_log_line(
 
   let write_result = match handlebars.render("main_line", &handle_bar_input) {
     Ok(string) => writeln!(out, "{}", string),
-    Err(e) => writeln!(out, "{} Failed to process line: {}", style(&Colour::Red.bold(), "??? >"), e),
+    Err(e) => writeln!(out, "{} Failed to process line: {}", style(&Color::Red.style().bold(), "??? >"), e),
   };
 
   if write_result.is_err() {
@@ -151,7 +151,12 @@ fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, Str
 
       let write_result = match handlebars.render("additional_value", &variables) {
         Ok(string) => writeln!(out, "{}", string),
-        Err(e) => writeln!(out, "{} Failed to process additional value: {}", style(&Colour::Red.bold(), "   ??? >"), e),
+        Err(e) => writeln!(
+          out,
+          "{} Failed to process additional value: {}",
+          style(&Color::Red.style().bold(), "   ??? >"),
+          e
+        ),
       };
       if write_result.is_err() {
         // Output end reached

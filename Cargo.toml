@@ -12,7 +12,7 @@ edition = "2021"
 
 [dependencies]
 serde_json = "1.0"
-ansi_term = "0.12"
+yansi = "0.5.1"
 regex = "1"
 mlua = { version = "0.8", features = ["lua54", "vendored"] }
 lazy_static = "1.4.0"
