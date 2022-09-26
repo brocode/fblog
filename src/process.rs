@@ -1,15 +1,15 @@
 use crate::filter;
 use crate::log::{self, LogSettings};
 use crate::no_color_support::style;
-use ansi_term::{Colour, Style};
 use handlebars::Handlebars;
 use lazy_static::lazy_static;
 use serde_json::{Map, Value};
 use std::io::Write;
 use std::io::{self, BufRead};
+use yansi::{Color, Style};
 
 lazy_static! {
-  static ref BOLD_ORANGE: Style = Colour::RGB(255, 135, 22).bold();
+  static ref BOLD_ORANGE: Style = Color::RGB(255, 135, 22).style().bold();
 }
 
 pub fn process_input(
@@ -79,7 +79,7 @@ fn process_json_log_entry(
       Ok(true) => process_log_entry(log_settings, maybe_prefix, log_entry, handlebars),
       Ok(false) => (),
       Err(e) => {
-        writeln!(io::stderr(), "{}: '{:?}'", Colour::Red.paint("Failed to apply filter expression"), e).expect("Should be able to write to stderr");
+        writeln!(io::stderr(), "{}: '{:?}'", Color::Red.paint("Failed to apply filter expression"), e).expect("Should be able to write to stderr");
       }
     }
   } else {
