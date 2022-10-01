@@ -19,5 +19,5 @@ lazy_static = "1.4.0"
 handlebars = "4"
 
 [dependencies.clap]
-version = "3"
+version = "4"
 features = ["cargo", "deprecated"]
