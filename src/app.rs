@@ -2,7 +2,7 @@ use crate::template;
 use clap::{crate_version, ArgAction};
 use clap::{Arg, Command};
 
-pub fn app<'a>() -> Command<'a> {
+pub fn app<'a>() -> Command {
   Command::new("fblog")
     .version(crate_version!())
     .author("Brocode inc <bros@brocode.sh>")
@@ -12,8 +12,7 @@ pub fn app<'a>() -> Command<'a> {
         .long("additional-value")
         .short('a')
         .action(ArgAction::Append)
-        .number_of_values(1)
-        .takes_value(true)
+        .num_args(1)
         .conflicts_with("excluded-value")
         .help("adds additional values"),
     )
@@ -22,14 +21,14 @@ pub fn app<'a>() -> Command<'a> {
         .long("message-key")
         .short('m')
         .action(ArgAction::Append)
-        .number_of_values(1)
-        .takes_value(true)
+        .num_args(1)
         .help("Adds an additional key to detect the message in the log entry. The first matching key will be assigned to `fblog_message`."),
     )
     .arg(
       Arg::new("print-lua")
         .long("print-lua")
-        .takes_value(false)
+        .num_args(0)
+        .action(ArgAction::SetTrue)
         .help("Prints lua init expressions. Used for fblog debugging."),
     )
     .arg(
@@ -37,8 +36,7 @@ pub fn app<'a>() -> Command<'a> {
         .long("time-key")
         .short('t')
         .action(ArgAction::Append)
-        .number_of_values(1)
-        .takes_value(true)
+        .num_args(1)
         .help("Adds an additional key to detect the time in the log entry. The first matching key will be assigned to `fblog_timestamp`."),
     )
     .arg(
@@ -46,18 +44,23 @@ pub fn app<'a>() -> Command<'a> {
         .long("level-key")
         .short('l')
         .action(ArgAction::Append)
-        .number_of_values(1)
-        .takes_value(true)
+        .num_args(1)
         .help("Adds an additional key to detect the level in the log entry. The first matching key will be assigned to `fblog_level`."),
     )
-    .arg(Arg::new("dump-all").long("dump-all").short('d').takes_value(false).help("dumps all values"))
+    .arg(
+      Arg::new("dump-all")
+        .long("dump-all")
+        .short('d')
+        .num_args(0)
+        .action(ArgAction::SetTrue)
+        .help("dumps all values"),
+    )
     .arg(
       Arg::new("excluded-value")
         .long("excluded-value")
         .short('x')
         .action(ArgAction::Append)
-        .number_of_values(1)
-        .takes_value(true)
+        .num_args(1)
         .conflicts_with("additional-value")
         .help("Excludes values (--dump-all is enabled implicitly)"),
     )
@@ -65,7 +68,8 @@ pub fn app<'a>() -> Command<'a> {
       Arg::new("with-prefix")
         .long("with-prefix")
         .short('p')
-        .takes_value(false)
+        .num_args(0)
+        .action(ArgAction::SetTrue)
         .help("consider all text before opening curly brace as prefix"),
     )
     .arg(
@@ -73,13 +77,14 @@ pub fn app<'a>() -> Command<'a> {
         .long("filter")
         .short('f')
         .action(ArgAction::Set)
-        .takes_value(true)
+        .num_args(1)
         .help("lua expression to filter log entries. `message ~= nil and string.find(message, \"text.*\") ~= nil`"),
     )
     .arg(
       Arg::new("no-implicit-filter-return-statement")
         .long("no-implicit-filter-return-statement")
-        .takes_value(false)
+        .num_args(0)
+        .action(ArgAction::SetTrue)
         .help("if you pass a filter expression 'return' is automatically prepended. Pass this switch to disable the implicit return."),
     )
     .arg(
@@ -91,16 +96,14 @@ pub fn app<'a>() -> Command<'a> {
     .arg(
       Arg::new("main-line-format")
         .long("main-line-format")
-        .number_of_values(1)
-        .takes_value(true)
+        .num_args(1)
         .default_value(template::DEFAULT_MAIN_LINE_FORMAT)
         .help("Formats the main fblog output. All log values can be used. fblog provides sanitized variables starting with `fblog_`."),
     )
     .arg(
       Arg::new("additional-value-format")
         .long("additional-value-format")
-        .number_of_values(1)
-        .takes_value(true)
+        .num_args(1)
         .default_value(template::DEFAULT_ADDITIONAL_VALUE_FORMAT)
         .help("Formats the additional value fblog output."),
     )

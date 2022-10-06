@@ -35,16 +35,16 @@ fn main() {
     log_settings.add_level_keys(values.map(ToString::to_string).collect());
   }
 
-  log_settings.dump_all = matches.contains_id("dump-all");
-  log_settings.with_prefix = matches.contains_id("with-prefix");
-  log_settings.print_lua = matches.contains_id("print-lua");
+  log_settings.dump_all = matches.get_flag("dump-all");
+  log_settings.with_prefix = matches.get_flag("with-prefix");
+  log_settings.print_lua = matches.get_flag("print-lua");
 
   if let Some(values) = matches.get_many::<String>("excluded-value") {
     log_settings.dump_all = true; // Dump all is implicitly set by exclusion
     log_settings.add_excluded_values(values.map(ToString::to_string).collect());
   }
 
-  let implicit_return = !matches.contains_id("no-implicit-filter-return-statement");
+  let implicit_return = !matches.get_flag("no-implicit-filter-return-statement");
   let maybe_filter = matches.get_one::<String>("filter");
 
   let input_filename = matches.get_one::<String>("INPUT").unwrap();
