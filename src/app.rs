@@ -2,7 +2,7 @@ use crate::template;
 use clap::{crate_version, ArgAction};
 use clap::{Arg, Command};
 
-pub fn app<'a>() -> Command {
+pub fn app() -> Command {
   Command::new("fblog")
     .version(crate_version!())
     .author("Brocode inc <bros@brocode.sh>")
