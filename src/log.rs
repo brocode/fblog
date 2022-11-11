@@ -117,15 +117,14 @@ fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String
           match array_value {
             Value::Array(array_values) => {
               flatten_array(&key, prefix, array_values, &mut flattened_json);
-            },
+            }
             Value::Object(nested_entry) => {
               flattened_json.extend(flatten_json(nested_entry, &format!("{}{} > ", prefix, key)));
-            },
+            }
             _ => {
-              flattened_json.insert(format!("{}{}", prefix, key),array_value.to_string());
-            },
+              flattened_json.insert(format!("{}{}", prefix, key), array_value.to_string());
+            }
           };
-
         }
       }
       Value::Object(nested_entry) => {
@@ -138,22 +137,19 @@ fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String
 }
 
 fn flatten_array(key: &str, prefix: &str, array_values: &[Value], flattened_json: &mut BTreeMap<String, String>) {
-        for (index, array_value) in array_values.iter().enumerate() {
-          let key = format!("{}[{}]", key, index + 1); // lua tables indexes start with 1
+  for (index, array_value) in array_values.iter().enumerate() {
+    let key = format!("{}[{}]", key, index + 1); // lua tables indexes start with 1
 
-          match array_value {
-            Value::Array(nested_array_values) => {
-              flatten_array(&key, prefix, nested_array_values, flattened_json)
-            },
-            Value::Object(nested_entry) => {
-              flattened_json.extend(flatten_json(nested_entry, &format!("{}{} > ", prefix, key)));
-            },
-            _ => {
-              flattened_json.insert(format!("{}{}", prefix, key),array_value.to_string());
-            },
-          };
-
-        }
+    match array_value {
+      Value::Array(nested_array_values) => flatten_array(&key, prefix, nested_array_values, flattened_json),
+      Value::Object(nested_entry) => {
+        flattened_json.extend(flatten_json(nested_entry, &format!("{}{} > ", prefix, key)));
+      }
+      _ => {
+        flattened_json.insert(format!("{}{}", prefix, key), array_value.to_string());
+      }
+    };
+  }
 }
 
 fn get_string_value(value: &BTreeMap<String, String>, keys: &[String]) -> Option<String> {
@@ -168,7 +164,10 @@ fn get_string_value_or_default(value: &BTreeMap<String, String>, keys: &[String]
 
 fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, String>, additional_values: &[String], handlebars: &Handlebars<'static>) {
   for additional_value_prefix in additional_values {
-    for additional_value in log_entry.keys().filter(|k| k.to_owned() == additional_value_prefix || k.to_owned().starts_with(&format!("{}{}", additional_value_prefix, " > "))) {
+    for additional_value in log_entry
+      .keys()
+      .filter(|k| *k == additional_value_prefix || k.starts_with(&format!("{}{}", additional_value_prefix, " > ")))
+    {
       if let Some(value) = get_string_value(log_entry, &[additional_value.to_string()]) {
         let mut variables: BTreeMap<String, String> = BTreeMap::new();
         variables.insert("key".to_string(), additional_value.to_string());
