@@ -167,24 +167,26 @@ fn get_string_value_or_default(value: &BTreeMap<String, String>, keys: &[String]
 }
 
 fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, String>, additional_values: &[String], handlebars: &Handlebars<'static>) {
-  for additional_value in additional_values {
-    if let Some(value) = get_string_value(log_entry, &[additional_value.to_string()]) {
-      let mut variables: BTreeMap<String, String> = BTreeMap::new();
-      variables.insert("key".to_string(), additional_value.to_string());
-      variables.insert("value".to_string(), value.to_string());
+  for additional_value_prefix in additional_values {
+    for additional_value in log_entry.keys().filter(|k| k.to_owned() == additional_value_prefix || k.to_owned().starts_with(&format!("{}{}", additional_value_prefix, " > "))) {
+      if let Some(value) = get_string_value(log_entry, &[additional_value.to_string()]) {
+        let mut variables: BTreeMap<String, String> = BTreeMap::new();
+        variables.insert("key".to_string(), additional_value.to_string());
+        variables.insert("value".to_string(), value.to_string());
 
-      let write_result = match handlebars.render("additional_value", &variables) {
-        Ok(string) => writeln!(out, "{}", string),
-        Err(e) => writeln!(
-          out,
-          "{} Failed to process additional value: {}",
-          style(&Color::Red.style().bold(), "   ??? >"),
-          e
-        ),
-      };
-      if write_result.is_err() {
-        // Output end reached
-        std::process::exit(14);
+        let write_result = match handlebars.render("additional_value", &variables) {
+          Ok(string) => writeln!(out, "{}", string),
+          Err(e) => writeln!(
+            out,
+            "{} Failed to process additional value: {}",
+            style(&Color::Red.style().bold(), "   ??? >"),
+            e
+          ),
+        };
+        if write_result.is_err() {
+          // Output end reached
+          std::process::exit(14);
+        }
       }
     }
   }
