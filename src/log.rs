@@ -114,13 +114,18 @@ fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String
         for (index, array_value) in array_values.iter().enumerate() {
           let key = format!("{}[{}]", key, index + 1); // lua tables indexes start with 1
 
-          let flattened_json_value = match array_value {
-            Value::Array(_) => "array value not supported".to_string(),
-            Value::Object(_) => "object value not supported".to_string(),
-            _ => array_value.to_string(),
+          match array_value {
+            Value::Array(array_values) => {
+              flatten_array(&key, prefix, array_values, &mut flattened_json);
+            },
+            Value::Object(nested_entry) => {
+              flattened_json.extend(flatten_json(nested_entry, &format!("{}{} > ", prefix, key)));
+            },
+            _ => {
+              flattened_json.insert(format!("{}{}", prefix, key),array_value.to_string());
+            },
           };
 
-          flattened_json.insert(format!("{}{}", prefix, key), flattened_json_value);
         }
       }
       Value::Object(nested_entry) => {
@@ -130,6 +135,25 @@ fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String
     };
   }
   flattened_json
+}
+
+fn flatten_array(key: &str, prefix: &str, array_values: &[Value], flattened_json: &mut BTreeMap<String, String>) {
+        for (index, array_value) in array_values.iter().enumerate() {
+          let key = format!("{}[{}]", key, index + 1); // lua tables indexes start with 1
+
+          match array_value {
+            Value::Array(nested_array_values) => {
+              flatten_array(&key, prefix, nested_array_values, flattened_json)
+            },
+            Value::Object(nested_entry) => {
+              flattened_json.extend(flatten_json(nested_entry, &format!("{}{} > ", prefix, key)));
+            },
+            _ => {
+              flattened_json.insert(format!("{}{}", prefix, key),array_value.to_string());
+            },
+          };
+
+        }
 }
 
 fn get_string_value(value: &BTreeMap<String, String>, keys: &[String]) -> Option<String> {
