@@ -108,4 +108,4 @@
 
 ** Discord
    In the case you want to talk about new features or give us direct feedback,
-   you can join the [[https://rawkode.chat/][Discord]] (Thanks [[https://github.com/rawkode][@rawkode]]) in the forum channel ~oss-projects / #fblog~.
+   you can join the [[https://rawkode.chat/][Discord]] (Thanks [[https://github.com/rawkode][@rawkode]]) in the channel ~#fblog~.
