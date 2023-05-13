@@ -1,3 +1,4 @@
+use crate::message_template::{FormatError, MessageTemplate};
 use crate::no_color_support::style;
 use handlebars::Handlebars;
 use serde_json::{Map, Value};
@@ -15,6 +16,7 @@ pub struct LogSettings {
   pub dump_all: bool,
   pub with_prefix: bool,
   pub print_lua: bool,
+  pub message_template: Option<MessageTemplate>,
 }
 
 impl LogSettings {
@@ -28,6 +30,7 @@ impl LogSettings {
       dump_all: false,
       with_prefix: false,
       print_lua: false,
+      message_template: None,
     }
   }
 
@@ -53,6 +56,19 @@ impl LogSettings {
   pub fn add_excluded_values(&mut self, mut excluded_values: Vec<String>) {
     self.excluded_values.append(&mut excluded_values);
   }
+
+  pub fn add_message_template(&mut self, message_template: MessageTemplate) {
+    self.message_template = Some(message_template)
+  }
+
+  pub fn set_message_template_format(&mut self, format: &str) -> Result<(), FormatError> {
+    if let Some(message_template) = &mut self.message_template {
+      message_template.set_key_format(format)?;
+    } else {
+      self.message_template = Some(MessageTemplate::default().with_key_format(format)?);
+    }
+    Ok(())
+  }
 }
 
 pub fn print_log_line(
@@ -66,8 +82,14 @@ pub fn print_log_line(
   let level = get_string_value_or_default(&string_log_entry, &log_settings.level_keys, "unknown");
 
   let formatted_prefix = maybe_prefix.map(|p| format!(" {}", p)).unwrap_or_else(|| "".to_owned());
-  let message = get_string_value_or_default(&string_log_entry, &log_settings.message_keys, "");
+  let mut message = get_string_value_or_default(&string_log_entry, &log_settings.message_keys, "");
   let timestamp = get_string_value_or_default(&string_log_entry, &log_settings.time_keys, "");
+
+  if let Some(message_template) = &log_settings.message_template {
+    if let Some(templated_message) = message_template.apply(&message, log_entry) {
+      message = templated_message;
+    }
+  }
 
   let mut handle_bar_input: Map<String, Value> = log_entry.clone();
   handle_bar_input.insert("fblog_timestamp".to_string(), Value::String(timestamp));

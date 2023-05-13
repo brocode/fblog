@@ -107,4 +107,20 @@ pub fn app() -> Command {
         .default_value(template::DEFAULT_ADDITIONAL_VALUE_FORMAT)
         .help("Formats the additional value fblog output."),
     )
+    .arg(
+      Arg::new("context-key")
+        .long("context-key")
+        .short('c')
+        .num_args(1)
+        .action(ArgAction::Set)
+        .help("Use this key as the source of substitutions for the message. Value can either be an array ({1}) or an object ({key})."),
+    )
+    .arg(
+      Arg::new("message-template-format")
+        .long("message-template-format")
+        .short('F')
+        .num_args(1)
+        .action(ArgAction::Set)
+        .help("The format that should be used for substituting values in the message, where the key is the literal word `key`. Example: [[key]] or ${key}."),
+    )
 }
