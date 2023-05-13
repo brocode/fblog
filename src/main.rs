@@ -6,11 +6,13 @@ extern crate regex;
 mod app;
 mod filter;
 mod log;
+mod message_template;
 mod no_color_support;
 mod process;
 mod template;
 
 use crate::log::LogSettings;
+use message_template::MessageTemplate;
 use std::fs;
 
 fn main() {
@@ -33,6 +35,16 @@ fn main() {
 
   if let Some(values) = matches.get_many::<String>("level-key") {
     log_settings.add_level_keys(values.map(ToString::to_string).collect());
+  }
+
+  if let Some(context) = matches.get_one::<String>("context-key") {
+    log_settings.add_message_template(MessageTemplate::new(context.clone()))
+  }
+
+  if let Some(format) = matches.get_one::<String>("message-template-format") {
+    if let Err(e) = log_settings.set_message_template_format(format) {
+      panic!("Invalid message template format: {}", e)
+    }
   }
 
   log_settings.dump_all = matches.get_flag("dump-all");

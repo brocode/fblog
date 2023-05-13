@@ -21,3 +21,11 @@ pub fn style(s: &Style, t: &str) -> String {
     format!("{}", s.paint(t))
   }
 }
+
+pub fn stylew<W: std::fmt::Write>(mut target: W, s: &Style, t: &str) {
+  if *NO_COLOR {
+    _ = target.write_str(t);
+  } else {
+    _ = write!(target, "{}", s.paint(t));
+  }
+}
