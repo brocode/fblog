@@ -55,7 +55,7 @@ impl MessageTemplate {
   }
 
   pub fn set_key_format(&mut self, format: &str) -> Result<(), FormatError> {
-    let (prefix, suffix) = format.split_once("key").ok_or_else(|| FormatError::MissingIdentifier)?;
+    let (prefix, suffix) = format.split_once("key").ok_or(FormatError::MissingIdentifier)?;
     self.key_regex = Self::create_regex(prefix, suffix)?;
     self.key_prefix = prefix.to_owned();
     self.key_suffix = suffix.to_owned();
@@ -76,7 +76,7 @@ impl MessageTemplate {
       return None;
     };
 
-    let key_format_overhead = &self.key_prefix.len() + COLOR_OVERHEAD + &self.key_suffix.len() + COLOR_OVERHEAD;
+    let key_format_overhead = self.key_prefix.len() + COLOR_OVERHEAD + self.key_suffix.len() + COLOR_OVERHEAD;
 
     return Some(
       self
@@ -85,7 +85,7 @@ impl MessageTemplate {
           let key = &caps[1];
           let value = match context_value {
             Value::Object(o) => o.get(key),
-            Value::Array(a) => key.parse().and_then(|i| Ok(a.get::<usize>(i))).unwrap_or(None),
+            Value::Array(a) => key.parse().map(|i| a.get::<usize>(i)).unwrap_or(None),
             _ => None,
           };
           match value {
@@ -125,7 +125,7 @@ impl MessageTemplate {
       if i > 0 {
         _ = buf.write_str(", ");
       }
-      self.color_format(&mut buf, value);
+      self.color_format(buf, value);
     }
     stylew(buf, &Color::Default.style().dimmed(), "]");
   }
