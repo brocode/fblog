@@ -1,0 +1,7 @@
+{"message": "The {type} was updated with {added} added, {removed} removed and {changed} changed! Forced: {forced}.", "context": { "changed": 3, "added": 0, "removed": 1, "type": "bartok", "forced": false }, "time":"Sat May 13 17:50:00 CEST 2023", "level": "info"}
+{"message": "The {type} was updated with {added} added, {removed} removed and {changed} changed! Forced: {forced}.", "context": { "changed": 2, "added": 1, "removed": 0, "type": "kikiki", "forced": true }, "time":"Sat May 13 17:51:00 CEST 2023", "level": "info"}
+{"message": "The {type} was updated with {added} added, {removed} removed and {changed} changed! Forced: {forced}.", "context": { "changed": 35, "added": 3, "removed": 10, "type": "dolbas", "forced": false }, "time":"Sat May 13 17:52:00 CEST 2023", "level": "info"}
+{"message": "{0} new items could not be registered: {1}", "context": [3, ["rullo", "opeth", "leda"]], "time":"Sat May 13 18:03:10 CEST 2023", "level": "error"}
+{"message": "Insufficient storage! {0} item(s) skipped!", "context": [423], "time":"Sat May 13 18:10:34 CEST 2023", "level": "warning"}
+{"message": "The key {key} was not found in the context!", "context": {"unused": "I have so much to contribute!"}, "time":"Sat May 13 18:12:02 CEST 2023", "level": "warning"}
+{"message": "A new type of item was discovered: {item}", "context": {"item": {"name": "Merobiba", "princess": true, "age": 12 } }, "time":"Sat May 13 18:21:58 CEST 2023", "level": "info"}
