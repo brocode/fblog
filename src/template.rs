@@ -1,10 +1,28 @@
 use crate::no_color_support::{paint, style};
 use handlebars::{handlebars_helper, no_escape, Handlebars};
+use serde::{Serialize, Deserialize};
 use std::convert::TryInto;
 use yansi::{Color, Style};
 
 pub static DEFAULT_MAIN_LINE_FORMAT: &str = "{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{bold(color_rgb 138 43 226 fblog_prefix)}} {{fblog_message}}";
 pub static DEFAULT_ADDITIONAL_VALUE_FORMAT: &str = "{{bold (color_rgb 150 150 150 (fixed_size 25 key))}}: {{value}}";
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Settings {
+  #[serde(default)]
+  pub main_line_format: String,
+  #[serde(default)]
+  pub additional_value_format: String
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self { 
+          main_line_format: DEFAULT_MAIN_LINE_FORMAT.to_owned(), 
+          additional_value_format: DEFAULT_ADDITIONAL_VALUE_FORMAT.to_owned() 
+        }
+    }
+}
 
 fn level_to_style(level: &str) -> Style {
   match level.trim().to_lowercase().as_ref() {
@@ -18,7 +36,7 @@ fn level_to_style(level: &str) -> Style {
   .bold()
 }
 
-pub fn fblog_handlebar_registry(main_line_format: String, additional_value_format: String) -> Handlebars<'static> {
+pub fn fblog_handlebar_registry(settings: &Settings) -> Handlebars<'static> {
   handlebars_helper!(bold: |t: str| {
       style(&Color::Default.style().bold(), t)
   });
@@ -82,9 +100,9 @@ pub fn fblog_handlebar_registry(main_line_format: String, additional_value_forma
   reg.register_helper("green", Box::new(green));
   reg.register_helper("color_rgb", Box::new(color_rgb));
 
-  reg.register_template_string("main_line", main_line_format).expect("Template invalid");
+  reg.register_template_string("main_line", &settings.main_line_format).expect("Template invalid");
   reg
-    .register_template_string("additional_value", additional_value_format)
+    .register_template_string("additional_value", &settings.additional_value_format)
     .expect("Template invalid");
   reg
 }

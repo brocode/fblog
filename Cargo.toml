@@ -17,6 +17,9 @@ regex = "1"
 mlua = { version = "0.8", features = ["lua54", "vendored"] }
 lazy_static = "1.4.0"
 handlebars = "4"
+serde = { version = "1.0.163", features = ["derive"] }
+toml = { version =  "0.7.3", features = [] }
+directories = "5.0"
 
 [dependencies.clap]
 version = "4"

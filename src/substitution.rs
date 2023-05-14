@@ -29,7 +29,7 @@ impl std::fmt::Display for Error {
 const COLOR_OVERHEAD: usize = 7 + 4;
 
 pub struct Substitution {
-  pub context_key: String,
+  pub context_keys: Vec<String>,
   placeholder_prefix: String,
   placeholder_suffix: String,
   placeholder_regex: Regex,
@@ -38,20 +38,24 @@ pub struct Substitution {
 impl Substitution {
   pub const DEFAULT_PLACEHOLDER_FORMAT: &str = "{key}";
   pub const KEY_DELIMITER: &str = "key";
-  pub const DEFAULT_CONTEXT_KEY: &str = "context";
+  pub const DEFAULT_CONTEXT_KEYS: [&str; 1] = ["context"];
 
-  pub fn new<S: Into<String>>(context_key: Option<S>, placeholder_format: Option<S>) -> Result<Self, Error> {
-    let format = placeholder_format.map_or(Self::DEFAULT_PLACEHOLDER_FORMAT.to_owned(), Into::into);
-    let (prefix, suffix) = Self::parse_placeholder_format(&format)?;
+  pub fn new(context_keys: Vec<String>, placeholder_format: String) -> Result<Self, Error> {
+    // let format = placeholder_format.map_or(Self::DEFAULT_PLACEHOLDER_FORMAT.to_owned(), Into::into);
+    let (prefix, suffix) = Self::parse_placeholder_format(&placeholder_format)?;
 
     let placeholder_regex = Self::create_regex(prefix, suffix)?;
 
     Ok(Self {
-      context_key: context_key.map_or(Self::DEFAULT_CONTEXT_KEY.to_owned(), Into::into),
+      context_keys,
       placeholder_prefix: prefix.to_owned(),
       placeholder_suffix: suffix.to_owned(),
       placeholder_regex,
     })
+  }
+
+  pub fn default_context_keys() -> Vec<String> {
+    Self::DEFAULT_CONTEXT_KEYS.into_iter().map(ToOwned::to_owned).collect()
   }
 
   fn parse_placeholder_format(format: &str) -> Result<(&str, &str), Error> {
@@ -63,7 +67,7 @@ impl Substitution {
   }
 
   pub(crate) fn apply(&self, message: &str, log_entry: &serde_json::Map<String, serde_json::Value>) -> Option<String> {
-    let Some(context_value) = log_entry.get(&self.context_key) else {
+    let Some(context_value) = self.context_keys.iter().find_map(|key| log_entry.get(key)) else {
       return None;
     };
 
@@ -137,7 +141,9 @@ impl Substitution {
 
 impl Default for Substitution {
   fn default() -> Self {
-    Self::new::<String>(None, None).expect("default placeholder should parse")
+    Self::new(
+      Self::default_context_keys(), 
+      Self::DEFAULT_PLACEHOLDER_FORMAT.to_owned()).expect("default placeholder should parse")
   }
 }
 
@@ -150,7 +156,7 @@ mod tests {
 
   fn entry_context<V: Into<serde_json::Value>>(subst: &Substitution, context: V) -> JMap {
     let mut map = serde_json::Map::new();
-    map.insert(subst.context_key.clone(), context.into());
+    map.insert(subst.context_keys.get(0).unwrap().clone(), context.into());
     map
   }
 
@@ -163,7 +169,7 @@ mod tests {
   }
 
   fn test_placeholder_format(placeholder: &str) {
-    let subst = Substitution::new(None, Some(placeholder)).unwrap();
+    let subst = Substitution::new(Substitution::default_context_keys(), placeholder.into()).unwrap();
     let msg = format!("Tapping fingers as a way to {placeholder}");
     let mut context = serde_json::Map::new();
     context.insert("key".into(), "speak".into());

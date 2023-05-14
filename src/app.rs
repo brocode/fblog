@@ -8,6 +8,7 @@ pub fn app() -> Command {
     .version(crate_version!())
     .author("Brocode inc <bros@brocode.sh>")
     .about("json log viewer")
+    .subcommand(Command::new("use-profile").arg(Arg::new("profile").required(true)))
     .arg(
       Arg::new("additional-value")
         .long("additional-value")
@@ -119,9 +120,9 @@ pub fn app() -> Command {
       Arg::new("context-key")
         .long("context-key")
         .short('c')
+        .action(ArgAction::Append)
         .num_args(1)
         .action(ArgAction::Set)
-        .default_value_if("enable-substitution", "true", Substitution::DEFAULT_CONTEXT_KEY)
         .help("Use this key as the source of substitutions for the message. Value can either be an array ({1}) or an object ({key})."),
     )
     .arg(
