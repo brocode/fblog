@@ -1,6 +1,5 @@
 use crate::substitution::Substitution;
 use crate::template;
-use clap::builder::ArgPredicate;
 use clap::{crate_version, ArgAction};
 use clap::{Arg, Command};
 
@@ -122,7 +121,7 @@ pub fn app() -> Command {
         .short('c')
         .num_args(1)
         .action(ArgAction::Set)
-        .default_value_if("enable-substitution", ArgPredicate::IsPresent, Substitution::DEFAULT_CONTEXT_KEY)
+        .default_value_if("enable-substitution", "true", Substitution::DEFAULT_CONTEXT_KEY)
         .help("Use this key as the source of substitutions for the message. Value can either be an array ({1}) or an object ({key})."),
     )
     .arg(
@@ -131,7 +130,7 @@ pub fn app() -> Command {
         .short('F')
         .num_args(1)
         .action(ArgAction::Set)
-        .default_value_if("enable-substitution", ArgPredicate::IsPresent, Substitution::DEFAULT_PLACEHOLDER_FORMAT)
+        .default_value_if("enable-substitution", "true", Substitution::DEFAULT_PLACEHOLDER_FORMAT)
         .help("The format that should be used for substituting values in the message, where the key is the literal word `key`. Example: [[key]] or ${key}."),
     )
 }
