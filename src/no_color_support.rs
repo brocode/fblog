@@ -32,7 +32,7 @@ pub fn stylew<W: std::fmt::Write>(mut target: W, s: &Style, t: &str) {
 
 #[cfg(test)]
 pub fn without_style(styled: &str) -> String {
-    use regex::Regex;
+  use regex::Regex;
 
   let regex = Regex::new("\u{001B}\\[[\\d;]*[^\\d;]").expect("Regex should be valid");
   regex.replace_all(&styled, "").into_owned()

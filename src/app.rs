@@ -114,7 +114,7 @@ pub fn app() -> Command {
         .long("substitute")
         .short('s')
         .action(ArgAction::SetTrue)
-        .help("Enable substitution of placeholders in the log messages with their corresponding values from the context.")
+        .help("Enable substitution of placeholders in the log messages with their corresponding values from the context."),
     )
     .arg(
       Arg::new("context-key")

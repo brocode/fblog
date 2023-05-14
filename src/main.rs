@@ -6,14 +6,14 @@ extern crate regex;
 mod app;
 mod filter;
 mod log;
-mod substitution;
 mod no_color_support;
 mod process;
+mod substitution;
 mod template;
 
 use crate::log::LogSettings;
-use substitution::Substitution;
 use std::fs;
+use substitution::Substitution;
 
 fn main() {
   let app = app::app();
@@ -41,13 +41,11 @@ fn main() {
     (None, None) => {
       // Neither context key nor placeholder is set, meaning that substitution is not enabled
       // since setting the flag sets the defaults for those arguments
-    },
-    (context, format) => {
-      match Substitution::new(context, format) {
-        Err(e) => panic!("Invalid placeholder format: {}", e),
-        Ok(subst) => log_settings.add_substitution(subst)
-      }
     }
+    (context, format) => match Substitution::new(context, format) {
+      Err(e) => panic!("Invalid placeholder format: {}", e),
+      Ok(subst) => log_settings.add_substitution(subst),
+    },
   }
 
   log_settings.dump_all = matches.get_flag("dump-all");

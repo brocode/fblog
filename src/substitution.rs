@@ -58,19 +58,6 @@ impl Substitution {
     format.split_once(Self::KEY_DELIMITER).ok_or(Error::MissingIdentifier)
   }
 
-  pub fn set_placeholder_format(&mut self, format: &str) -> Result<(), Error> {
-    let (prefix, suffix) = Self::parse_placeholder_format(format)?;
-    self.placeholder_regex = Self::create_regex(prefix, suffix)?;
-    self.placeholder_prefix = prefix.to_owned();
-    self.placeholder_suffix = suffix.to_owned();
-    Ok(())
-  }
-
-  pub fn with_placeholder_format(mut self, format: &str) -> Result<Self, Error> {
-    self.set_placeholder_format(format)?;
-    Ok(self)
-  }
-
   fn create_regex(prefix: &str, suffix: &str) -> Result<Regex, regex::Error> {
     Regex::new(&format!("{}([a-z|A-Z|0-9|_|-]+){}", regex::escape(prefix), regex::escape(suffix)))
   }
@@ -158,7 +145,7 @@ impl Default for Substitution {
 mod tests {
   use crate::no_color_support::without_style;
 
-use super::*;
+  use super::*;
   type JMap = serde_json::Map<String, serde_json::Value>;
 
   fn entry_context<V: Into<serde_json::Value>>(subst: &Substitution, context: V) -> JMap {
@@ -176,19 +163,24 @@ use super::*;
   }
 
   fn test_placeholder_format(placeholder: &str) {
-    let subst = Substitution::default().with_placeholder_format(placeholder).unwrap();
-    let msg = format!("Tapping fingers as a way to {placeholder}");    
+    let subst = Substitution::new(None, Some(placeholder)).unwrap();
+    let msg = format!("Tapping fingers as a way to {placeholder}");
     let mut context = serde_json::Map::new();
     context.insert("key".into(), "speak".into());
 
     let result = subst.apply(&msg, &entry_context(&subst, context)).unwrap_or(msg);
-    assert_eq!("Tapping fingers as a way to speak", without_style(&result), "Failed to substitute with placeholder format {}", placeholder);
+    assert_eq!(
+      "Tapping fingers as a way to speak",
+      without_style(&result),
+      "Failed to substitute with placeholder format {}",
+      placeholder
+    );
   }
 
   #[test]
   fn placeholder_not_in_context() {
     let subst = Substitution::default();
-    let msg = "substituted: {subst}, ignored: {ignored}";    
+    let msg = "substituted: {subst}, ignored: {ignored}";
     let mut context = serde_json::Map::new();
     context.insert("subst".into(), "no brackets!".into());
 
@@ -199,7 +191,7 @@ use super::*;
   #[test]
   fn array_context() {
     let subst = Substitution::default();
-    let msg = "text: {0}, number: {1}, bool: {2}, ignored: {3}";    
+    let msg = "text: {0}, number: {1}, bool: {2}, ignored: {3}";
     let context: Vec<Value> = vec!["better than sleeping".into(), 9.into(), true.into()];
 
     let result = subst.apply(msg, &entry_context(&subst, context)).unwrap_or(msg.to_owned());
