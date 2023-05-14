@@ -153,3 +153,56 @@ impl Default for Substitution {
     Self::new::<String>(None, None).expect("default placeholder should parse")
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use crate::no_color_support::without_style;
+
+use super::*;
+  type JMap = serde_json::Map<String, serde_json::Value>;
+
+  fn entry_context<V: Into<serde_json::Value>>(subst: &Substitution, context: V) -> JMap {
+    let mut map = serde_json::Map::new();
+    map.insert(subst.context_key.clone(), context.into());
+    map
+  }
+
+  #[test]
+  fn common_placeholder_formats() {
+    test_placeholder_format("{key}");
+    test_placeholder_format("[key]");
+    test_placeholder_format("%key%");
+    test_placeholder_format("${key}");
+  }
+
+  fn test_placeholder_format(placeholder: &str) {
+    let subst = Substitution::default().with_placeholder_format(placeholder).unwrap();
+    let msg = format!("Tapping fingers as a way to {placeholder}");    
+    let mut context = serde_json::Map::new();
+    context.insert("key".into(), "speak".into());
+
+    let result = subst.apply(&msg, &entry_context(&subst, context)).unwrap_or(msg);
+    assert_eq!("Tapping fingers as a way to speak", without_style(&result), "Failed to substitute with placeholder format {}", placeholder);
+  }
+
+  #[test]
+  fn placeholder_not_in_context() {
+    let subst = Substitution::default();
+    let msg = "substituted: {subst}, ignored: {ignored}";    
+    let mut context = serde_json::Map::new();
+    context.insert("subst".into(), "no brackets!".into());
+
+    let result = subst.apply(msg, &entry_context(&subst, context)).unwrap_or(msg.to_owned());
+    assert_eq!("substituted: no brackets!, ignored: {ignored}", without_style(&result));
+  }
+
+  #[test]
+  fn array_context() {
+    let subst = Substitution::default();
+    let msg = "text: {0}, number: {1}, bool: {2}, ignored: {3}";    
+    let context: Vec<Value> = vec!["better than sleeping".into(), 9.into(), true.into()];
+
+    let result = subst.apply(msg, &entry_context(&subst, context)).unwrap_or(msg.to_owned());
+    assert_eq!("text: better than sleeping, number: 9, bool: true, ignored: {3}", without_style(&result));
+  }
+}
