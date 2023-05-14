@@ -18,6 +18,13 @@
    fblog -a message -a "status > a" sample_nested.json.log
    #+END_SRC
 
+** Prefix Logs
+
+   If your query docker or kubectl for multiple pods it will prefix
+   the log lines: ~PODNAME | {"message": "test"}~. ~fblog~ can parse this and add it to
+   the message. Just use ~-p~.
+    
+
 ** Filter
    To filter log messages it is possible to use lua. If you are unsure
    which variables are available you can use ~--print-lua~ to see the
