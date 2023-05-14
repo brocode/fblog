@@ -208,8 +208,7 @@ fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, Str
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::template;
-  use regex::Regex;
+  use crate::{template, no_color_support::without_style};
 
   fn fblog_handlebar_registry_default_format() -> Handlebars<'static> {
     let main_line_format = template::DEFAULT_MAIN_LINE_FORMAT.to_string();
@@ -219,10 +218,8 @@ mod tests {
   }
 
   fn out_to_string(out: Vec<u8>) -> String {
-    let regex = Regex::new("\u{001B}\\[[\\d;]*[^\\d;]").expect("Regex should be valid");
     let out_with_style = String::from_utf8_lossy(&out).into_owned();
-    let result = regex.replace_all(&out_with_style, "").into_owned();
-    result
+    without_style(&out_with_style)
   }
 
   #[test]
