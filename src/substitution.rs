@@ -1,5 +1,3 @@
-use std::fmt::Write;
-
 use regex::{Captures, Regex};
 use serde_json::Value;
 use yansi::Color;
@@ -7,18 +5,18 @@ use yansi::Color;
 use crate::no_color_support::stylew;
 
 #[derive(Debug)]
-pub enum FormatError {
+pub enum Error {
   MissingIdentifier,
   RegexParse(regex::Error),
 }
 
-impl From<regex::Error> for FormatError {
+impl From<regex::Error> for Error {
   fn from(value: regex::Error) -> Self {
     Self::RegexParse(value)
   }
 }
 
-impl std::fmt::Display for FormatError {
+impl std::fmt::Display for Error {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     match self {
       Self::MissingIdentifier => f.write_str("The identifier `key` is missing"),
@@ -30,40 +28,46 @@ impl std::fmt::Display for FormatError {
 /// 7 bytes for color (`\e` `[` `1` `;` `3` `9` `m`) and 4 bytes for reset (`\e` `[` `0` `m`)
 const COLOR_OVERHEAD: usize = 7 + 4;
 
-pub struct MessageTemplate {
-  pub context: String,
-  key_prefix: String,
-  key_suffix: String,
-  key_regex: Regex,
+pub struct Substitution {
+  pub context_key: String,
+  placeholder_prefix: String,
+  placeholder_suffix: String,
+  placeholder_regex: Regex,
 }
 
-impl MessageTemplate {
-  const DEFAULT_KEY_PREFIX: &str = "{";
-  const DEFAULT_KEY_SUFFIX: &str = "}";
-  const DEFAULT_CONTEXT: &str = "context";
+impl Substitution {
+  pub const DEFAULT_PLACEHOLDER_FORMAT: &str = "{key}";
+  pub const KEY_DELIMITER: &str = "key";
+  pub const DEFAULT_CONTEXT_KEY: &str = "context";
 
-  pub fn new(context: String) -> Self {
-    let key_prefix = Self::DEFAULT_KEY_PREFIX.to_owned();
-    let key_suffix = Self::DEFAULT_KEY_SUFFIX.to_owned();
-    let key_regex = Self::create_regex(&key_prefix, &key_suffix).expect("default key should compile");
-    Self {
-      context,
-      key_prefix,
-      key_suffix,
-      key_regex,
-    }
+  pub fn new<S: Into<String>>(context_key: Option<S>, placeholder_format: Option<S>) -> Result<Self, Error> {
+    let format = placeholder_format.map_or(Self::DEFAULT_PLACEHOLDER_FORMAT.to_owned(), Into::into);
+    let (prefix, suffix) = Self::parse_placeholder_format(&format)?;
+
+    let placeholder_regex = Self::create_regex(prefix, suffix)?;
+
+    Ok(Self {
+      context_key: context_key.map_or(Self::DEFAULT_CONTEXT_KEY.to_owned(), Into::into),
+      placeholder_prefix: prefix.to_owned(),
+      placeholder_suffix: suffix.to_owned(),
+      placeholder_regex,
+    })
   }
 
-  pub fn set_key_format(&mut self, format: &str) -> Result<(), FormatError> {
-    let (prefix, suffix) = format.split_once("key").ok_or(FormatError::MissingIdentifier)?;
-    self.key_regex = Self::create_regex(prefix, suffix)?;
-    self.key_prefix = prefix.to_owned();
-    self.key_suffix = suffix.to_owned();
+  fn parse_placeholder_format(format: &str) -> Result<(&str, &str), Error> {
+    format.split_once(Self::KEY_DELIMITER).ok_or(Error::MissingIdentifier)
+  }
+
+  pub fn set_placeholder_format(&mut self, format: &str) -> Result<(), Error> {
+    let (prefix, suffix) = Self::parse_placeholder_format(format)?;
+    self.placeholder_regex = Self::create_regex(prefix, suffix)?;
+    self.placeholder_prefix = prefix.to_owned();
+    self.placeholder_suffix = suffix.to_owned();
     Ok(())
   }
 
-  pub fn with_key_format(mut self, format: &str) -> Result<Self, FormatError> {
-    self.set_key_format(format)?;
+  pub fn with_placeholder_format(mut self, format: &str) -> Result<Self, Error> {
+    self.set_placeholder_format(format)?;
     Ok(self)
   }
 
@@ -72,15 +76,15 @@ impl MessageTemplate {
   }
 
   pub(crate) fn apply(&self, message: &str, log_entry: &serde_json::Map<String, serde_json::Value>) -> Option<String> {
-    let Some(context_value) = log_entry.get(&self.context) else {
+    let Some(context_value) = log_entry.get(&self.context_key) else {
       return None;
     };
 
-    let key_format_overhead = self.key_prefix.len() + COLOR_OVERHEAD + self.key_suffix.len() + COLOR_OVERHEAD;
+    let key_format_overhead = self.placeholder_prefix.len() + COLOR_OVERHEAD + self.placeholder_suffix.len() + COLOR_OVERHEAD;
 
     return Some(
       self
-        .key_regex
+        .placeholder_regex
         .replace_all(message, |caps: &Captures| {
           let key = &caps[1];
           let value = match context_value {
@@ -91,9 +95,9 @@ impl MessageTemplate {
           match value {
             None => {
               let mut buf = String::with_capacity(key.len() + COLOR_OVERHEAD + key_format_overhead);
-              stylew(&mut buf, &Color::Default.style().dimmed(), &self.key_prefix);
+              stylew(&mut buf, &Color::Default.style().dimmed(), &self.placeholder_prefix);
               stylew(&mut buf, &Color::Red.style().bold(), key);
-              stylew(&mut buf, &Color::Default.style().dimmed(), &self.key_suffix);
+              stylew(&mut buf, &Color::Default.style().dimmed(), &self.placeholder_suffix);
               buf
             }
             Some(value) => {
@@ -123,7 +127,7 @@ impl MessageTemplate {
     stylew(&mut buf, &Color::Default.style().dimmed(), "[");
     for (i, value) in a.iter().enumerate() {
       if i > 0 {
-        _ = buf.write_str(", ");
+        stylew(&mut buf, &Color::Default.style().dimmed(), ", ");
       }
       self.color_format(buf, value);
     }
@@ -134,19 +138,18 @@ impl MessageTemplate {
     stylew(&mut buf, &Color::Default.style().dimmed(), "{");
     for (i, (key, value)) in o.iter().enumerate() {
       if i > 0 {
-        _ = buf.write_char(',');
+        stylew(&mut buf, &Color::Default.style().dimmed(), ", ");
       }
-      _ = buf.write_char(' ');
       stylew(&mut buf, &Color::Magenta.style(), key);
       stylew(&mut buf, &Color::Default.style().dimmed(), ": ");
       self.color_format(buf, value);
     }
-    stylew(buf, &Color::Default.style().dimmed(), " }");
+    stylew(buf, &Color::Default.style().dimmed(), "}");
   }
 }
 
-impl Default for MessageTemplate {
+impl Default for Substitution {
   fn default() -> Self {
-    Self::new(Self::DEFAULT_CONTEXT.into())
+    Self::new::<String>(None, None).expect("default placeholder should parse")
   }
 }

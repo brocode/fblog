@@ -1,4 +1,6 @@
+use crate::substitution::Substitution;
 use crate::template;
+use clap::builder::ArgPredicate;
 use clap::{crate_version, ArgAction};
 use clap::{Arg, Command};
 
@@ -108,19 +110,28 @@ pub fn app() -> Command {
         .help("Formats the additional value fblog output."),
     )
     .arg(
+      Arg::new("enable-substitution")
+        .long("substitute")
+        .short('s')
+        .action(ArgAction::SetTrue)
+        .help("Enable substitution of placeholders in the log messages with their corresponding values from the context.")
+    )
+    .arg(
       Arg::new("context-key")
         .long("context-key")
         .short('c')
         .num_args(1)
         .action(ArgAction::Set)
+        .default_value_if("enable-substitution", ArgPredicate::IsPresent, Substitution::DEFAULT_CONTEXT_KEY)
         .help("Use this key as the source of substitutions for the message. Value can either be an array ({1}) or an object ({key})."),
     )
     .arg(
-      Arg::new("message-template-format")
-        .long("message-template-format")
+      Arg::new("placeholder-format")
+        .long("placeholder-format")
         .short('F')
         .num_args(1)
         .action(ArgAction::Set)
+        .default_value_if("enable-substitution", ArgPredicate::IsPresent, Substitution::DEFAULT_PLACEHOLDER_FORMAT)
         .help("The format that should be used for substituting values in the message, where the key is the literal word `key`. Example: [[key]] or ${key}."),
     )
 }

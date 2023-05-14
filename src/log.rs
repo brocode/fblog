@@ -1,4 +1,4 @@
-use crate::message_template::{FormatError, MessageTemplate};
+use crate::substitution::Substitution;
 use crate::no_color_support::style;
 use handlebars::Handlebars;
 use serde_json::{Map, Value};
@@ -16,7 +16,7 @@ pub struct LogSettings {
   pub dump_all: bool,
   pub with_prefix: bool,
   pub print_lua: bool,
-  pub message_template: Option<MessageTemplate>,
+  pub substitution: Option<Substitution>,
 }
 
 impl LogSettings {
@@ -30,7 +30,7 @@ impl LogSettings {
       dump_all: false,
       with_prefix: false,
       print_lua: false,
-      message_template: None,
+      substitution: None,
     }
   }
 
@@ -57,18 +57,10 @@ impl LogSettings {
     self.excluded_values.append(&mut excluded_values);
   }
 
-  pub fn add_message_template(&mut self, message_template: MessageTemplate) {
-    self.message_template = Some(message_template)
+  pub fn add_substitution(&mut self, message_template: Substitution) {
+    self.substitution = Some(message_template)
   }
 
-  pub fn set_message_template_format(&mut self, format: &str) -> Result<(), FormatError> {
-    if let Some(message_template) = &mut self.message_template {
-      message_template.set_key_format(format)?;
-    } else {
-      self.message_template = Some(MessageTemplate::default().with_key_format(format)?);
-    }
-    Ok(())
-  }
 }
 
 pub fn print_log_line(
@@ -85,7 +77,7 @@ pub fn print_log_line(
   let mut message = get_string_value_or_default(&string_log_entry, &log_settings.message_keys, "");
   let timestamp = get_string_value_or_default(&string_log_entry, &log_settings.time_keys, "");
 
-  if let Some(message_template) = &log_settings.message_template {
+  if let Some(message_template) = &log_settings.substitution {
     if let Some(templated_message) = message_template.apply(&message, log_entry) {
       message = templated_message;
     }

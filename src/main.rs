@@ -6,13 +6,13 @@ extern crate regex;
 mod app;
 mod filter;
 mod log;
-mod message_template;
+mod substitution;
 mod no_color_support;
 mod process;
 mod template;
 
 use crate::log::LogSettings;
-use message_template::MessageTemplate;
+use substitution::Substitution;
 use std::fs;
 
 fn main() {
@@ -37,13 +37,16 @@ fn main() {
     log_settings.add_level_keys(values.map(ToString::to_string).collect());
   }
 
-  if let Some(context) = matches.get_one::<String>("context-key") {
-    log_settings.add_message_template(MessageTemplate::new(context.clone()))
-  }
-
-  if let Some(format) = matches.get_one::<String>("message-template-format") {
-    if let Err(e) = log_settings.set_message_template_format(format) {
-      panic!("Invalid message template format: {}", e)
+  match (matches.get_one::<String>("context-key"), matches.get_one::<String>("placeholder-format")) {
+    (None, None) => {
+      // Neither context key nor placeholder is set, meaning that substitution is not enabled
+      // since setting the flag sets the defaults for those arguments
+    },
+    (context, format) => {
+      match Substitution::new(context, format) {
+        Err(e) => panic!("Invalid placeholder format: {}", e),
+        Ok(subst) => log_settings.add_substitution(subst)
+      }
     }
   }
 
