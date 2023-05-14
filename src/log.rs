@@ -1,5 +1,5 @@
-use crate::substitution::Substitution;
 use crate::no_color_support::style;
+use crate::substitution::Substitution;
 use handlebars::Handlebars;
 use serde_json::{Map, Value};
 use std::borrow::ToOwned;
@@ -60,7 +60,6 @@ impl LogSettings {
   pub fn add_substitution(&mut self, message_template: Substitution) {
     self.substitution = Some(message_template)
   }
-
 }
 
 pub fn print_log_line(
@@ -208,7 +207,7 @@ fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, Str
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::{template, no_color_support::without_style};
+  use crate::{no_color_support::without_style, template};
 
   fn fblog_handlebar_registry_default_format() -> Handlebars<'static> {
     let main_line_format = template::DEFAULT_MAIN_LINE_FORMAT.to_string();
