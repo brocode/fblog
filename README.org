@@ -82,6 +82,23 @@
 
    [[https://no-color.org/][no-color]]
 
+** Message placeholder substitution
+   Placeholders in the message (~fblog_message~) can be substituted with their corresponding values in a context object or array.
+   To enable substitutions, pass the ~-s~ flag or either set context key (~-c context~) or placeholder format (~-F {{key}}~).
+
+   Note that the placeholder format should be written like ~<PREFIX>key<SUFFIX>~, where it would match a placeholder with the key ~key~.
+   
+   Example:
+   #+BEGIN_SRC json
+   {"message": "Found #{count} new items.", "extra_data": {"count": 556}, "level": "info"}
+   #+END_SRC
+
+   #+BEGIN_SRC bash
+   fblog -c extra_data -F '#{key}' example.log
+   #+END_SRC
+
+   Result:
+   [[./res/placeholder-example1.svg]]
 
 ** Installation
    #+BEGIN_SRC bash
