@@ -13,6 +13,7 @@ mod process;
 mod substitution;
 mod template;
 
+use config::profile::Profile;
 use config::{Config, Options};
 use substitution::Substitution;
 
@@ -27,7 +28,11 @@ fn main() {
         Config::save_default_profile(profile).unwrap();
         return;
       }
-      Some(("set", _)) => todo!("implement profile set"),
+      Some(("set", set_matches)) => {
+        let profile = set_matches.get_one::<String>("profile").expect("required value should be present");
+        Profile::update_from_matches(profile, &matches).expect("Failed to update profile");
+        return;
+      }
       Some((sc, _)) => panic!("Invalid profile sub command {}", sc),
       None => {
         let current_profile = Config::load_default()
@@ -35,15 +40,15 @@ fn main() {
           .unwrap_or_default()
           .unwrap_or("default".to_owned());
         println!("Current profile: {current_profile}");
+        return;
       }
     }
   }
 
   let mut options = match Config::load_default() {
-    Ok(config) => match matches.get_one::<String>("profile").or(config.default_profile.as_ref()).map(|s| s.as_str()) {
-      Some("default") | None => config.get_default_profile(),
-      Some(p) => config.profiles.get(p).expect("default profile not found").clone(),
-    },
+    Ok(config) => config
+      .get_profile(matches.get_one::<String>("profile").or(config.default_profile.as_ref()).map(|s| s.as_str()))
+      .expect("profile not found"),
     Err(e) => panic!("Failed to read config: {}", e),
   }
   .into();

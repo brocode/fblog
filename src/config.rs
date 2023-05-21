@@ -1,84 +1,39 @@
 use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 use std::{
-  collections::HashMap,
-  fmt::Display,
   fs,
-  io::Error as IOError,
   path::{Path, PathBuf},
 };
-use toml::de::Error as TomlError;
+use toml_edit::{value, Document};
 
-use crate::{log::LogSettings, template};
+use self::error::{Error, Result};
+pub use self::options::Options;
+use self::profile::Profile;
 
-#[derive(Debug, Deserialize)]
-pub enum Error {
-  FailedToWrite(String),
-  FailedToParse(String),
-  FailedToRead(String),
-  NoDefault,
-}
+mod error;
+pub mod options;
+pub mod profile;
 
-impl Error {
-  fn failed_to_write<E: Display>(err: E) -> Self {
-    Self::FailedToWrite(err.to_string())
-  }
-}
-
-impl From<TomlError> for Error {
-  fn from(inner: TomlError) -> Self {
-    Self::FailedToParse(inner.to_string())
-  }
-}
-
-impl From<toml::ser::Error> for Error {
-  fn from(inner: toml::ser::Error) -> Self {
-    Self::FailedToWrite(inner.to_string())
-  }
-}
-
-impl From<IOError> for Error {
-  fn from(value: IOError) -> Self {
-    Self::FailedToRead(value.to_string())
-  }
-}
-
-impl Display for Error {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    match self {
-      Self::FailedToParse(e) => {
-        f.write_str("Failed to parse config: ")?;
-        e.fmt(f)
-      }
-      Self::FailedToWrite(e) => {
-        f.write_str("Failed to write config: ")?;
-        e.fmt(f)
-      }
-      Self::FailedToRead(e) => {
-        f.write_str("Failed to read config: ")?;
-        e.fmt(f)
-      }
-      Self::NoDefault => f.write_str("Default config file was not found"),
-    }
-  }
+fn config_dir() -> PathBuf {
+  ProjectDirs::from("org", "brocode", "fblog")
+    .expect("OS home directory")
+    .config_local_dir()
+    .to_path_buf()
 }
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Config {
   pub default_profile: Option<String>,
-  #[serde(rename = "profile")]
-  pub profiles: HashMap<String, Profile>,
+  #[serde(flatten, default)]
+  pub profile: Option<Profile>,
 }
 
 impl Config {
   pub fn config_file_path() -> PathBuf {
-    ProjectDirs::from("org", "brocode", "fblog")
-      .expect("OS home directory")
-      .config_local_dir()
-      .join("config.toml")
+    config_dir().join("config.toml")
   }
 
-  pub fn load_default() -> Result<Config, Error> {
+  pub fn load_default() -> Result<Config> {
     let config_file = Self::config_file_path();
     if !config_file.exists() {
       return Ok(Config::default());
@@ -86,52 +41,32 @@ impl Config {
     Self::load_from_file(&config_file)
   }
 
-  fn load_from_file(config_file: &Path) -> Result<Config, Error> {
+  fn load_from_file(config_file: &Path) -> Result<Config> {
     let config_str = fs::read_to_string(config_file)?;
 
-    toml::from_str(&config_str)?
+    toml::from_str(&config_str).map_err(Error::failed_to_read)
   }
 
   pub fn get_default_profile(&self) -> Profile {
-    self.profiles.get("default").cloned().unwrap_or_default()
+    self.profile.clone().unwrap_or_default()
   }
 
-  pub fn save_default_profile(profile: &str) -> Result<(), Error> {
-    let mut config = Self::load_default().unwrap_or_default();
-    config.default_profile = Some(profile.to_owned());
+  pub fn get_profile(&self, profile: Option<&str>) -> Result<Profile> {
+    match profile {
+      Some("default") | None => Ok(self.get_default_profile()),
+      Some(profile) => Profile::load(profile),
+    }
+  }
+
+  pub fn save_default_profile(profile: &str) -> Result<()> {
     let config_file = Self::config_file_path();
+    let config_str = fs::read_to_string(&config_file).unwrap_or_default();
+    let mut config = config_str.parse::<Document>().expect("invalid configuration");
+    config["default_profile"] = value(profile);
     if let Some(parent) = config_file.parent() {
       fs::create_dir_all(parent).map_err(Error::failed_to_write)?;
     }
-    let config_str = toml::to_string_pretty(&config)?;
-    fs::write(config_file, config_str).map_err(Error::failed_to_write)
-  }
-}
-
-#[derive(Serialize, Deserialize, Default, Clone)]
-pub struct Profile {
-  #[serde(flatten)]
-  pub log_settings: LogSettings,
-
-  #[serde(flatten)]
-  pub template_settings: template::Settings,
-}
-
-pub struct Options {
-  pub log_settings: LogSettings,
-  pub template_settings: template::Settings,
-  pub maybe_filter: Option<String>,
-  pub implicit_return: bool,
-}
-
-impl From<Profile> for Options {
-  fn from(value: Profile) -> Self {
-    Self {
-      implicit_return: true,
-      maybe_filter: None,
-      log_settings: value.log_settings,
-      template_settings: value.template_settings,
-    }
+    fs::write(config_file, config.to_string()).map_err(Error::failed_to_write)
   }
 }
 
@@ -145,19 +80,13 @@ mod tests {
       r#"
             default_profile = 'foo'
 
-            [profile.foo]
             message_keys = ['msg']
-
-            [profile.bar]
-            message_keys = ['data']
         "#,
     )
     .expect("input config should parse");
 
     assert_eq!(config.default_profile, Some("foo".to_owned()));
-    assert!(config.profiles.contains_key("foo"));
-    assert!(config.profiles.contains_key("bar"));
-    assert_eq!(config.profiles.get("foo").map(|p| &p.log_settings.message_keys), Some(&vec!["msg".to_owned()]));
-    assert_eq!(config.profiles.get("bar").map(|p| &p.log_settings.message_keys), Some(&vec!["data".to_owned()]));
+    assert_eq!(config.profile.map(|p| p.log_settings.message_keys), Some(vec!["msg".to_owned()]));
+    // assert_eq!(config.profiles.get("bar").map(|p| &p.log_settings.message_keys), Some(&vec!["data".to_owned()]));
   }
 }

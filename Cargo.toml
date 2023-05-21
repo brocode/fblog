@@ -19,6 +19,7 @@ lazy_static = "1.4.0"
 handlebars = "4"
 serde = { version = "1.0.163", features = ["derive"] }
 toml = { version =  "0.7.3", features = [] }
+toml_edit = { version = "0.19" }
 directories = "5.0"
 
 [dependencies.clap]
