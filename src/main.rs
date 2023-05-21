@@ -13,26 +13,37 @@ mod process;
 mod substitution;
 mod template;
 
-use config::{Config, Options, Profile};
+use config::{Config, Options};
 use substitution::Substitution;
 
 fn main() {
   let app = app::app();
   let matches = app.get_matches();
 
-  if let Some(("use-profile", args)) = matches.subcommand() {
-    let profile = args.get_one::<String>("profile").expect("required value should be present");
-    Config::save_default_profile(profile).unwrap();
-    return;
+  if let Some(("profile", profile_matches)) = matches.subcommand() {
+    match profile_matches.subcommand() {
+      Some(("use", use_matches)) => {
+        let profile = use_matches.get_one::<String>("profile").expect("required value should be present");
+        Config::save_default_profile(profile).unwrap();
+        return;
+      }
+      Some(("set", _)) => todo!("implement profile set"),
+      Some((sc, _)) => panic!("Invalid profile sub command {}", sc),
+      None => {
+        let current_profile = Config::load_default()
+          .map(|c| c.default_profile)
+          .unwrap_or_default()
+          .unwrap_or("default".to_owned());
+        println!("Current profile: {current_profile}");
+      }
+    }
   }
 
   let mut options = match Config::load_default() {
-    Ok(config) => match &config.default_profile {
-      Some(p) if p == "default" => config.get_default_profile(),
-      None => config.get_default_profile(),
+    Ok(config) => match matches.get_one::<String>("profile").or(config.default_profile.as_ref()).map(|s| s.as_str()) {
+      Some("default") | None => config.get_default_profile(),
       Some(p) => config.profiles.get(p).expect("default profile not found").clone(),
     },
-    Err(config::Error::NoDefault) => Profile::default(),
     Err(e) => panic!("Failed to read config: {}", e),
   }
   .into();

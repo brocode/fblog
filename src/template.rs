@@ -1,6 +1,6 @@
 use crate::no_color_support::{paint, style};
 use handlebars::{handlebars_helper, no_escape, Handlebars};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 use yansi::{Color, Style};
 
@@ -12,16 +12,16 @@ pub struct Settings {
   #[serde(default)]
   pub main_line_format: String,
   #[serde(default)]
-  pub additional_value_format: String
+  pub additional_value_format: String,
 }
 
 impl Default for Settings {
-    fn default() -> Self {
-        Self { 
-          main_line_format: DEFAULT_MAIN_LINE_FORMAT.to_owned(), 
-          additional_value_format: DEFAULT_ADDITIONAL_VALUE_FORMAT.to_owned() 
-        }
+  fn default() -> Self {
+    Self {
+      main_line_format: DEFAULT_MAIN_LINE_FORMAT.to_owned(),
+      additional_value_format: DEFAULT_ADDITIONAL_VALUE_FORMAT.to_owned(),
     }
+  }
 }
 
 fn level_to_style(level: &str) -> Style {

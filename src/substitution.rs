@@ -141,9 +141,7 @@ impl Substitution {
 
 impl Default for Substitution {
   fn default() -> Self {
-    Self::new(
-      Self::default_context_keys(), 
-      Self::DEFAULT_PLACEHOLDER_FORMAT.to_owned()).expect("default placeholder should parse")
+    Self::new(Self::default_context_keys(), Self::DEFAULT_PLACEHOLDER_FORMAT.to_owned()).expect("default placeholder should parse")
   }
 }
 

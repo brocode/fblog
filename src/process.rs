@@ -1,7 +1,7 @@
-use crate::substitution::Substitution;
-use crate::{filter, config};
 use crate::log::{self, LogSettings};
 use crate::no_color_support::style;
+use crate::substitution::Substitution;
+use crate::{config, filter};
 use handlebars::Handlebars;
 use lazy_static::lazy_static;
 use serde_json::{Map, Value};
@@ -13,12 +13,7 @@ lazy_static! {
   static ref BOLD_ORANGE: Style = Color::RGB(255, 135, 22).style().bold();
 }
 
-pub fn process_input(
-  options: &config::Options,
-  input: &mut dyn io::BufRead,
-  handlebars: &Handlebars<'static>,
-  substitution: Option<&Substitution>
-) {
+pub fn process_input(options: &config::Options, input: &mut dyn io::BufRead, handlebars: &Handlebars<'static>, substitution: Option<&Substitution>) {
   for line in input.lines() {
     let read_line = &line.expect("Should be able to read line");
     match process_input_line(options, read_line, None, handlebars, substitution) {
@@ -85,6 +80,12 @@ fn process_json_log_entry(
   }
 }
 
-fn process_log_entry(log_settings: &LogSettings, maybe_prefix: Option<&str>, log_entry: &Map<String, Value>, handlebars: &Handlebars<'static>, substitution: Option<&Substitution>) {
+fn process_log_entry(
+  log_settings: &LogSettings,
+  maybe_prefix: Option<&str>,
+  log_entry: &Map<String, Value>,
+  handlebars: &Handlebars<'static>,
+  substitution: Option<&Substitution>,
+) {
   log::print_log_line(&mut io::stdout(), maybe_prefix, log_entry, log_settings, handlebars, substitution)
 }

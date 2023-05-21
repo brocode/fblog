@@ -81,7 +81,7 @@ impl Config {
   pub fn load_default() -> Result<Config, Error> {
     let config_file = Self::config_file_path();
     if !config_file.exists() {
-      return Ok(Config::default())
+      return Ok(Config::default());
     }
     Self::load_from_file(&config_file)
   }
@@ -115,12 +115,6 @@ pub struct Profile {
 
   #[serde(flatten)]
   pub template_settings: template::Settings,
-
-  #[serde(skip)]
-  pub maybe_filter: Option<String>,
-
-  #[serde(skip)]
-  pub implicit_return: bool,
 }
 
 pub struct Options {

@@ -8,7 +8,16 @@ pub fn app() -> Command {
     .version(crate_version!())
     .author("Brocode inc <bros@brocode.sh>")
     .about("json log viewer")
-    .subcommand(Command::new("use-profile").arg(Arg::new("profile").required(true)))
+    .subcommand(
+      Command::new("profile").subcommands([
+        Command::new("set")
+          .about("set default options for a profile (uses the same arguments as the root command)")
+          .arg(Arg::new("profile").required(true)),
+        Command::new("use")
+          .about("sets the default profile to the specified value")
+          .arg(Arg::new("profile").required(true)),
+      ]),
+    )
     .arg(
       Arg::new("additional-value")
         .long("additional-value")
@@ -133,5 +142,13 @@ pub fn app() -> Command {
         .action(ArgAction::Set)
         .default_value_if("enable-substitution", "true", Substitution::DEFAULT_PLACEHOLDER_FORMAT)
         .help("The format that should be used for substituting values in the message, where the key is the literal word `key`. Example: [[key]] or ${key}."),
+    )
+    .arg(
+      Arg::new("profile")
+        .long("profile")
+        .short('P')
+        .num_args(1)
+        .action(ArgAction::Set)
+        .help("use values in the specified profile as defaults"),
     )
 }

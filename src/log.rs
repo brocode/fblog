@@ -9,33 +9,22 @@ use std::io::Write;
 use yansi::Color;
 
 #[derive(Serialize, Deserialize, Default, Clone)]
+#[serde(default)]
 pub struct LogSettings {
-  #[serde(default)]
   pub message_keys: Vec<String>,
-  #[serde(default)]
   pub time_keys: Vec<String>,
-  #[serde(default)]
   pub level_keys: Vec<String>,
-  #[serde(default)]
   pub additional_values: Vec<String>,
-  #[serde(default)]
   pub excluded_values: Vec<String>,
-  #[serde(default)]
   pub dump_all: bool,
-  #[serde(default)]
   pub with_prefix: bool,
-  #[serde(default)]
   pub print_lua: bool,
-  #[serde(default)]
   pub substitution_enabled: bool,
-  #[serde(default)]
   pub context_keys: Vec<String>,
-  #[serde(default)]
   pub placeholder_format: String,
 }
 
 impl LogSettings {
-
   const DEFAULT_MESSAGE_KEYS: [&str; 3] = ["short_message", "msg", "message"];
   const DEFAULT_TIME_KEYS: [&str; 3] = ["timestamp", "time", "@timestamp"];
   const DEFAULT_LEVEL_KEYS: [&str; 4] = ["level", "severity", "log.level", "loglevel"];
@@ -247,7 +236,10 @@ mod tests {
     let main_line_format = template::DEFAULT_MAIN_LINE_FORMAT.to_string();
     let additional_value_format = template::DEFAULT_ADDITIONAL_VALUE_FORMAT.to_string();
 
-    template::fblog_handlebar_registry(&template::Settings{main_line_format, additional_value_format})
+    template::fblog_handlebar_registry(&template::Settings {
+      main_line_format,
+      additional_value_format,
+    })
   }
 
   fn out_to_string(out: Vec<u8>) -> String {
@@ -270,6 +262,7 @@ mod tests {
 
     assert_eq!(out_to_string(out), "2017-07-06T15:21:16  INFO: something happend\n");
   }
+
   #[test]
   fn write_log_entry_with_prefix() {
     let handlebars = fblog_handlebar_registry_default_format();
