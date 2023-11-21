@@ -76,10 +76,10 @@ handlebar helpers:
 -   blue
 -   purple
 -   green
--   color~rgb~ 0 0 0
+-   color_rgb 0 0 0
 -   uppercase
--   level~style~
--   fixed~size~ 10
+-   level_style
+-   fixed_size 10
 
 ## NO_COLOR
 
