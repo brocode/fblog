@@ -4,7 +4,6 @@
 
   [[https://crates.io/crates/fblog][file:https://img.shields.io/crates/v/fblog.svg]]
   [[https://github.com/brocode/fblog/blob/nested-values/.github/workflows/rust.yml][file:https://github.com/brocode/fblog/actions/workflows/rust.yml/badge.svg?branch=master]]
-  [[https://rawkode.chat/][file:https://img.shields.io/discord/730728064031653999.svg]]
 
   A small tool to view json log files.
 
