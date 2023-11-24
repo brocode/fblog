@@ -36,9 +36,9 @@ pub struct Substitution {
 }
 
 impl Substitution {
-  pub const DEFAULT_PLACEHOLDER_FORMAT: &str = "{key}";
-  pub const KEY_DELIMITER: &str = "key";
-  pub const DEFAULT_CONTEXT_KEY: &str = "context";
+  pub const DEFAULT_PLACEHOLDER_FORMAT: &'static str = "{key}";
+  pub const KEY_DELIMITER: &'static str = "key";
+  pub const DEFAULT_CONTEXT_KEY: &'static str = "context";
 
   pub fn new<S: Into<String>>(context_key: Option<S>, placeholder_format: Option<S>) -> Result<Self, Error> {
     let format = placeholder_format.map_or(Self::DEFAULT_PLACEHOLDER_FORMAT.to_owned(), Into::into);
