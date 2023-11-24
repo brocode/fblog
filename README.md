@@ -144,3 +144,9 @@ kubectl logs -f ... | fblog
 
 In general you can pipe any endless stream to fblog.
 
+
+## shell completions
+
+```bash
+fblog --generate-completions <shell>
+```
