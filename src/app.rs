@@ -1,7 +1,8 @@
 use crate::substitution::Substitution;
 use crate::template;
-use clap::{crate_version, ArgAction};
+use clap::{crate_version, value_parser, ArgAction, ValueHint};
 use clap::{Arg, Command};
+use clap_complete::Shell;
 
 pub fn app() -> Command {
   Command::new("fblog")
@@ -16,6 +17,13 @@ pub fn app() -> Command {
         .num_args(1)
         .conflicts_with("excluded-value")
         .help("adds additional values"),
+    )
+    .arg(
+      Arg::new("generate-completions")
+        .long("generate-completions")
+        .action(ArgAction::Set)
+        .hide(true)
+        .value_parser(value_parser!(Shell)),
     )
     .arg(
       Arg::new("message-key")
@@ -92,6 +100,7 @@ pub fn app() -> Command {
       Arg::new("INPUT")
         .help("Sets the input file to use, otherwise assumes stdin")
         .required(false)
+        .value_hint(ValueHint::AnyPath)
         .default_value("-"),
     )
     .arg(

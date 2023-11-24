@@ -12,6 +12,7 @@ mod substitution;
 mod template;
 
 use crate::log::LogSettings;
+use clap_complete::{generate, Shell};
 use std::fs;
 use substitution::Substitution;
 
@@ -20,6 +21,14 @@ fn main() {
   let matches = app.get_matches();
 
   let mut log_settings = LogSettings::new_default_settings();
+
+  if let Some(generator) = matches.get_one::<Shell>("generate-completions").copied() {
+    let mut app = app::app();
+    let name = app.get_name().to_string();
+    eprintln!("Generating completion file for {generator}...");
+    generate(generator, &mut app, name, &mut io::stdout());
+    return;
+  }
 
   if let Some(values) = matches.get_many::<String>("additional-value") {
     log_settings.add_additional_values(values.map(ToOwned::to_owned).collect());
