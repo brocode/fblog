@@ -75,6 +75,7 @@ handlebar helpers:
 -   red
 -   blue
 -   purple
+-   cyan
 -   green
 -   color_rgb 0 0 0
 -   uppercase

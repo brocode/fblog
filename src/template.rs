@@ -3,7 +3,7 @@ use handlebars::{handlebars_helper, no_escape, Handlebars};
 use std::convert::TryInto;
 use yansi::{Color, Style};
 
-pub static DEFAULT_MAIN_LINE_FORMAT: &str = "{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{bold(color_rgb 138 43 226 fblog_prefix)}} {{fblog_message}}";
+pub static DEFAULT_MAIN_LINE_FORMAT: &str = "{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{bold(cyan fblog_prefix)}} {{fblog_message}}";
 pub static DEFAULT_ADDITIONAL_VALUE_FORMAT: &str = "{{bold (color_rgb 150 150 150 (fixed_size 25 key))}}: {{value}}";
 
 fn level_to_style(level: &str) -> Style {
@@ -21,6 +21,10 @@ fn level_to_style(level: &str) -> Style {
 pub fn fblog_handlebar_registry(main_line_format: String, additional_value_format: String) -> Handlebars<'static> {
     handlebars_helper!(bold: |t: str| {
         style(&Color::Default.style().bold(), t)
+    });
+
+    handlebars_helper!(cyan: |t: str| {
+        paint(Color::Cyan, t)
     });
 
     handlebars_helper!(yellow: |t: str| {
@@ -76,6 +80,7 @@ pub fn fblog_handlebar_registry(main_line_format: String, additional_value_forma
     reg.register_helper("level_style", Box::new(level_style));
 
     reg.register_helper("yellow", Box::new(yellow));
+    reg.register_helper("cyan", Box::new(cyan));
     reg.register_helper("red", Box::new(red));
     reg.register_helper("blue", Box::new(blue));
     reg.register_helper("purple", Box::new(purple));
