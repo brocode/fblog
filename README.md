@@ -154,7 +154,7 @@ fblog --generate-completions <shell>
 
 ## configuration file
 
-fblog load a `fblog.toml` file.
+`fblog` reads its configuration from a file called `fblog.toml`, which is located
 
 Linux: `$XDG_CONFIG_HOME` or `$HOME/.config`
 
