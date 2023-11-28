@@ -31,7 +31,11 @@ fn main() {
     return;
   }
 
-  let config: Config = Config::get();
+  let config: Config = if let Some(config_file_path) = matches.get_one::<String>("config-file") {
+    Config::load_from_file(config_file_path).expect("Could not load config file.")
+  } else {
+    Config::get()
+  };
 
   let mut log_settings = LogSettings::from_config(&config);
 

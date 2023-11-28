@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 
@@ -43,6 +43,10 @@ pub struct Config {
 }
 
 impl Config {
+  pub fn load_from_file(config_file_path: &str) -> Option<Config> {
+    let config_string = fs::read_to_string(PathBuf::from(config_file_path)).ok()?;
+    toml::from_str(&config_string).ok()?
+  }
   pub fn load() -> Option<Config> {
     let mut config_file = dirs::config_dir()?;
     config_file.push("fblog.toml");

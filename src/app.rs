@@ -18,6 +18,13 @@ pub fn app() -> Command {
         .help("adds additional values"),
     )
     .arg(
+      Arg::new("config-file")
+        .long("config-file")
+        .action(ArgAction::Set)
+        .num_args(1)
+        .help("configuration file to load"),
+    )
+    .arg(
       Arg::new("generate-completions")
         .long("generate-completions")
         .action(ArgAction::Set)
