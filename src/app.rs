@@ -4,7 +4,7 @@ use clap::{Arg, Command};
 use clap_complete::Shell;
 
 pub fn app() -> Command {
-  Command::new("fblog")
+    Command::new("fblog")
     .version(crate_version!())
     .author("Brocode inc <bros@brocode.sh>")
     .about("json log viewer")
