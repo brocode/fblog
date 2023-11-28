@@ -45,13 +45,24 @@ pub struct Config {
 impl Config {
   pub fn load_from_file(config_file_path: &str) -> Option<Config> {
     let config_string = fs::read_to_string(PathBuf::from(config_file_path)).ok()?;
-    toml::from_str(&config_string).ok()?
+    match toml::from_str(&config_string) {
+      Ok(config) => Some(config),
+      Err(e) => {
+        eprintln!("Could not parse config file: {}", e);
+        None
+      }
+    }
   }
   pub fn load() -> Option<Config> {
     let mut config_file = dirs::config_dir()?;
     config_file.push("fblog.toml");
     let config_string = fs::read_to_string(config_file).ok()?;
-    toml::from_str(&config_string).ok()?
+    match toml::from_str(&config_string) {
+      Ok(config) => Some(config),
+      Err(e) => {
+        panic!("Could not parse config file: {}", e);
+      }
+    }
   }
   pub fn new() -> Config {
     Config {
