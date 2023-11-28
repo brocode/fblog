@@ -1,5 +1,6 @@
 use crate::filter;
-use crate::log::{self, LogSettings};
+use crate::log;
+use crate::log_settings::LogSettings;
 use crate::no_color_support::style;
 use handlebars::Handlebars;
 use lazy_static::lazy_static;

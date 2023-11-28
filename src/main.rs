@@ -4,23 +4,24 @@ use std::io;
 extern crate regex;
 
 mod app;
+mod config;
 mod filter;
 mod log;
+mod log_settings;
 mod no_color_support;
 mod process;
 mod substitution;
 mod template;
 
-use crate::log::LogSettings;
+use crate::log_settings::LogSettings;
 use clap_complete::{generate, Shell};
+use config::Config;
 use std::fs;
 use substitution::Substitution;
 
 fn main() {
   let app = app::app();
   let matches = app.get_matches();
-
-  let mut log_settings = LogSettings::new_default_settings();
 
   if let Some(generator) = matches.get_one::<Shell>("generate-completions").copied() {
     let mut app = app::app();
@@ -29,6 +30,10 @@ fn main() {
     generate(generator, &mut app, name, &mut io::stdout());
     return;
   }
+
+  let config: Config = Config::get();
+
+  let mut log_settings = LogSettings::from_config(&config);
 
   if let Some(values) = matches.get_many::<String>("additional-value") {
     log_settings.add_additional_values(values.map(ToOwned::to_owned).collect());
@@ -72,15 +77,14 @@ fn main() {
   let input_filename = matches.get_one::<String>("INPUT").unwrap();
   let mut input = io::BufReader::new(input_read(input_filename));
 
-  // TODO: include profile
   let main_line_format = matches
     .get_one::<String>("main-line-format")
     .map(|s| s.to_string())
-    .unwrap_or_else(|| template::DEFAULT_MAIN_LINE_FORMAT.to_string());
+    .unwrap_or_else(|| config.main_line_format.to_string());
   let additional_value_format = matches
     .get_one::<String>("additional-value-format")
     .map(|s| s.to_string())
-    .unwrap_or_else(|| template::DEFAULT_ADDITIONAL_VALUE_FORMAT.to_string());
+    .unwrap_or_else(|| config.additional_value_format.to_string());
 
   let handlebars = template::fblog_handlebar_registry(main_line_format, additional_value_format);
   process::process_input(&log_settings, &mut input, maybe_filter, implicit_return, &handlebars)

@@ -1,4 +1,4 @@
-use crate::log::LogSettings;
+use crate::log_settings::LogSettings;
 use lazy_static::lazy_static;
 use mlua::{Error as LuaError, Lua};
 use regex::Regex;
@@ -116,86 +116,59 @@ mod tests {
   #[test]
   fn allow_all() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(true, show_log_entry(&log_entry, "true", true, &LogSettings::new_default_settings()).unwrap());
+    assert!(show_log_entry(&log_entry, "true", true, &LogSettings::new_default_settings()).unwrap());
   }
 
   #[test]
   fn deny_all() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(false, show_log_entry(&log_entry, "false", true, &LogSettings::new_default_settings()).unwrap());
+    assert!(!show_log_entry(&log_entry, "false", true, &LogSettings::new_default_settings()).unwrap());
   }
 
   #[test]
   fn filter_process() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(
-      true,
-      show_log_entry(&log_entry, r#"process == "rust""#, true, &LogSettings::new_default_settings()).unwrap()
-    );
-    assert_eq!(
-      false,
-      show_log_entry(&log_entry, r#"process == "meep""#, true, &LogSettings::new_default_settings()).unwrap()
-    );
+    assert!(show_log_entry(&log_entry, r#"process == "rust""#, true, &LogSettings::new_default_settings()).unwrap());
+    assert!(!show_log_entry(&log_entry, r#"process == "meep""#, true, &LogSettings::new_default_settings()).unwrap());
   }
 
   #[test]
   fn filter_logical_operators() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(
-      true,
-      show_log_entry(&log_entry, r#"process == "rust" and fu == "bower""#, true, &LogSettings::new_default_settings()).unwrap()
-    );
-    assert_eq!(
-      true,
-      show_log_entry(&log_entry, r#"process == "rust" or fu == "bauer""#, true, &LogSettings::new_default_settings()).unwrap()
-    );
+    assert!(show_log_entry(&log_entry, r#"process == "rust" and fu == "bower""#, true, &LogSettings::new_default_settings()).unwrap());
+    assert!(show_log_entry(&log_entry, r#"process == "rust" or fu == "bauer""#, true, &LogSettings::new_default_settings()).unwrap());
   }
 
   #[test]
   fn filter_contains() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(
+    assert!(show_log_entry(
+      &log_entry,
+      r#"string.find(message, "something") ~= nil"#,
       true,
-      show_log_entry(
-        &log_entry,
-        r#"string.find(message, "something") ~= nil"#,
-        true,
-        &LogSettings::new_default_settings()
-      )
-      .unwrap()
-    );
-    assert_eq!(
-      false,
-      show_log_entry(&log_entry, r#"string.find(message, "bla") ~= nil"#, true, &LogSettings::new_default_settings()).unwrap()
-    );
+      &LogSettings::new_default_settings()
+    )
+    .unwrap());
+    assert!(!show_log_entry(&log_entry, r#"string.find(message, "bla") ~= nil"#, true, &LogSettings::new_default_settings()).unwrap());
   }
 
   #[test]
   fn filter_regex() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(
-      true,
-      show_log_entry(&log_entry, r#"string.find(fu, "bow.*") ~= nil"#, true, &LogSettings::new_default_settings()).unwrap()
-    );
-    assert_eq!(
-      false,
-      show_log_entry(&log_entry, r#"string.find(fu, "bow.*sd") ~= nil"#, true, &LogSettings::new_default_settings()).unwrap()
-    );
+    assert!(show_log_entry(&log_entry, r#"string.find(fu, "bow.*") ~= nil"#, true, &LogSettings::new_default_settings()).unwrap());
+    assert!(!show_log_entry(&log_entry, r#"string.find(fu, "bow.*sd") ~= nil"#, true, &LogSettings::new_default_settings()).unwrap());
   }
 
   #[test]
   fn unknown_variable() {
     let log_entry: Map<String, Value> = test_log_entry();
-    assert_eq!(
-      false,
-      show_log_entry(
-        &log_entry,
-        r#"sdkfjsdfjsf ~= nil and string.find(sdkfjsdfjsf, "bow.*") ~= nil"#,
-        true,
-        &LogSettings::new_default_settings()
-      )
-      .unwrap()
-    );
+    assert!(!show_log_entry(
+      &log_entry,
+      r#"sdkfjsdfjsf ~= nil and string.find(sdkfjsdfjsf, "bow.*") ~= nil"#,
+      true,
+      &LogSettings::new_default_settings()
+    )
+    .unwrap());
   }
 
   #[test]

@@ -35,5 +35,5 @@ pub fn without_style(styled: &str) -> String {
   use regex::Regex;
 
   let regex = Regex::new("\u{001B}\\[[\\d;]*[^\\d;]").expect("Regex should be valid");
-  regex.replace_all(&styled, "").into_owned()
+  regex.replace_all(styled, "").into_owned()
 }

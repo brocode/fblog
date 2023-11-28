@@ -1,66 +1,11 @@
+use crate::log_settings::LogSettings;
 use crate::no_color_support::style;
-use crate::substitution::Substitution;
 use handlebars::Handlebars;
 use serde_json::{Map, Value};
 use std::borrow::ToOwned;
 use std::collections::BTreeMap;
 use std::io::Write;
 use yansi::Color;
-
-pub struct LogSettings {
-  pub message_keys: Vec<String>,
-  pub time_keys: Vec<String>,
-  pub level_keys: Vec<String>,
-  pub additional_values: Vec<String>,
-  pub excluded_values: Vec<String>,
-  pub dump_all: bool,
-  pub with_prefix: bool,
-  pub print_lua: bool,
-  pub substitution: Option<Substitution>,
-}
-
-impl LogSettings {
-  pub fn new_default_settings() -> LogSettings {
-    LogSettings {
-      message_keys: vec!["short_message".to_string(), "msg".to_string(), "message".to_string()],
-      time_keys: vec!["timestamp".to_string(), "time".to_string(), "@timestamp".to_string()],
-      level_keys: vec!["level".to_string(), "severity".to_string(), "log.level".to_string(), "loglevel".to_string()],
-      additional_values: vec![],
-      excluded_values: vec![],
-      dump_all: false,
-      with_prefix: false,
-      print_lua: false,
-      substitution: None,
-    }
-  }
-
-  pub fn add_additional_values(&mut self, mut additional_values: Vec<String>) {
-    self.additional_values.append(&mut additional_values);
-  }
-
-  pub fn add_message_keys(&mut self, mut message_keys: Vec<String>) {
-    message_keys.append(&mut self.message_keys);
-    self.message_keys = message_keys;
-  }
-
-  pub fn add_time_keys(&mut self, mut time_keys: Vec<String>) {
-    time_keys.append(&mut self.time_keys);
-    self.time_keys = time_keys;
-  }
-
-  pub fn add_level_keys(&mut self, mut level_keys: Vec<String>) {
-    level_keys.append(&mut self.level_keys);
-    self.level_keys = level_keys;
-  }
-
-  pub fn add_excluded_values(&mut self, mut excluded_values: Vec<String>) {
-    self.excluded_values.append(&mut excluded_values);
-  }
-
-  pub fn add_substitution(&mut self, message_template: Substitution) {
-    self.substitution = Some(message_template)
-  }
-}
 
 pub fn print_log_line(
   out: &mut dyn Write,
@@ -236,6 +181,7 @@ mod tests {
 
     assert_eq!(out_to_string(out), "2017-07-06T15:21:16  INFO: something happend\n");
   }
+
   #[test]
   fn write_log_entry_with_prefix() {
     let handlebars = fblog_handlebar_registry_default_format();

@@ -150,3 +150,17 @@ In general you can pipe any endless stream to fblog.
 ```bash
 fblog --generate-completions <shell>
 ```
+
+
+## configuration file
+
+fblog load a `fblog.toml` file.
+
+Linux: `$XDG_CONFIG_HOME` or `$HOME/.config`
+
+Windows: `{FOLDERID_RoamingAppData}`
+
+macOS: `$HOME/Library/Application Support`
+
+If the file does not exist or is empty [this](./default_config.toml) is the default config.
+

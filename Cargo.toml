@@ -18,6 +18,9 @@ mlua = { version = "0.9", features = ["lua54", "vendored"] }
 lazy_static = "1.4.0"
 handlebars = "4"
 clap_complete = "4"
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+dirs = "5"
 
 [dependencies.clap]
 version = "4"

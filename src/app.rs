@@ -1,5 +1,4 @@
 use crate::substitution::Substitution;
-use crate::template;
 use clap::{crate_version, value_parser, ArgAction, ValueHint};
 use clap::{Arg, Command};
 use clap_complete::Shell;
@@ -107,14 +106,12 @@ pub fn app() -> Command {
       Arg::new("main-line-format")
         .long("main-line-format")
         .num_args(1)
-        .default_value(template::DEFAULT_MAIN_LINE_FORMAT)
         .help("Formats the main fblog output. All log values can be used. fblog provides sanitized variables starting with `fblog_`."),
     )
     .arg(
       Arg::new("additional-value-format")
         .long("additional-value-format")
         .num_args(1)
-        .default_value(template::DEFAULT_ADDITIONAL_VALUE_FORMAT)
         .help("Formats the additional value fblog output."),
     )
     .arg(

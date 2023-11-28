@@ -1,0 +1,7 @@
+root = true
+
+[*.rs]
+indent_style = space
+indent_size = 2
+max_line_length = 160
+
