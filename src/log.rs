@@ -17,7 +17,7 @@ pub fn print_log_line(
     let string_log_entry = flatten_json(log_entry, "");
     let level = get_string_value_or_default(&string_log_entry, &log_settings.level_keys, "unknown");
 
-    let formatted_prefix = maybe_prefix.map(|p| format!(" {}", p)).unwrap_or_else(|| "".to_owned());
+    let trimmed_prefix = maybe_prefix.map(|p| p.trim()).unwrap_or_else(|| "").to_string();
     let mut message = get_string_value_or_default(&string_log_entry, &log_settings.message_keys, "");
     let timestamp = get_string_value_or_default(&string_log_entry, &log_settings.time_keys, "");
 
@@ -31,7 +31,7 @@ pub fn print_log_line(
     handle_bar_input.insert("fblog_timestamp".to_string(), Value::String(timestamp));
     handle_bar_input.insert("fblog_level".to_string(), Value::String(level));
     handle_bar_input.insert("fblog_message".to_string(), Value::String(message));
-    handle_bar_input.insert("fblog_prefix".to_string(), Value::String(formatted_prefix));
+    handle_bar_input.insert("fblog_prefix".to_string(), Value::String(trimmed_prefix));
 
     let write_result = match handlebars.render("main_line", &handle_bar_input) {
         Ok(string) => writeln!(out, "{}", string),
