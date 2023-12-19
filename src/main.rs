@@ -55,6 +55,10 @@ fn main() {
         log_settings.add_level_keys(values.map(ToString::to_string).collect());
     }
 
+    if let Some(values) = matches.get_many::<(String, String)>("map-level") {
+        log_settings.add_level_map(values.map(ToOwned::to_owned).collect());
+    }
+
     match (matches.get_one::<String>("context-key"), matches.get_one::<String>("placeholder-format")) {
         (None, None) => {
             // Neither context key nor placeholder is set, meaning that substitution is not enabled

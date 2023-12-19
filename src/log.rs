@@ -15,7 +15,10 @@ pub fn print_log_line(
     handlebars: &Handlebars<'static>,
 ) {
     let string_log_entry = flatten_json(log_entry, "");
-    let level = get_string_value_or_default(&string_log_entry, &log_settings.level_keys, "unknown");
+    let level = {
+        let level = get_string_value_or_default(&string_log_entry, &log_settings.level_keys, "unknown");
+        log_settings.level_map.get(&level).map(ToString::to_string).unwrap_or(level)
+    };
 
     let trimmed_prefix = maybe_prefix.map(|p| p.trim()).unwrap_or_else(|| "").to_string();
     let mut message = get_string_value_or_default(&string_log_entry, &log_settings.message_keys, "");
@@ -175,6 +178,22 @@ mod tests {
         log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
         log_entry.insert("process".to_string(), Value::String("rust".to_string()));
         log_entry.insert("level".to_string(), Value::String("info".to_string()));
+
+        print_log_line(&mut out, None, &log_entry, &log_settings, &handlebars);
+
+        assert_eq!(out_to_string(out), "2017-07-06T15:21:16  INFO: something happend\n");
+    }
+
+    #[test]
+    fn write_log_entry_with_mapped_level() {
+        let handlebars = fblog_handlebar_registry_default_format();
+        let log_settings = LogSettings::new_default_settings();
+        let mut out: Vec<u8> = Vec::new();
+        let mut log_entry: Map<String, Value> = Map::new();
+        log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+        log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
+        log_entry.insert("process".to_string(), Value::String("rust".to_string()));
+        log_entry.insert("level".to_string(), Value::String("30".to_string()));
 
         print_log_line(&mut out, None, &log_entry, &log_settings, &handlebars);
 

@@ -1,9 +1,11 @@
 use crate::{config::Config, substitution::Substitution};
+use std::collections::BTreeMap;
 
 pub struct LogSettings {
     pub message_keys: Vec<String>,
     pub time_keys: Vec<String>,
     pub level_keys: Vec<String>,
+    pub level_map: BTreeMap<String, String>,
     pub additional_values: Vec<String>,
     pub excluded_values: Vec<String>,
     pub dump_all: bool,
@@ -18,6 +20,7 @@ impl LogSettings {
             message_keys: config.message_keys.clone(),
             time_keys: config.time_keys.clone(),
             level_keys: config.level_keys.clone(),
+            level_map: config.level_map.clone(),
             additional_values: vec![],
             excluded_values: vec![],
             dump_all: false,
@@ -50,6 +53,10 @@ impl LogSettings {
     pub fn add_level_keys(&mut self, mut level_keys: Vec<String>) {
         level_keys.append(&mut self.level_keys);
         self.level_keys = level_keys;
+    }
+
+    pub fn add_level_map(&mut self, values: Vec<(String, String)>) {
+        self.level_map.extend(values);
     }
 
     pub fn add_excluded_values(&mut self, mut excluded_values: Vec<String>) {

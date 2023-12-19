@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::{fs, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
@@ -14,6 +15,18 @@ fn default_time_keys() -> Vec<String> {
 
 fn default_level_keys() -> Vec<String> {
     vec!["level".to_string(), "severity".to_string(), "log.level".to_string(), "loglevel".to_string()]
+}
+
+fn default_level_map() -> BTreeMap<String, String> {
+    BTreeMap::from([
+        // https://www.npmjs.com/package/bunyan#levels
+        ("10".to_string(), "trace".to_string()),
+        ("20".to_string(), "debug".to_string()),
+        ("30".to_string(), "info".to_string()),
+        ("40".to_string(), "warn".to_string()),
+        ("50".to_string(), "error".to_string()),
+        ("60".to_string(), "fatal".to_string()),
+    ])
 }
 
 fn default_main_line_format() -> String {
@@ -34,6 +47,9 @@ pub struct Config {
 
     #[serde(default = "default_level_keys")]
     pub level_keys: Vec<String>,
+
+    #[serde(default = "default_level_map")]
+    pub level_map: BTreeMap<String, String>,
 
     #[serde(default = "default_main_line_format")]
     pub main_line_format: String,
@@ -69,6 +85,7 @@ impl Config {
             message_keys: default_message_keys(),
             time_keys: default_time_keys(),
             level_keys: default_level_keys(),
+            level_map: default_level_map(),
             main_line_format: default_main_line_format(),
             additional_value_format: default_additional_value_format(),
         }
@@ -94,6 +111,7 @@ mod tests {
         .unwrap();
 
         assert_eq!(config.level_keys, default_level_keys());
+        assert_eq!(config.level_map, default_level_map());
         assert_eq!(config.time_keys, default_time_keys());
         assert_eq!(config.message_keys, default_message_keys());
         assert_eq!(config.main_line_format, DEFAULT_MAIN_LINE_FORMAT);

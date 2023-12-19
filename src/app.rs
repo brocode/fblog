@@ -3,6 +3,14 @@ use clap::{crate_version, value_parser, ArgAction, ValueHint};
 use clap::{Arg, Command};
 use clap_complete::Shell;
 
+fn parse_key_value_pair(value: &str) -> Result<(String, String), &'static str> {
+    if let Some((from, to)) = value.split_once('=') {
+        Ok((from.to_owned(), to.to_owned()))
+    } else {
+        Err("missing '='")
+    }
+}
+
 pub fn app() -> Command {
     Command::new("fblog")
     .version(crate_version!())
@@ -61,6 +69,15 @@ pub fn app() -> Command {
         .action(ArgAction::Append)
         .num_args(1)
         .help("Adds an additional key to detect the level in the log entry. The first matching key will be assigned to `fblog_level`."),
+    )
+    .arg(
+      Arg::new("map-level")
+        .long("map-level")
+        .action(ArgAction::Append)
+        .num_args(1)
+        .value_name("from=to")
+        .value_parser(parse_key_value_pair)
+        .help("Rewrite the log level from one value to another."),
     )
     .arg(
       Arg::new("dump-all")
