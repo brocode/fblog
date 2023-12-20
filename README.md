@@ -165,3 +165,29 @@ macOS: `$HOME/Library/Application Support`
 
 If the file does not exist or is empty [this](./default_config.toml) is the default config.
 
+
+## log levels
+These levels are colorized by fblog:
+
+```
+trace
+debug
+info
+warn
+error
+fatal
+```
+
+You can map additional level values (used for output and color):
+```toml
+[level_map]
+10 = "trace"
+20 = "debug"
+30 = "info"
+40 = "warn"
+50 = "error"
+60 = "fatal"
+# these values for example are used by https://www.npmjs.com/package/bunyan#levels
+```
+
+

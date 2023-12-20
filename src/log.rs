@@ -17,7 +17,7 @@ pub fn print_log_line(
     let string_log_entry = flatten_json(log_entry, "");
     let level = {
         let level = get_string_value_or_default(&string_log_entry, &log_settings.level_keys, "unknown");
-        log_settings.level_map.get(&level).map(ToString::to_string).unwrap_or(level)
+        log_settings.level_map.get(&level).cloned().unwrap_or(level)
     };
 
     let trimmed_prefix = maybe_prefix.map(|p| p.trim()).unwrap_or_else(|| "").to_string();
@@ -187,7 +187,9 @@ mod tests {
     #[test]
     fn write_log_entry_with_mapped_level() {
         let handlebars = fblog_handlebar_registry_default_format();
-        let log_settings = LogSettings::new_default_settings();
+        let mut log_settings = LogSettings::new_default_settings();
+        log_settings.level_map = BTreeMap::from([("30".to_string(), "info".to_string())]);
+
         let mut out: Vec<u8> = Vec::new();
         let mut log_entry: Map<String, Value> = Map::new();
         log_entry.insert("message".to_string(), Value::String("something happend".to_string()));

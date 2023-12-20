@@ -18,15 +18,7 @@ fn default_level_keys() -> Vec<String> {
 }
 
 fn default_level_map() -> BTreeMap<String, String> {
-    BTreeMap::from([
-        // https://www.npmjs.com/package/bunyan#levels
-        ("10".to_string(), "trace".to_string()),
-        ("20".to_string(), "debug".to_string()),
-        ("30".to_string(), "info".to_string()),
-        ("40".to_string(), "warn".to_string()),
-        ("50".to_string(), "error".to_string()),
-        ("60".to_string(), "fatal".to_string()),
-    ])
+    BTreeMap::from([])
 }
 
 fn default_main_line_format() -> String {
@@ -120,5 +112,28 @@ mod tests {
         let serialized_defaults = toml::to_string(&config).unwrap();
         let default_config_for_documentation = fs::read_to_string("default_config.toml").unwrap();
         assert_eq!(serialized_defaults, default_config_for_documentation)
+    }
+
+    #[test]
+    fn read_empty_level_map() {
+        let config: Config = toml::from_str(
+            r#"
+    [level_map]
+    "#,
+        )
+        .unwrap();
+        assert_eq!(config.level_map.is_empty(), true);
+    }
+
+    #[test]
+    fn read_level_map() {
+        let config: Config = toml::from_str(
+            r#"
+    [level_map]
+    10 = "trace"
+    "#,
+        )
+        .unwrap();
+        assert_eq!(config.level_map, BTreeMap::from([("10".to_string(), "trace".to_string()),]));
     }
 }
