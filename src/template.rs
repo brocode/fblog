@@ -9,10 +9,12 @@ pub static DEFAULT_ADDITIONAL_VALUE_FORMAT: &str = "{{bold (color_rgb 150 150 15
 
 fn level_to_style(level: &str) -> Style {
     match level.trim().to_lowercase().as_ref() {
+        "trace" => Color::Cyan,
+        "debug" => Color::Blue,
         "info" => Color::Green,
         "warn" | "warning" => Color::Yellow,
         "error" | "err" => Color::Red,
-        "debug" => Color::Blue,
+        "fatal" => Color::Magenta,
         _ => Color::Magenta,
     }
     .style()
