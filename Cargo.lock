@@ -240,7 +240,7 @@ dependencies = [
 
 [[package]]
 name = "fblog"
-version = "4.7.0"
+version = "4.8.0"
 dependencies = [
  "clap",
  "clap_complete",
