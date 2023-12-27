@@ -190,4 +190,54 @@ You can map additional level values (used for output and color):
 # these values for example are used by https://www.npmjs.com/package/bunyan#levels
 ```
 
+## k9s
 
+In the file `~/.config/k9s/plugin.yml` add this:
+
+```yaml
+plugin:
+  fblog-pod:
+    shortCut: Shift-L
+    confirm: false
+    description: "fblog"
+    scopes:
+      - pods
+    command: sh
+    background: false
+    args:
+      - -c
+      - "kubectl logs --follow -n $NAMESPACE $NAME | fblog"
+  fblog-container:
+    shortCut: Shift-L
+    confirm: false
+    description: "fblog"
+    scopes:
+      - containers
+    command: sh
+    background: false
+    args:
+      - -c
+      - "kubectl logs  --follow -n $NAMESPACE $POD -c $NAME | fblog"
+  fblog-pod-all:
+    shortCut: Shift-A
+    confirm: false
+    description: "fblog -d"
+    scopes:
+      - pods
+    command: sh
+    background: false
+    args:
+      - -c
+      - "kubectl logs --follow -n $NAMESPACE $NAME | fblog -d"
+  fblog-container-all:
+    shortCut: Shift-A
+    confirm: false
+    description: "fblog -d"
+    scopes:
+      - containers
+    command: sh
+    background: false
+    args:
+      - -c
+      - "kubectl logs  --follow -n $NAMESPACE $POD -c $NAME | fblog -d"
+```
