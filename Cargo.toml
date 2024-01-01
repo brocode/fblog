@@ -16,7 +16,7 @@ yansi = "0.5.1"
 regex = "1"
 mlua = { version = "0.9", features = ["lua54", "vendored"] }
 lazy_static = "1.4.0"
-handlebars = "4"
+handlebars = "5"
 clap_complete = "4"
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
