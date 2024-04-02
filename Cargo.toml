@@ -12,7 +12,6 @@ edition = "2021"
 
 [dependencies]
 serde_json = "1.0"
-yansi = "0.5.1"
 regex = "1"
 mlua = { version = "0.9", features = ["lua54", "vendored"] }
 lazy_static = "1.4.0"
@@ -25,3 +24,7 @@ dirs = "5"
 [dependencies.clap]
 version = "4"
 features = ["cargo", "deprecated"]
+
+[dependencies.yansi]
+version = "1"
+features = ["detect-env"]
