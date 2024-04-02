@@ -1,8 +1,8 @@
+use std::fmt;
+
 use regex::{Captures, Regex};
 use serde_json::Value;
-use yansi::Color;
-
-use crate::no_color_support::stylew;
+use yansi::Paint;
 
 #[derive(Debug)]
 pub enum Error {
@@ -24,9 +24,6 @@ impl std::fmt::Display for Error {
         }
     }
 }
-
-/// 7 bytes for color (`\e` `[` `1` `;` `3` `9` `m`) and 4 bytes for reset (`\e` `[` `0` `m`)
-const COLOR_OVERHEAD: usize = 7 + 4;
 
 pub struct Substitution {
     pub context_key: String,
@@ -63,11 +60,7 @@ impl Substitution {
     }
 
     pub(crate) fn apply(&self, message: &str, log_entry: &serde_json::Map<String, serde_json::Value>) -> Option<String> {
-        let Some(context_value) = log_entry.get(&self.context_key) else {
-            return None;
-        };
-
-        let key_format_overhead = self.placeholder_prefix.len() + COLOR_OVERHEAD + self.placeholder_suffix.len() + COLOR_OVERHEAD;
+        let context_value = log_entry.get(&self.context_key)?;
 
         return Some(
             self.placeholder_regex
@@ -80,15 +73,11 @@ impl Substitution {
                     };
                     match value {
                         None => {
-                            let mut buf = String::with_capacity(key.len() + COLOR_OVERHEAD + key_format_overhead);
-                            stylew(&mut buf, &Color::Default.style().dimmed(), &self.placeholder_prefix);
-                            stylew(&mut buf, &Color::Red.style().bold(), key);
-                            stylew(&mut buf, &Color::Default.style().dimmed(), &self.placeholder_suffix);
-                            buf
+                            format!("{}{}{}", self.placeholder_prefix.dim(), key.red().bold(), self.placeholder_suffix.dim())
                         }
                         Some(value) => {
                             let mut buf = String::new();
-                            self.color_format(&mut buf, value);
+                            let _ = self.color_format(&mut buf, value);
                             buf
                         }
                     }
@@ -97,40 +86,43 @@ impl Substitution {
         );
     }
 
-    fn color_format(&self, buf: &mut String, value: &Value) {
+    fn color_format<W: std::fmt::Write>(&self, buf: &mut W, value: &Value) -> Result<(), fmt::Error> {
         match value {
-            Value::String(s) => stylew(buf, &Color::Yellow.style().bold(), s),
-            Value::Number(n) => stylew(buf, &Color::Cyan.style().bold(), &n.to_string()),
+            Value::String(s) => write!(buf, "{}", s.yellow().bold()),
+            Value::Number(n) => write!(buf, "{}", n.to_string().cyan().bold()),
             Value::Array(a) => self.color_format_array(buf, a),
             Value::Object(o) => self.color_format_map(buf, o),
-            Value::Bool(true) => stylew(buf, &Color::Green.style().bold(), "true"),
-            Value::Bool(false) => stylew(buf, &Color::Red.style().bold(), "false"),
-            Value::Null => stylew(buf, &Color::Default.style().bold(), "null"),
-        }
+            Value::Bool(true) => write!(buf, "{}", "true".green().bold()),
+            Value::Bool(false) => write!(buf, "{}", "false".red().bold()),
+            Value::Null => write!(buf, "{}", "null".bold()),
+        }?;
+        Ok(())
     }
 
-    fn color_format_array(&self, mut buf: &mut String, a: &[Value]) {
-        stylew(&mut buf, &Color::Default.style().dimmed(), "[");
+    fn color_format_array<W: std::fmt::Write>(&self, buf: &mut W, a: &[Value]) -> Result<(), fmt::Error> {
+        write!(buf, "{}", "[".dim())?;
         for (i, value) in a.iter().enumerate() {
             if i > 0 {
-                stylew(&mut buf, &Color::Default.style().dimmed(), ", ");
+                write!(buf, "{}", ", ".dim())?;
             }
-            self.color_format(buf, value);
+            self.color_format(buf, value)?;
         }
-        stylew(buf, &Color::Default.style().dimmed(), "]");
+        write!(buf, "{}", "]".dim())?;
+        Ok(())
     }
 
-    fn color_format_map(&self, mut buf: &mut String, o: &serde_json::Map<String, Value>) {
-        stylew(&mut buf, &Color::Default.style().dimmed(), "{");
+    fn color_format_map<W: std::fmt::Write>(&self, buf: &mut W, o: &serde_json::Map<String, Value>) -> Result<(), fmt::Error> {
+        write!(buf, "{}", "{".dim())?;
         for (i, (key, value)) in o.iter().enumerate() {
             if i > 0 {
-                stylew(&mut buf, &Color::Default.style().dimmed(), ", ");
+                write!(buf, "{}", ", ".dim())?;
             }
-            stylew(&mut buf, &Color::Magenta.style(), key);
-            stylew(&mut buf, &Color::Default.style().dimmed(), ": ");
-            self.color_format(buf, value);
+            write!(buf, "{}", key.magenta())?;
+            write!(buf, "{}", ": ".dim())?;
+            self.color_format(buf, value)?;
         }
-        stylew(buf, &Color::Default.style().dimmed(), "}");
+        write!(buf, "{}", "}".dim())?;
+        Ok(())
     }
 }
 
@@ -142,10 +134,14 @@ impl Default for Substitution {
 
 #[cfg(test)]
 mod tests {
-    use crate::no_color_support::without_style;
 
     use super::*;
     type JMap = serde_json::Map<String, serde_json::Value>;
+
+    fn without_style(styled: &str) -> String {
+        let regex = Regex::new("\u{001B}\\[[\\d;]*[^\\d;]").expect("Regex should be valid");
+        regex.replace_all(styled, "").into_owned()
+    }
 
     fn entry_context<V: Into<serde_json::Value>>(subst: &Substitution, context: V) -> JMap {
         let mut map = serde_json::Map::new();

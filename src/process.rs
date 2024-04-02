@@ -1,16 +1,15 @@
 use crate::filter;
 use crate::log;
 use crate::log_settings::LogSettings;
-use crate::no_color_support::style;
 use handlebars::Handlebars;
 use lazy_static::lazy_static;
 use serde_json::{Map, Value};
 use std::io::Write;
 use std::io::{self, BufRead};
-use yansi::{Color, Style};
+use yansi::{Color, Paint};
 
 lazy_static! {
-    static ref BOLD_ORANGE: Style = Color::RGB(255, 135, 22).style().bold();
+    static ref ORANGE: Color = Color::Rgb(255, 135, 22);
 }
 
 pub fn process_input(
@@ -30,7 +29,7 @@ pub fn process_input(
 }
 
 fn print_unknown_line(line: &str) {
-    let write_result = writeln!(&mut io::stdout(), "{} {}", style(&BOLD_ORANGE, "??? >"), line);
+    let write_result = writeln!(&mut io::stdout(), "{} {}", "??? >".fg(*ORANGE).bold(), line);
     if write_result.is_err() {
         // Output end reached
         std::process::exit(14);
@@ -80,7 +79,7 @@ fn process_json_log_entry(
             Ok(true) => process_log_entry(log_settings, maybe_prefix, log_entry, handlebars),
             Ok(false) => (),
             Err(e) => {
-                writeln!(io::stderr(), "{}: '{:?}'", Color::Red.paint("Failed to apply filter expression"), e).expect("Should be able to write to stderr");
+                writeln!(io::stderr(), "{}: '{:?}'", "Failed to apply filter expression".red(), e).expect("Should be able to write to stderr");
             }
         }
     } else {

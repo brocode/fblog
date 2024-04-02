@@ -1,11 +1,10 @@
 use crate::log_settings::LogSettings;
-use crate::no_color_support::style;
 use handlebars::Handlebars;
 use serde_json::{Map, Value};
 use std::borrow::ToOwned;
 use std::collections::BTreeMap;
 use std::io::Write;
-use yansi::Color;
+use yansi::Paint;
 
 pub fn print_log_line(
     out: &mut dyn Write,
@@ -38,7 +37,7 @@ pub fn print_log_line(
 
     let write_result = match handlebars.render("main_line", &handle_bar_input) {
         Ok(string) => writeln!(out, "{}", string),
-        Err(e) => writeln!(out, "{} Failed to process line: {}", style(&Color::Red.style().bold(), "??? >"), e),
+        Err(e) => writeln!(out, "{} Failed to process line: {}", "??? >".red().bold(), e),
     };
 
     if write_result.is_err() {
@@ -135,12 +134,7 @@ fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, Str
 
                 let write_result = match handlebars.render("additional_value", &variables) {
                     Ok(string) => writeln!(out, "{}", string),
-                    Err(e) => writeln!(
-                        out,
-                        "{} Failed to process additional value: {}",
-                        style(&Color::Red.style().bold(), "   ??? >"),
-                        e
-                    ),
+                    Err(e) => writeln!(out, "{} Failed to process additional value: {}", "   ??? >".red().bold(), e),
                 };
                 if write_result.is_err() {
                     // Output end reached
@@ -154,7 +148,13 @@ fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, Str
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{no_color_support::without_style, template};
+    use crate::template;
+
+    fn without_style(styled: &str) -> String {
+        use regex::Regex;
+        let regex = Regex::new("\u{001B}\\[[\\d;]*[^\\d;]").expect("Regex should be valid");
+        regex.replace_all(styled, "").into_owned()
+    }
 
     fn fblog_handlebar_registry_default_format() -> Handlebars<'static> {
         let main_line_format = template::DEFAULT_MAIN_LINE_FORMAT.to_string();

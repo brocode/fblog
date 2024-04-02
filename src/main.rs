@@ -8,7 +8,6 @@ mod config;
 mod filter;
 mod log;
 mod log_settings;
-mod no_color_support;
 mod process;
 mod substitution;
 mod template;
