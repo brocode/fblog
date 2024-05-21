@@ -1,4 +1,5 @@
 use crate::log_settings::LogSettings;
+use crate::time::try_convert_timestamp_to_readable;
 use handlebars::Handlebars;
 use serde_json::{Map, Value};
 use std::borrow::ToOwned;
@@ -21,7 +22,7 @@ pub fn print_log_line(
 
     let trimmed_prefix = maybe_prefix.map(|p| p.trim()).unwrap_or_else(|| "").to_string();
     let mut message = get_string_value_or_default(&string_log_entry, &log_settings.message_keys, "");
-    let timestamp = get_string_value_or_default(&string_log_entry, &log_settings.time_keys, "");
+    let timestamp = try_convert_timestamp_to_readable(get_string_value_or_default(&string_log_entry, &log_settings.time_keys, ""));
 
     if let Some(message_template) = &log_settings.substitution {
         if let Some(templated_message) = message_template.apply(&message, log_entry) {

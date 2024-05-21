@@ -11,6 +11,7 @@ mod log_settings;
 mod process;
 mod substitution;
 mod template;
+mod time;
 
 use crate::log_settings::LogSettings;
 use clap_complete::{generate, Shell};

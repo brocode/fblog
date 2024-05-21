@@ -122,7 +122,7 @@ mod tests {
     "#,
         )
         .unwrap();
-        assert_eq!(config.level_map.is_empty(), true);
+        assert!(config.level_map.is_empty());
     }
 
     #[test]
