@@ -22,7 +22,7 @@ impl LogSettings {
             level_keys: config.level_keys.clone(),
             level_map: config.level_map.clone(),
             additional_values: vec![],
-            excluded_values: vec![],
+            excluded_values: config.dump_all_exclude.clone(),
             dump_all: false,
             with_prefix: false,
             print_lua: false,

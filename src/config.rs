@@ -12,6 +12,9 @@ fn default_message_keys() -> Vec<String> {
 fn default_time_keys() -> Vec<String> {
     vec!["timestamp".to_string(), "time".to_string(), "@timestamp".to_string()]
 }
+fn default_dump_all_exclude() -> Vec<String> {
+    vec![]
+}
 
 fn default_level_keys() -> Vec<String> {
     vec!["level".to_string(), "severity".to_string(), "log.level".to_string(), "loglevel".to_string()]
@@ -36,6 +39,9 @@ pub struct Config {
 
     #[serde(default = "default_time_keys")]
     pub time_keys: Vec<String>,
+
+    #[serde(default = "default_dump_all_exclude")]
+    pub dump_all_exclude: Vec<String>,
 
     #[serde(default = "default_level_keys")]
     pub level_keys: Vec<String>,
@@ -80,6 +86,7 @@ impl Config {
             level_map: default_level_map(),
             main_line_format: default_main_line_format(),
             additional_value_format: default_additional_value_format(),
+            dump_all_exclude: default_dump_all_exclude(),
         }
     }
 
