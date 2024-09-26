@@ -20,7 +20,7 @@ pub fn show_log_entry(log_entry: &Map<String, Value>, filter_expr: &str, implici
     lua.load(&script).exec()?;
 
     if implicit_return {
-        lua.load(&format!("return {};", filter_expr)).eval::<bool>()
+        lua.load(format!("return {};", filter_expr)).eval::<bool>()
     } else {
         lua.load(filter_expr).eval::<bool>()
     }
