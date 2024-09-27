@@ -12,7 +12,12 @@ fn default_message_keys() -> Vec<String> {
 fn default_time_keys() -> Vec<String> {
     vec!["timestamp".to_string(), "time".to_string(), "@timestamp".to_string()]
 }
+
 fn default_dump_all_exclude() -> Vec<String> {
+    vec![]
+}
+
+fn default_always_print_fields() -> Vec<String> {
     vec![]
 }
 
@@ -42,6 +47,9 @@ pub struct Config {
 
     #[serde(default = "default_dump_all_exclude")]
     pub dump_all_exclude: Vec<String>,
+
+    #[serde(default = "default_always_print_fields")]
+    pub always_print_fields: Vec<String>,
 
     #[serde(default = "default_level_keys")]
     pub level_keys: Vec<String>,
@@ -87,6 +95,7 @@ impl Config {
             main_line_format: default_main_line_format(),
             additional_value_format: default_additional_value_format(),
             dump_all_exclude: default_dump_all_exclude(),
+            always_print_fields: default_always_print_fields(),
         }
     }
 

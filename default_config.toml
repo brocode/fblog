@@ -1,6 +1,7 @@
 message_keys = ["short_message", "msg", "message"]
 time_keys = ["timestamp", "time", "@timestamp"]
 dump_all_exclude = []
+always_print_fields = []
 level_keys = ["level", "severity", "log.level", "loglevel"]
 main_line_format = "{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{#if fblog_prefix}} {{bold(cyan fblog_prefix)}}{{/if}} {{fblog_message}}"
 additional_value_format = "{{bold (color_rgb 150 150 150 (fixed_size 25 key))}}: {{value}}"

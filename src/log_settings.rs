@@ -21,7 +21,7 @@ impl LogSettings {
             time_keys: config.time_keys.clone(),
             level_keys: config.level_keys.clone(),
             level_map: config.level_map.clone(),
-            additional_values: vec![],
+            additional_values: config.always_print_fields.clone(),
             excluded_values: config.dump_all_exclude.clone(),
             dump_all: false,
             with_prefix: false,
