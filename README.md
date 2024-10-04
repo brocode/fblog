@@ -81,6 +81,7 @@ handlebar helpers:
 -   uppercase
 -   level_style
 -   fixed_size 10
+-   min_size 10
 
 ## NO_COLOR
 

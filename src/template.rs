@@ -4,7 +4,7 @@ use yansi::{Color, Paint};
 
 pub static DEFAULT_MAIN_LINE_FORMAT: &str =
     "{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{#if fblog_prefix}} {{bold(cyan fblog_prefix)}}{{/if}} {{fblog_message}}";
-pub static DEFAULT_ADDITIONAL_VALUE_FORMAT: &str = "{{bold (color_rgb 150 150 150 (fixed_size 25 key))}}: {{value}}";
+pub static DEFAULT_ADDITIONAL_VALUE_FORMAT: &str = "{{bold (color_rgb 150 150 150 (min_size 25 key))}}: {{value}}";
 
 pub fn fblog_handlebar_registry(main_line_format: String, additional_value_format: String) -> Handlebars<'static> {
     handlebars_helper!(bold: |t: str| {
@@ -67,12 +67,23 @@ pub fn fblog_handlebar_registry(main_line_format: String, additional_value_forma
         }
     });
 
+    handlebars_helper!(min_size: |isize: u64, t: str| {
+        let x = t.to_string();
+        let size = isize.try_into().expect("should fit");
+        if x.len() < size {
+           format!("{}{}", " ".repeat(size - x.len()), x)
+        } else {
+          x
+        }
+    });
+
     let mut reg = Handlebars::new();
     reg.register_escape_fn(Box::new(no_escape));
 
     reg.register_helper("bold", Box::new(bold));
     reg.register_helper("uppercase", Box::new(uppercase));
     reg.register_helper("fixed_size", Box::new(fixed_size));
+    reg.register_helper("min_size", Box::new(min_size));
     reg.register_helper("level_style", Box::new(level_style));
 
     reg.register_helper("yellow", Box::new(yellow));
