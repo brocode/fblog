@@ -20,16 +20,20 @@ pub fn process_input(
     handlebars: &Handlebars<'static>,
 ) {
     for line in input.lines() {
-        let read_line = &line.expect("Should be able to read line");
-        match process_input_line(log_settings, read_line, None, maybe_filter, implicit_return, handlebars) {
-            Ok(_) => (),
-            Err(_) => print_unknown_line(read_line),
+        match line {
+            Ok(read_line) => match process_input_line(log_settings, &read_line, None, maybe_filter, implicit_return, handlebars) {
+                Ok(_) => (),
+                Err(_) => print_raw_line(&read_line, &ORANGE),
+            },
+            Err(e) => {
+                print_raw_line(&format!("Could not read line: {e}"), &Color::Red);
+            }
         }
     }
 }
 
-fn print_unknown_line(line: &str) {
-    let write_result = writeln!(&mut io::stdout(), "{} {}", "??? >".fg(*ORANGE).bold(), line);
+fn print_raw_line(line: &str, c: &Color) {
+    let write_result = writeln!(&mut io::stdout(), "{} {}", "??? >".fg(*c).bold(), line);
     if write_result.is_err() {
         // Output end reached
         std::process::exit(14);
