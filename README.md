@@ -196,7 +196,7 @@ You can map additional level values (used for output and color):
 In the file `~/.config/k9s/plugins.yml` add this:
 
 ```yaml
-plugin:
+plugins:
   fblog-pod:
     shortCut: Shift-L
     confirm: false
