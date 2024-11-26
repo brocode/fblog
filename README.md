@@ -193,7 +193,7 @@ You can map additional level values (used for output and color):
 
 ## k9s
 
-In the file `~/.config/k9s/plugins.yml` add this:
+In the file `~/.config/k9s/plugins.yaml` add this:
 
 ```yaml
 plugins:
