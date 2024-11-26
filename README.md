@@ -220,7 +220,7 @@ plugins:
       - -c
       - "kubectl logs  --follow -n $NAMESPACE $POD -c $NAME | fblog"
   fblog-pod-all:
-    shortCut: Shift-A
+    shortCut: Shift-K
     confirm: false
     description: "fblog -d"
     scopes:
@@ -231,7 +231,7 @@ plugins:
       - -c
       - "kubectl logs --follow -n $NAMESPACE $NAME | fblog -d"
   fblog-container-all:
-    shortCut: Shift-A
+    shortCut: Shift-K
     confirm: false
     description: "fblog -d"
     scopes:
