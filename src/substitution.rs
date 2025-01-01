@@ -62,7 +62,7 @@ impl Substitution {
     pub(crate) fn apply(&self, message: &str, log_entry: &serde_json::Map<String, serde_json::Value>) -> Option<String> {
         let context_value = log_entry.get(&self.context_key)?;
 
-        return Some(
+        Some(
             self.placeholder_regex
                 .replace_all(message, |caps: &Captures| {
                     let key = &caps[1];
@@ -83,7 +83,7 @@ impl Substitution {
                     }
                 })
                 .into_owned(),
-        );
+        )
     }
 
     fn color_format<W: std::fmt::Write>(&self, buf: &mut W, value: &Value) -> Result<(), fmt::Error> {
