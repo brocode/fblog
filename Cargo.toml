@@ -20,7 +20,7 @@ clap_complete = "4"
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
 dirs = "5"
-chrono = "0.4.40"
+chrono = "0.4.41"
 
 [dependencies.clap]
 version = "4"
