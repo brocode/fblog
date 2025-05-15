@@ -14,7 +14,7 @@ mod template;
 mod time;
 
 use crate::log_settings::LogSettings;
-use clap_complete::{generate, Shell};
+use clap_complete::{Shell, generate};
 use config::Config;
 use std::fs;
 use substitution::Substitution;

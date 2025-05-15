@@ -1,6 +1,6 @@
 use crate::substitution::Substitution;
-use clap::{crate_version, value_parser, ArgAction, ValueHint};
 use clap::{Arg, Command};
+use clap::{ArgAction, ValueHint, crate_version, value_parser};
 use clap_complete::Shell;
 
 fn parse_key_value_pair(value: &str) -> Result<(String, String), &'static str> {

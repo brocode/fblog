@@ -62,16 +62,16 @@ fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String
 	let mut flattened_json: BTreeMap<String, String> = BTreeMap::new();
 	for (key, value) in log_entry {
 		match value {
-			Value::String(ref string_value) => {
+			Value::String(string_value) => {
 				flattened_json.insert(format!("{}{}", prefix, key), string_value.to_string());
 			}
-			Value::Bool(ref bool_value) => {
+			Value::Bool(bool_value) => {
 				flattened_json.insert(format!("{}{}", prefix, key), bool_value.to_string());
 			}
-			Value::Number(ref number_value) => {
+			Value::Number(number_value) => {
 				flattened_json.insert(format!("{}{}", prefix, key), number_value.to_string());
 			}
-			Value::Array(ref array_values) => {
+			Value::Array(array_values) => {
 				for (index, array_value) in array_values.iter().enumerate() {
 					let key = format!("{}[{}]", key, index + 1); // lua tables indexes start with 1
 

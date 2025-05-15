@@ -1,9 +1,8 @@
-use handlebars::{handlebars_helper, no_escape, Handlebars};
+use handlebars::{Handlebars, handlebars_helper, no_escape};
 use std::convert::TryInto;
 use yansi::{Color, Paint};
 
-pub static DEFAULT_MAIN_LINE_FORMAT: &str =
-    "{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{#if fblog_prefix}} {{bold(cyan fblog_prefix)}}{{/if}} {{fblog_message}}";
+pub static DEFAULT_MAIN_LINE_FORMAT: &str = "{{bold(fixed_size 19 fblog_timestamp)}} {{level_style (uppercase (fixed_size 5 fblog_level))}}:{{#if fblog_prefix}} {{bold(cyan fblog_prefix)}}{{/if}} {{fblog_message}}";
 pub static DEFAULT_ADDITIONAL_VALUE_FORMAT: &str = "{{bold (color_rgb 150 150 150 (min_size 25 key))}}: {{value}}";
 
 pub fn fblog_handlebar_registry(main_line_format: String, additional_value_format: String) -> Handlebars<'static> {
