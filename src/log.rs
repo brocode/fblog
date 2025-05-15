@@ -176,14 +176,14 @@ mod tests {
 		let log_settings = LogSettings::new_default_settings();
 		let mut out: Vec<u8> = Vec::new();
 		let mut log_entry: Map<String, Value> = Map::new();
-		log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+		log_entry.insert("message".to_string(), Value::String("something happened".to_string()));
 		log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
 		log_entry.insert("process".to_string(), Value::String("rust".to_string()));
 		log_entry.insert("level".to_string(), Value::String("info".to_string()));
 
 		print_log_line(&mut out, None, &log_entry, &log_settings, &handlebars);
 
-		assert_eq!(out_to_string(out), "2017-07-06T15:21:16  INFO: something happend\n");
+		assert_eq!(out_to_string(out), "2017-07-06T15:21:16  INFO: something happened\n");
 	}
 
 	#[test]
@@ -194,14 +194,14 @@ mod tests {
 
 		let mut out: Vec<u8> = Vec::new();
 		let mut log_entry: Map<String, Value> = Map::new();
-		log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+		log_entry.insert("message".to_string(), Value::String("something happened".to_string()));
 		log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
 		log_entry.insert("process".to_string(), Value::String("rust".to_string()));
 		log_entry.insert("level".to_string(), Value::String("30".to_string()));
 
 		print_log_line(&mut out, None, &log_entry, &log_settings, &handlebars);
 
-		assert_eq!(out_to_string(out), "2017-07-06T15:21:16  INFO: something happend\n");
+		assert_eq!(out_to_string(out), "2017-07-06T15:21:16  INFO: something happened\n");
 	}
 
 	#[test]
@@ -211,14 +211,14 @@ mod tests {
 		let mut out: Vec<u8> = Vec::new();
 		let prefix = "abc";
 		let mut log_entry: Map<String, Value> = Map::new();
-		log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+		log_entry.insert("message".to_string(), Value::String("something happened".to_string()));
 		log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
 		log_entry.insert("process".to_string(), Value::String("rust".to_string()));
 		log_entry.insert("level".to_string(), Value::String("info".to_string()));
 
 		print_log_line(&mut out, Some(prefix), &log_entry, &log_settings, &handlebars);
 
-		assert_eq!(out_to_string(out), "2017-07-06T15:21:16  INFO: abc something happend\n");
+		assert_eq!(out_to_string(out), "2017-07-06T15:21:16  INFO: abc something happened\n");
 	}
 
 	#[test]
@@ -226,7 +226,7 @@ mod tests {
 		let handlebars = fblog_handlebar_registry_default_format();
 		let mut out: Vec<u8> = Vec::new();
 		let mut log_entry: Map<String, Value> = Map::new();
-		log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+		log_entry.insert("message".to_string(), Value::String("something happened".to_string()));
 		log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
 		log_entry.insert("process".to_string(), Value::String("rust".to_string()));
 		log_entry.insert("fu".to_string(), Value::String("bower".to_string()));
@@ -239,7 +239,7 @@ mod tests {
 		assert_eq!(
 			out_to_string(out),
 			"\
-2017-07-06T15:21:16  INFO: something happend
+2017-07-06T15:21:16  INFO: something happened
                   process: rust
                        fu: bower
 "
@@ -251,7 +251,7 @@ mod tests {
 		let handlebars = fblog_handlebar_registry_default_format();
 		let mut out: Vec<u8> = Vec::new();
 		let mut log_entry: Map<String, Value> = Map::new();
-		log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+		log_entry.insert("message".to_string(), Value::String("something happened".to_string()));
 		log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
 		log_entry.insert("process".to_string(), Value::String("rust".to_string()));
 		log_entry.insert("fu".to_string(), Value::String("bower".to_string()));
@@ -266,7 +266,7 @@ mod tests {
 		assert_eq!(
 			out_to_string(out),
 			"\
-2017-07-06T15:21:16  INFO: abc something happend
+2017-07-06T15:21:16  INFO: abc something happened
                   process: rust
                        fu: bower
 "
@@ -278,7 +278,7 @@ mod tests {
 		let handlebars = fblog_handlebar_registry_default_format();
 		let mut out: Vec<u8> = Vec::new();
 		let mut log_entry: Map<String, Value> = Map::new();
-		log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+		log_entry.insert("message".to_string(), Value::String("something happened".to_string()));
 		log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
 		log_entry.insert("process".to_string(), Value::String("rust".to_string()));
 		log_entry.insert("fu".to_string(), Value::String("bower".to_string()));
@@ -291,10 +291,10 @@ mod tests {
 		assert_eq!(
 			out_to_string(out),
 			"\
-2017-07-06T15:21:16  INFO: something happend
+2017-07-06T15:21:16  INFO: something happened
                        fu: bower
                     level: info
-                  message: something happend
+                  message: something happened
                   process: rust
                      time: 2017-07-06T15:21:16
 "
@@ -307,7 +307,7 @@ mod tests {
 		let mut log_settings = LogSettings::new_default_settings();
 		let mut out: Vec<u8> = Vec::new();
 		let mut log_entry: Map<String, Value> = Map::new();
-		log_entry.insert("message".to_string(), Value::String("something happend".to_string()));
+		log_entry.insert("message".to_string(), Value::String("something happened".to_string()));
 		log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
 		log_entry.insert("process".to_string(), Value::String("rust".to_string()));
 		log_entry.insert("moep".to_string(), Value::String("moep".to_string()));

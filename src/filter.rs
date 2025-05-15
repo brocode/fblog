@@ -87,7 +87,7 @@ mod tests {
 
 	fn test_log_entry() -> Map<String, Value> {
 		let mut map = Map::new();
-		map.insert("message".to_string(), Value::String("something happend".to_string()));
+		map.insert("message".to_string(), Value::String("something happened".to_string()));
 		map.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
 		map.insert("process".to_string(), Value::String("rust".to_string()));
 		map.insert("fu".to_string(), Value::String("bower".to_string()));

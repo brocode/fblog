@@ -132,7 +132,7 @@ Available in package managers:
 ## Log tailing
 
 `fblog` does not support native log tailing but this is easily
-achiveable.
+achievable.
 
 ``` bash
 tail -f file | fblog
