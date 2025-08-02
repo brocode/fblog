@@ -65,7 +65,7 @@ fn main() {
 			// since setting the flag sets the defaults for those arguments
 		}
 		(context, format) => match Substitution::new(context, format) {
-			Err(e) => panic!("Invalid placeholder format: {}", e),
+			Err(e) => panic!("Invalid placeholder format: {e}"),
 			Ok(subst) => log_settings.add_substitution(subst),
 		},
 	}
@@ -102,6 +102,6 @@ fn input_read(input_filename: &str) -> Box<dyn io::Read> {
 	if input_filename == "-" {
 		Box::new(io::stdin())
 	} else {
-		Box::new(fs::File::open(input_filename).unwrap_or_else(|_| panic!("Can't open file: {}", input_filename)))
+		Box::new(fs::File::open(input_filename).unwrap_or_else(|_| panic!("Can't open file: {input_filename}")))
 	}
 }

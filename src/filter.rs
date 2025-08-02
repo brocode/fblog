@@ -15,12 +15,12 @@ pub fn show_log_entry(log_entry: &Map<String, Value>, filter_expr: &str, implici
 
 	let script = object_to_record(log_entry, false);
 	if log_settings.print_lua {
-		println!("{}", script);
+		println!("{script}");
 	}
 	lua.load(&script).exec()?;
 
 	if implicit_return {
-		lua.load(format!("return {};", filter_expr)).eval::<bool>()
+		lua.load(format!("return {filter_expr};")).eval::<bool>()
 	} else {
 		lua.load(filter_expr).eval::<bool>()
 	}
@@ -32,14 +32,14 @@ fn object_to_record(object: &Map<String, Value>, nested: bool) -> String {
 		.map(|(key, value)| {
 			let mut script = String::new();
 			let key_name = LUA_IDENTIFIER_CLEANUP.replace_all(key, "_");
-			write!(script, "{} = ", key_name).expect("Should be able to write to string");
+			write!(script, "{key_name} = ").expect("Should be able to write to string");
 			match value {
 				Value::String(string_value) => write!(script, "\"{}\"", escape_lua_string(string_value)).expect("Should be able to write to string"),
 				Value::Bool(bool_value) => script.push_str(&bool_value.to_string()),
 				Value::Number(number_value) => script.push_str(&number_value.to_string()),
 				Value::Object(nested_object) => {
 					let object_string = object_to_record(nested_object, true);
-					write!(script, "{{{}}}", object_string).expect("Should be able to write to string");
+					write!(script, "{{{object_string}}}").expect("Should be able to write to string");
 				}
 				Value::Array(array_values) => {
 					let mut values = vec![];
@@ -75,7 +75,7 @@ fn escape_lua_string(src: &str) -> String {
 			'"' => escaped += "\\\"",
 			'\'' => escaped += "\\'",
 			'\\' => escaped += "\\\\",
-			c => write!(escaped, "{}", c).expect("Should be able to write to string"),
+			c => write!(escaped, "{c}").expect("Should be able to write to string"),
 		}
 	}
 	escaped

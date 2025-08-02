@@ -70,7 +70,7 @@ impl Config {
 		match toml::from_str(&config_string) {
 			Ok(config) => Some(config),
 			Err(e) => {
-				eprintln!("Could not parse config file: {}", e);
+				eprintln!("Could not parse config file: {e}");
 				None
 			}
 		}
@@ -82,7 +82,7 @@ impl Config {
 		match toml::from_str(&config_string) {
 			Ok(config) => Some(config),
 			Err(e) => {
-				panic!("Could not parse config file: {}", e);
+				panic!("Could not parse config file: {e}");
 			}
 		}
 	}

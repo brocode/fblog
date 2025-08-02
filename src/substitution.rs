@@ -20,7 +20,7 @@ impl std::fmt::Display for Error {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {
 			Self::MissingIdentifier => f.write_str("The identifier `key` is missing"),
-			Self::RegexParse(rx) => f.write_fmt(format_args!("Regular expression could not be created for format: {}", rx)),
+			Self::RegexParse(rx) => f.write_fmt(format_args!("Regular expression could not be created for format: {rx}")),
 		}
 	}
 }
@@ -168,8 +168,7 @@ mod tests {
 		assert_eq!(
 			"Tapping fingers as a way to speak",
 			without_style(&result),
-			"Failed to substitute with placeholder format {}",
-			placeholder
+			"Failed to substitute with placeholder format {placeholder}"
 		);
 	}
 

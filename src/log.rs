@@ -37,7 +37,7 @@ pub fn print_log_line(
 	handle_bar_input.insert("fblog_prefix".to_string(), Value::String(trimmed_prefix));
 
 	let write_result = match handlebars.render("main_line", &handle_bar_input) {
-		Ok(string) => writeln!(out, "{}", string),
+		Ok(string) => writeln!(out, "{string}"),
 		Err(e) => writeln!(out, "{} Failed to process line: {}", "??? >".red().bold(), e),
 	};
 
@@ -63,13 +63,13 @@ fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String
 	for (key, value) in log_entry {
 		match value {
 			Value::String(string_value) => {
-				flattened_json.insert(format!("{}{}", prefix, key), string_value.to_string());
+				flattened_json.insert(format!("{prefix}{key}"), string_value.to_string());
 			}
 			Value::Bool(bool_value) => {
-				flattened_json.insert(format!("{}{}", prefix, key), bool_value.to_string());
+				flattened_json.insert(format!("{prefix}{key}"), bool_value.to_string());
 			}
 			Value::Number(number_value) => {
-				flattened_json.insert(format!("{}{}", prefix, key), number_value.to_string());
+				flattened_json.insert(format!("{prefix}{key}"), number_value.to_string());
 			}
 			Value::Array(array_values) => {
 				for (index, array_value) in array_values.iter().enumerate() {
@@ -80,16 +80,16 @@ fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String
 							flatten_array(&key, prefix, array_values, &mut flattened_json);
 						}
 						Value::Object(nested_entry) => {
-							flattened_json.extend(flatten_json(nested_entry, &format!("{}{} > ", prefix, key)));
+							flattened_json.extend(flatten_json(nested_entry, &format!("{prefix}{key} > ")));
 						}
 						_ => {
-							flattened_json.insert(format!("{}{}", prefix, key), array_value.to_string());
+							flattened_json.insert(format!("{prefix}{key}"), array_value.to_string());
 						}
 					};
 				}
 			}
 			Value::Object(nested_entry) => {
-				flattened_json.extend(flatten_json(nested_entry, &format!("{}{} > ", prefix, key)));
+				flattened_json.extend(flatten_json(nested_entry, &format!("{prefix}{key} > ")));
 			}
 			Value::Null => {}
 		};
@@ -104,10 +104,10 @@ fn flatten_array(key: &str, prefix: &str, array_values: &[Value], flattened_json
 		match array_value {
 			Value::Array(nested_array_values) => flatten_array(&key, prefix, nested_array_values, flattened_json),
 			Value::Object(nested_entry) => {
-				flattened_json.extend(flatten_json(nested_entry, &format!("{}{} > ", prefix, key)));
+				flattened_json.extend(flatten_json(nested_entry, &format!("{prefix}{key} > ")));
 			}
 			_ => {
-				flattened_json.insert(format!("{}{}", prefix, key), array_value.to_string());
+				flattened_json.insert(format!("{prefix}{key}"), array_value.to_string());
 			}
 		};
 	}
@@ -135,7 +135,7 @@ fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, Str
 				variables.insert("value".to_string(), value.to_string());
 
 				let write_result = match handlebars.render("additional_value", &variables) {
-					Ok(string) => writeln!(out, "{}", string),
+					Ok(string) => writeln!(out, "{string}"),
 					Err(e) => writeln!(out, "{} Failed to process additional value: {}", "   ??? >".red().bold(), e),
 				};
 				if write_result.is_err() {
