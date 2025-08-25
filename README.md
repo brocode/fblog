@@ -207,7 +207,7 @@ plugins:
     background: false
     args:
       - -c
-      - "kubectl logs --follow -n $NAMESPACE $NAME | fblog"
+      - "kubectl logs --follow -n $NAMESPACE $NAME --context $CONTEXT | fblog"
   fblog-container:
     shortCut: Shift-L
     confirm: false
@@ -218,7 +218,7 @@ plugins:
     background: false
     args:
       - -c
-      - "kubectl logs  --follow -n $NAMESPACE $POD -c $NAME | fblog"
+      - "kubectl logs  --follow -n $NAMESPACE $POD -c $NAME --context $CONTEXT | fblog"
   fblog-pod-all:
     shortCut: Shift-K
     confirm: false
@@ -229,7 +229,7 @@ plugins:
     background: false
     args:
       - -c
-      - "kubectl logs --follow -n $NAMESPACE $NAME | fblog -d"
+      - "kubectl logs --follow -n $NAMESPACE $NAME --context $CONTEXT | fblog -d"
   fblog-container-all:
     shortCut: Shift-K
     confirm: false
@@ -240,5 +240,5 @@ plugins:
     background: false
     args:
       - -c
-      - "kubectl logs  --follow -n $NAMESPACE $POD -c $NAME | fblog -d"
+      - "kubectl logs  --follow -n $NAMESPACE $POD -c $NAME --context $CONTEXT | fblog -d"
 ```
