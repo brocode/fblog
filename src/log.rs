@@ -24,10 +24,10 @@ pub fn print_log_line(
 	let mut message = get_string_value_or_default(&string_log_entry, &log_settings.message_keys, "");
 	let timestamp = try_convert_timestamp_to_readable(get_string_value_or_default(&string_log_entry, &log_settings.time_keys, ""));
 
-	if let Some(message_template) = &log_settings.substitution {
-		if let Some(templated_message) = message_template.apply(&message, log_entry) {
-			message = templated_message;
-		}
+	if let Some(message_template) = &log_settings.substitution
+		&& let Some(templated_message) = message_template.apply(&message, log_entry)
+	{
+		message = templated_message;
 	}
 
 	let mut handle_bar_input: Map<String, Value> = log_entry.clone();
