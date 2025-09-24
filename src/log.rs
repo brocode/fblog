@@ -1,6 +1,7 @@
 use crate::log_settings::LogSettings;
 use crate::time::try_convert_timestamp_to_readable;
 use handlebars::Handlebars;
+use indexmap::IndexMap;
 use serde_json::{Map, Value};
 use std::borrow::ToOwned;
 use std::collections::BTreeMap;
@@ -58,8 +59,8 @@ pub fn print_log_line(
 	}
 }
 
-fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String, String> {
-	let mut flattened_json: BTreeMap<String, String> = BTreeMap::new();
+fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> IndexMap<String, String> {
+	let mut flattened_json: IndexMap<String, String> = IndexMap::new();
 	for (key, value) in log_entry {
 		match value {
 			Value::String(string_value) => {
@@ -97,7 +98,7 @@ fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> BTreeMap<String
 	flattened_json
 }
 
-fn flatten_array(key: &str, prefix: &str, array_values: &[Value], flattened_json: &mut BTreeMap<String, String>) {
+fn flatten_array(key: &str, prefix: &str, array_values: &[Value], flattened_json: &mut IndexMap<String, String>) {
 	for (index, array_value) in array_values.iter().enumerate() {
 		let key = format!("{}[{}]", key, index + 1); // lua tables indexes start with 1
 
@@ -113,17 +114,17 @@ fn flatten_array(key: &str, prefix: &str, array_values: &[Value], flattened_json
 	}
 }
 
-fn get_string_value(value: &BTreeMap<String, String>, keys: &[String]) -> Option<String> {
+fn get_string_value(value: &IndexMap<String, String>, keys: &[String]) -> Option<String> {
 	keys
 		.iter()
 		.fold(None::<String>, |maybe_match, key| maybe_match.or_else(|| value.get(key).map(ToOwned::to_owned)))
 }
 
-fn get_string_value_or_default(value: &BTreeMap<String, String>, keys: &[String], default: &str) -> String {
+fn get_string_value_or_default(value: &IndexMap<String, String>, keys: &[String], default: &str) -> String {
 	get_string_value(value, keys).unwrap_or_else(|| default.to_string())
 }
 
-fn write_additional_values(out: &mut dyn Write, log_entry: &BTreeMap<String, String>, additional_values: &[String], handlebars: &Handlebars<'static>) {
+fn write_additional_values(out: &mut dyn Write, log_entry: &IndexMap<String, String>, additional_values: &[String], handlebars: &Handlebars<'static>) {
 	for additional_value_prefix in additional_values {
 		for additional_value in log_entry
 			.keys()
