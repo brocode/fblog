@@ -1,5 +1,6 @@
-use crate::{config::Config, substitution::Substitution};
 use std::collections::BTreeMap;
+
+use crate::{config::Config, substitution::Substitution};
 
 pub struct LogSettings {
 	pub message_keys: Vec<String>,
