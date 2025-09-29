@@ -74,7 +74,7 @@ fn flatten_json(log_entry: &Map<String, Value>, prefix: &str) -> IndexMap<String
 			}
 			Value::Array(array_values) => {
 				for (index, array_value) in array_values.iter().enumerate() {
-					let key = format!("{}[{}]", key, index + 1); // lua tables indexes start with 1
+					let key = format!("{}[{}]", key, index);
 
 					match array_value {
 						Value::Array(array_values) => {
