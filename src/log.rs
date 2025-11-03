@@ -126,10 +126,9 @@ fn get_string_value_or_default(value: &IndexMap<String, String>, keys: &[String]
 
 fn write_additional_values(out: &mut dyn Write, log_entry: &IndexMap<String, String>, additional_values: &[String], handlebars: &Handlebars<'static>) {
 	for additional_value_prefix in additional_values {
-		for additional_value in log_entry
-			.keys()
-			.filter(|k| *k == additional_value_prefix || k.starts_with(&format!("{}{}", additional_value_prefix, " > ")))
-		{
+		for additional_value in log_entry.keys().filter(|k| {
+			*k == additional_value_prefix || k.starts_with(&format!("{additional_value_prefix} > ")) || k.starts_with(&format!("{additional_value_prefix}["))
+		}) {
 			if let Some(value) = get_string_value(log_entry, &[additional_value.to_string()]) {
 				let mut variables: BTreeMap<String, String> = BTreeMap::new();
 				variables.insert("key".to_string(), additional_value.to_string());
@@ -243,6 +242,58 @@ mod tests {
 2017-07-06T15:21:16  INFO: something happened
                   process: rust
                        fu: bower
+"
+		);
+	}
+
+	#[test]
+	fn write_log_entry_with_array() {
+		let handlebars = fblog_handlebar_registry_default_format();
+		let mut out: Vec<u8> = Vec::new();
+		let mut log_entry: Map<String, Value> = Map::new();
+		log_entry.insert("message".to_string(), Value::String("something happened".to_string()));
+		log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
+		log_entry.insert("process".to_string(), Value::String("rust".to_string()));
+		log_entry.insert("fu".to_string(), Value::Array(vec![Value::String("bower".to_string())]));
+		log_entry.insert("level".to_string(), Value::String("info".to_string()));
+		let mut log_settings = LogSettings::new_default_settings();
+		log_settings.add_additional_values(vec!["process".to_string(), "fu".to_string()]);
+
+		print_log_line(&mut out, None, &log_entry, &log_settings, &handlebars);
+
+		assert_eq!(
+			out_to_string(out),
+			"\
+2017-07-06T15:21:16  INFO: something happened
+                  process: rust
+                    fu[0]: \"bower\"
+"
+		);
+	}
+	#[test]
+	fn write_log_entry_with_nested() {
+		let handlebars = fblog_handlebar_registry_default_format();
+		let mut out: Vec<u8> = Vec::new();
+		let mut fu: Map<String, Value> = Map::new();
+		fu.insert("test".to_string(), Value::String("hello".to_string()));
+
+		let mut log_entry: Map<String, Value> = Map::new();
+		log_entry.insert("message".to_string(), Value::String("something happened".to_string()));
+		log_entry.insert("time".to_string(), Value::String("2017-07-06T15:21:16".to_string()));
+		log_entry.insert("process".to_string(), Value::String("rust".to_string()));
+		log_entry.insert("fu".to_string(), Value::Object(fu));
+		log_entry.insert("level".to_string(), Value::String("info".to_string()));
+		let mut log_settings = LogSettings::new_default_settings();
+		log_settings.add_additional_values(vec!["process".to_string(), "fu".to_string()]);
+
+		print_log_line(&mut out, None, &log_entry, &log_settings, &handlebars);
+
+		assert_eq!(
+			out_to_string(out),
+			"\
+2017-07-06T15:21:16  INFO: something happened
+                  process: rust
+                fu > test: hello
 "
 		);
 	}
