@@ -1,4 +1,6 @@
 use crate::substitution::Substitution;
+use clap::builder::Styles;
+use clap::builder::styling::{AnsiColor, Effects};
 use clap::{Arg, Command};
 use clap::{ArgAction, ValueHint, crate_version, value_parser};
 use clap_complete::Shell;
@@ -11,11 +13,18 @@ fn parse_key_value_pair(value: &str) -> Result<(String, String), &'static str> {
 	}
 }
 
+const STYLES: Styles = Styles::styled()
+	.header(AnsiColor::Green.on_default().effects(Effects::BOLD))
+	.usage(AnsiColor::Green.on_default().effects(Effects::BOLD))
+	.literal(AnsiColor::Cyan.on_default().effects(Effects::BOLD))
+	.placeholder(AnsiColor::Cyan.on_default());
+
 pub fn app() -> Command {
 	Command::new("fblog")
 		.version(crate_version!())
 		.author("Brocode inc <bros@brocode.sh>")
 		.about("json log viewer")
+		.styles(STYLES)
 		.arg(
 			Arg::new("additional-value")
 				.long("additional-value")
