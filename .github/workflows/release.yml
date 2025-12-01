@@ -11,7 +11,7 @@ jobs:
       BINARY_NAME: fblog
       CARGO_TERM_COLOR: always
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: docker://messense/rust-musl-cross:x86_64-musl
         with:
           args: cargo build --release
