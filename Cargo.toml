@@ -18,7 +18,7 @@ lazy_static = "1.5.0"
 handlebars = "6"
 clap_complete = "4"
 serde = { version = "1", features = ["derive"] }
-toml = "1.0"
+toml = "1.1"
 dirs = "6"
 chrono = "0.4.44"
 indexmap = "2.13.0"
