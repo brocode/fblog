@@ -21,7 +21,7 @@ serde = { version = "1", features = ["derive"] }
 toml = "1.1"
 dirs = "6"
 chrono = "0.4.44"
-indexmap = "2.13.0"
+indexmap = "2.14.0"
 
 [dependencies.clap]
 version = "4"
