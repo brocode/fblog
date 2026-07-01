@@ -48,11 +48,12 @@ pub fn print_log_line(
 	}
 
 	if log_settings.dump_all {
-		let all_values: Vec<String> = string_log_entry
+		let mut all_values: Vec<String> = string_log_entry
 			.keys()
 			.map(ToOwned::to_owned)
 			.filter(|v| !log_settings.excluded_values.contains(v))
 			.collect();
+		all_values.sort();
 		write_additional_values(out, &string_log_entry, &all_values, handlebars);
 	} else {
 		write_additional_values(out, &string_log_entry, &log_settings.additional_values, handlebars);
