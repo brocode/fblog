@@ -130,7 +130,7 @@ fn write_additional_values(out: &mut dyn Write, log_entry: &IndexMap<String, Str
 		for additional_value in log_entry.keys().filter(|k| {
 			*k == additional_value_prefix || k.starts_with(&format!("{additional_value_prefix} > ")) || k.starts_with(&format!("{additional_value_prefix}["))
 		}) {
-			if let Some(value) = get_string_value(log_entry, &[additional_value.to_string()]) {
+			if let Some(value) = get_string_value(log_entry, std::slice::from_ref(additional_value)) {
 				let mut variables: BTreeMap<String, String> = BTreeMap::new();
 				variables.insert("key".to_string(), additional_value.to_string());
 				variables.insert("value".to_string(), value.to_string());
