@@ -19,7 +19,7 @@ handlebars = "6"
 clap_complete = "4"
 serde = { version = "1", features = ["derive"] }
 toml = "1.1"
-dirs = "6"
+dirs = "7"
 chrono = "0.4.44"
 indexmap = "2.14.0"
 
